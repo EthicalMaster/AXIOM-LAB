@@ -1,0 +1,1593 @@
+# AXIOM LAB
+## Master Project Vision, Engineering Specification & Development Blueprint
+
+**Project identity:** AXIOM LAB  
+**Category:** Scientific Computing · Computational Intelligence · Data Science · Mathematical Modelling  
+**Project type:** Independent, full-stack scientific software platform  
+**Development philosophy:** AI-assisted engineering with human understanding and ownership  
+**Primary objective:** Build a genuine scientific and computational environment, not another AI wrapper or ordinary analytics dashboard.
+
+---
+
+# 1. THE VISION — WHAT AXIOM LAB SHOULD BECOME
+
+AXIOM LAB is envisioned as an interactive computational laboratory where people can explore data, investigate mathematical relationships, conduct experiments, test hypotheses, develop predictive models, and understand complex systems through computation.
+
+It should bring several traditionally separate activities into one coherent environment:
+
+- Data analysis and statistical investigation.
+- Mathematical computation.
+- Scientific experimentation.
+- Statistical hypothesis testing.
+- Machine learning and predictive modelling.
+- Interactive data visualization.
+- Mathematical modelling and simulation.
+- Reproducible experiments and scientific reporting.
+
+Imagine a user entering AXIOM LAB with a dataset, a mathematical question, or an idea they want to investigate.
+
+Instead of simply receiving an AI-generated explanation, they should be able to perform actual computational work.
+
+They can import data, examine its properties, identify patterns, formulate hypotheses, select appropriate methods, execute calculations, visualize results, compare experiments, and generate a report documenting what happened.
+
+The platform should make sophisticated computational capabilities accessible without hiding the actual science and mathematics behind them.
+
+### The central philosophy
+
+**AXIOM LAB should make complex computation understandable, inspectable, reproducible, and interactive.**
+
+It should not merely produce answers. It should help users understand:
+
+1. What problem they are solving.
+2. Which mathematical or computational method is appropriate.
+3. Why that method is appropriate.
+4. How the method works.
+5. What happens when the computation executes.
+6. How to interpret the output.
+7. What assumptions and limitations affect the result.
+8. How to reproduce or improve the experiment.
+
+A user should be able to move from curiosity to a properly executed computational experiment.
+
+---
+
+# 2. WHAT PROBLEM ARE WE SOLVING?
+
+Scientific computing and data analysis often involve switching between multiple disconnected tools.
+
+A student might use Excel for initial analysis, Python for computation, Jupyter notebooks for experimentation, another platform for visualization, and separate documents for reporting.
+
+A beginner may also struggle with choosing the correct statistical method, understanding mathematical assumptions, interpreting model performance, or identifying mistakes in their analysis.
+
+AXIOM LAB aims to provide a unified environment that connects these activities.
+
+### Problems it should address
+
+**Problem A — Fragmented workflows**
+
+Users need multiple tools for data inspection, statistical analysis, modelling, visualization, and reporting.
+
+**Solution:** A connected experimental workspace with a consistent workflow.
+
+**Problem B — Computation without understanding**
+
+Many tools return results without sufficiently explaining the methodology or assumptions.
+
+**Solution:** Method explanations, mathematical context, execution details, and interpretable outputs.
+
+**Problem C — Difficult experimentation**
+
+Users often find it difficult to change parameters, repeat experiments, compare results, and maintain a record of their work.
+
+**Solution:** Persistent experiments, parameter configurations, reproducible runs, and comparison tools.
+
+**Problem D — Misleading analytical conclusions**
+
+Incorrect assumptions, poor-quality datasets, data leakage, inappropriate statistical tests, and overfitted models can produce misleading results.
+
+**Solution:** Validation, warnings, appropriate diagnostics, methodological safeguards, and transparent limitations.
+
+**Problem E — The gap between learning and application**
+
+Learning statistics or mathematical concepts separately from practical computation makes it harder to understand their applications.
+
+**Solution:** Connect theory, practical computation, and interpretation in the same workflow.
+
+---
+
+# 3. THE PRODUCT EXPERIENCE
+
+AXIOM LAB should feel like a modern scientific workspace rather than a conventional business dashboard.
+
+It should be visually sophisticated, but the sophistication must never interfere with usability.
+
+### The intended experience
+
+A user opens the platform and enters a welcoming computational environment.
+
+They can begin a new experiment, open an existing one, import a dataset, or explore an available computational tool.
+
+A typical workflow:
+
+1. Create an experiment.
+2. Define its objective.
+3. Import or create input data.
+4. Inspect and validate the inputs.
+5. Choose an appropriate computational method.
+6. Configure the experiment.
+7. Execute the computation.
+8. Inspect the numerical results.
+9. Explore interactive visualizations.
+10. Understand the mathematical interpretation.
+11. Modify parameters and repeat.
+12. Compare different runs.
+13. Save the experiment.
+14. Generate a scientific report.
+
+Not every tool needs to follow exactly the same workflow. A mathematical calculator, for example, should not require dataset import.
+
+The platform must support different experiment types while maintaining a consistent design language.
+
+### User experience principles
+
+- Immediately understandable to a first-time user.
+- Sophisticated without being intimidating.
+- Obvious primary actions.
+- Progressive disclosure of advanced functionality.
+- Minimal unnecessary interface elements.
+- Clear visual hierarchy.
+- Purposeful motion and transitions.
+- Responsive layouts.
+- Accessible contrast, typography, keyboard navigation, and controls.
+- Helpful empty states and meaningful error messages.
+
+A beginner should never open the application and wonder, "What the heck am I supposed to do here?"
+
+Advanced users should still have access to technical parameters, mathematical details, diagnostics, and raw numerical outputs.
+
+---
+
+# 4. THE CORE SCIENTIFIC MODULES
+
+The platform should be built as a collection of connected computational modules.
+
+The following is the proposed product scope. The foundational modules are required; advanced modules can be developed incrementally.
+
+## MODULE 01 — DATA LAB
+
+**Purpose:** Import, inspect, understand, and prepare datasets.
+
+Supported initial formats:
+- CSV
+- XLSX
+- XLS
+
+Essential capabilities:
+
+1. Dataset upload.
+2. Dataset preview.
+3. Automatic identification of columns and data types.
+4. Row and column counts.
+5. Missing-value analysis.
+6. Duplicate detection.
+7. Basic distribution analysis.
+8. Descriptive statistics.
+9. Outlier indicators.
+10. Correlation analysis.
+11. Data-quality warnings.
+12. Export of cleaned datasets.
+
+The user should be able to inspect individual columns and understand their characteristics.
+
+For numerical columns:
+- Mean.
+- Median.
+- Standard deviation.
+- Variance.
+- Minimum and maximum.
+- Quartiles.
+- Interquartile range.
+- Distribution shape.
+
+For categorical columns:
+- Unique values.
+- Frequency counts.
+- Most frequent categories.
+- Category proportions.
+
+Optional improvements:
+- Data transformation pipelines.
+- Interactive column filtering.
+- Missing-value treatment strategies.
+- Feature engineering.
+- Dataset comparison.
+- Data profiling reports.
+- Larger dataset handling through chunked processing.
+
+**Important:** Cleaning must not silently alter the original dataset. Preserve the original input and create an identifiable processed version.
+
+## MODULE 02 — STATISTICS LAB
+
+**Purpose:** Enable genuine statistical investigation.
+
+Essential capabilities:
+
+### Descriptive statistics
+- Measures of central tendency.
+- Measures of dispersion.
+- Distribution analysis.
+- Percentiles and quantiles.
+- Covariance and correlation.
+
+### Inferential statistics
+- Confidence intervals.
+- Sampling distributions.
+- Standard error.
+- Statistical significance.
+- P-values.
+- Effect sizes.
+
+### Hypothesis testing
+- Null and alternative hypotheses.
+- One-sample tests.
+- Independent and paired sample tests.
+- Proportion tests.
+- Chi-square tests.
+- Correlation significance tests.
+- Appropriate non-parametric alternatives.
+
+### Additional statistical capabilities
+- Normality diagnostics.
+- Variance assumptions.
+- Residual analysis.
+- Multiple-testing considerations.
+- Statistical power and sample-size estimation.
+
+The interface must explain the selected test, assumptions, hypotheses, test statistic, degrees of freedom where applicable, p-value, confidence interval, and interpretation.
+
+It must never present a p-value as the probability that the null hypothesis is true.
+
+The platform must distinguish statistical significance from practical significance.
+
+## MODULE 03 — VISUALIZATION STUDIO
+
+**Purpose:** Convert numerical results into meaningful visual representations.
+
+Initial chart types:
+- Line charts.
+- Bar charts.
+- Histograms.
+- Scatter plots.
+- Box plots.
+- Violin plots.
+- Heatmaps.
+- Correlation matrices.
+- Distribution plots.
+- Area charts.
+
+Essential capabilities:
+
+- Interactive charts.
+- Zoom and hover inspection.
+- Axis configuration.
+- Legends and labels.
+- Dataset filtering.
+- Multiple-series comparisons.
+- Downloadable visualizations.
+- Consistent chart formatting.
+
+Charts should be generated from actual computational results, not fabricated presentation data.
+
+Optional improvements:
+- 3D plots.
+- Animated data transitions.
+- Interactive mathematical surfaces.
+- Geographic visualizations.
+- Custom visualization configurations.
+- Linked charts where filtering one visualization updates another.
+
+## MODULE 04 — MATHEMATICAL WORKBENCH
+
+**Purpose:** Make mathematical computation a first-class part of the product.
+
+This module should enable users to enter mathematical expressions, explore functions, and investigate mathematical relationships.
+
+Initial capabilities:
+
+### Algebra and functions
+- Expression evaluation.
+- Polynomial functions.
+- Function plotting.
+- Equation solving.
+- Roots and intersections.
+- Function transformations.
+
+### Calculus
+- Limits.
+- Differentiation.
+- Integration.
+- Definite integrals.
+- Numerical approximation.
+- Partial derivatives where supported.
+
+### Linear algebra
+- Matrix operations.
+- Determinants.
+- Matrix inverses.
+- Eigenvalues and eigenvectors.
+- Linear systems.
+- Vector operations.
+
+### Numerical methods
+- Root-finding algorithms.
+- Numerical integration.
+- Numerical differentiation.
+- Approximation methods.
+- Error estimation.
+
+Where appropriate, provide both symbolic and numerical solutions.
+
+For example, when calculating a derivative, the system should be capable of displaying the symbolic expression, evaluated result, and corresponding function visualization.
+
+Optional improvements:
+- Differential equations.
+- Multivariable calculus.
+- Vector fields.
+- Optimization.
+- Fourier analysis.
+- Numerical stability exploration.
+- Step-by-step derivations for supported operations.
+
+Do not claim to provide a complete computer algebra system in the initial version. Clearly define the supported mathematical operations and their limitations.
+
+## MODULE 05 — MACHINE LEARNING STUDIO
+
+**Purpose:** Enable real machine learning experimentation.
+
+Initial algorithms:
+
+### Supervised learning
+- Linear regression.
+- Logistic regression.
+- Decision trees.
+- Random forests.
+- K-nearest neighbors.
+- Support vector machines.
+- Basic classification and regression pipelines.
+
+### Unsupervised learning
+- K-means clustering.
+- Hierarchical clustering.
+- Principal Component Analysis.
+- Dimensionality reduction and visualization.
+
+Essential capabilities:
+
+1. Select a dataset.
+2. Identify target and feature columns.
+3. Select a prediction or clustering task.
+4. Configure preprocessing.
+5. Split the dataset.
+6. Select an algorithm.
+7. Configure model parameters.
+8. Train the model.
+9. Evaluate performance.
+10. Visualize the results.
+11. Save the experiment.
+12. Compare alternative models.
+
+### Evaluation
+
+For classification:
+- Accuracy.
+- Precision.
+- Recall.
+- F1-score.
+- Confusion matrix.
+- ROC-AUC where appropriate.
+
+For regression:
+- MAE.
+- MSE.
+- RMSE.
+- R-squared.
+- Residual analysis.
+
+For clustering:
+- Cluster visualization.
+- Inertia.
+- Silhouette score where applicable.
+- Cluster interpretation.
+
+### Mandatory machine-learning safeguards
+
+This is extremely important.
+
+The platform must prevent or warn about:
+
+- Data leakage.
+- Preprocessing performed before splitting data.
+- Inappropriate train/test splits.
+- Target leakage.
+- Incompatible metrics.
+- Class imbalance.
+- Overfitting.
+- Invalid evaluation assumptions.
+
+Preprocessing must be fitted using training data only, then applied to held-out data.
+
+Use pipelines to keep transformations and model fitting consistent.
+
+Time-dependent data must have time-aware splitting rather than indiscriminate random splitting.
+
+The platform should teach users why these safeguards matter.
+
+Optional improvements:
+- Cross-validation.
+- Hyperparameter optimization.
+- Feature importance.
+- Permutation importance.
+- Learning curves.
+- Model calibration.
+- Explainability methods.
+- Model export and inference testing.
+
+## MODULE 06 — EXPERIMENT ENGINE
+
+**Purpose:** Connect all scientific modules into a reproducible experimentation environment.
+
+This is one of the most important components of AXIOM LAB.
+
+An experiment should be a persistent, identifiable computational object rather than a temporary session.
+
+Each experiment should contain:
+
+- Unique experiment ID.
+- Name and description.
+- Experiment type.
+- Input dataset or mathematical parameters.
+- Selected method.
+- Configuration.
+- Execution history.
+- Results.
+- Generated visualizations.
+- Warnings.
+- Errors.
+- Creation and modification timestamps.
+- Software and dependency version information where practical.
+
+Every execution should create a run record.
+
+A run should preserve the input/configuration reference, execution status, method, parameters, result summary, and relevant diagnostics.
+
+Where possible, preserve the random seed and environment information so results can be reproduced.
+
+Users should be able to:
+
+- Run an experiment multiple times.
+- Change parameters.
+- Compare results.
+- Restore previous configurations.
+- View execution history.
+- Export results.
+- Reproduce a previous run.
+
+This module is what turns AXIOM LAB from a collection of scientific utilities into an actual laboratory.
+
+## MODULE 07 — SCIENTIFIC REPORTING
+
+**Purpose:** Convert computational work into understandable, reproducible documentation.
+
+Reports should include:
+
+- Experiment objective.
+- Input data description.
+- Methodology.
+- Mathematical or statistical background.
+- Assumptions.
+- Parameters.
+- Execution details.
+- Results.
+- Visualizations.
+- Interpretation.
+- Limitations.
+- Conclusion.
+
+Initial export formats:
+- PDF.
+- CSV for relevant numerical results.
+- JSON for structured experiment metadata.
+
+Optional:
+- Markdown reports.
+- Reproducibility packages.
+- Comparison reports.
+- Experiment notebooks.
+- LaTeX export.
+
+The report generator must use the actual experiment data and results. It must not invent interpretations or fill missing evidence with plausible-sounding conclusions.
+
+---
+
+# 5. THE AI COMPONENT — INTELLIGENCE WITHOUT FAKE COMPUTATION
+
+AI should be a supporting intelligence layer, not the scientific engine.
+
+This distinction is non-negotiable.
+
+The actual calculations must be performed by deterministic computational code or appropriately selected numerical algorithms.
+
+An LLM must never be trusted to calculate statistical results, train models, evaluate experiments, or invent numerical outputs.
+
+### What AI should do
+
+AI can assist with:
+
+1. Explaining statistical concepts.
+2. Explaining why a particular method might be appropriate.
+3. Helping users formulate hypotheses.
+4. Interpreting verified computational outputs.
+5. Explaining warnings and errors.
+6. Suggesting alternative experiments.
+7. Helping users understand mathematical relationships.
+8. Generating report narratives from verified results.
+9. Guiding beginners through unfamiliar workflows.
+
+### Example
+
+A user uploads a dataset and asks:
+
+"Is there a relationship between advertising expenditure and sales?"
+
+The AI should not invent a correlation coefficient.
+
+Instead:
+
+1. The AI understands the question.
+2. The computational engine inspects the columns.
+3. The platform identifies suitable numerical variables.
+4. A real correlation calculation executes.
+5. The engine returns the coefficient, p-value where appropriate, sample size, and relevant diagnostics.
+6. The AI receives these verified outputs.
+7. The AI explains the findings, limitations, and possible next steps.
+
+The user must be able to inspect the actual calculation and its inputs.
+
+### AI integration design
+
+Keep the AI provider replaceable.
+
+The core scientific engine must work without an AI connection.
+
+AI functionality should be modular, with clearly defined input/output schemas and error handling.
+
+Start with a free or low-cost model configuration. Avoid designing the application around a single provider or an unlimited API assumption.
+
+Do not send entire datasets to an LLM unnecessarily. Use compact, relevant summaries and selected results.
+
+AI output must be labelled as an explanation or recommendation, not as the source of numerical truth.
+
+---
+
+# 6. TECHNICAL ARCHITECTURE
+
+The architecture should separate the user interface, application services, computational engine, and persistence layer.
+
+### Proposed stack
+
+These are initial technical recommendations, not irreversible decisions. Evaluate alternatives when there is a clear technical reason.
+
+**Frontend**
+- React.
+- TypeScript.
+- Vite.
+- Modern CSS and a coherent design-token system.
+- Framer Motion or Motion for interface animation.
+- GSAP only where complex choreography genuinely requires it.
+- Plotly or D3 for appropriate interactive visualizations.
+
+**Backend**
+- Python.
+- FastAPI.
+- Pydantic for input/output validation.
+- Modular computational services.
+
+**Scientific and data libraries**
+- NumPy.
+- Pandas.
+- SciPy.
+- SymPy.
+- scikit-learn.
+- Matplotlib where static scientific plots are appropriate.
+- Plotly where interactive visualization is needed.
+
+**Persistence**
+- SQLite initially for a local-first version.
+- PostgreSQL as an upgrade when the deployment or multi-user requirements justify it.
+- Structured storage for datasets and generated artifacts.
+
+Do not introduce a complex distributed architecture prematurely.
+
+### Logical architecture
+
+```text
+AXIOM LAB
+│
+├── Frontend
+│   ├── Workspace
+│   ├── Data Lab
+│   ├── Statistics Lab
+│   ├── Visualization Studio
+│   ├── Mathematical Workbench
+│   ├── ML Studio
+│   ├── Experiment Manager
+│   └── Reporting Interface
+│
+├── Backend API
+│   ├── Dataset Service
+│   ├── Experiment Service
+│   ├── Validation Service
+│   ├── Execution Service
+│   ├── Reporting Service
+│   └── AI Explanation Service
+│
+├── Computational Engine
+│   ├── Data Processing
+│   ├── Statistical Computing
+│   ├── Mathematical Computing
+│   ├── Visualization Data
+│   ├── Machine Learning
+│   └── Simulation Extensions
+│
+├── Persistence
+│   ├── Database
+│   ├── Dataset Storage
+│   ├── Experiment Records
+│   ├── Execution Logs
+│   └── Generated Reports
+│
+└── Documentation and Observability
+    ├── Technical Documentation
+    ├── Decision Records
+    ├── Test Reports
+    ├── Development Journal
+    └── Learning Records
+```
+
+### Architecture requirements
+
+- The frontend must never execute arbitrary scientific Python code directly.
+- Validate all incoming data and parameters.
+- Never allow unrestricted shell execution through the experiment interface.
+- Use controlled computational functions with explicit schemas.
+- Set sensible file-size, execution-time, and memory limits.
+- Keep file paths and user input safely isolated.
+- Handle long-running jobs without blocking the main application.
+- Keep computational modules independently testable.
+- Maintain a clear separation between computation and explanation.
+- Version experiment configurations and important computational interfaces.
+- Preserve meaningful error information without exposing secrets.
+
+A lightweight synchronous execution flow is sufficient initially. Add a background job system only when actual workloads require it.
+
+---
+
+# 7. THE DESIGN DIRECTION
+
+The interface is as important as the engineering, but visual quality must support the product's purpose.
+
+AXIOM LAB should feel like an advanced scientific instrument that has been thoughtfully designed for humans.
+
+### Visual identity
+
+The direction should be:
+
+- Premium.
+- Scientific.
+- Modern.
+- Minimal but expressive.
+- Cinematic in selected moments.
+- Precise.
+- Calm.
+- Interactive.
+- Technically sophisticated.
+
+Avoid:
+- Generic admin dashboards.
+- Repetitive card grids.
+- Unnecessary analytics widgets.
+- Excessive neon.
+- Purple AI-product aesthetics.
+- Unnecessary gradients.
+- Decorative animations without purpose.
+- Interfaces that sacrifice readability for visual effects.
+
+### Interface principles
+
+1. Give each scientific module its own meaningful workspace.
+2. Maintain consistent navigation and controls.
+3. Present complex options progressively.
+4. Use visualizations as functional components, not decoration.
+5. Give mathematical equations proper typography and rendering.
+6. Distinguish numerical results, warnings, explanations, and assumptions.
+7. Provide useful loading, execution, failure, and empty states.
+8. Use subtle and purposeful transitions.
+9. Make advanced features discoverable without overwhelming beginners.
+
+### Motion and interaction
+
+Motion must be exceptional in quality but restrained in usage.
+
+Use purposeful entrance sequences, transitions between experiment states, responsive chart interactions, and smooth parameter changes.
+
+Motion should communicate changes in state, hierarchy, and relationships.
+
+It must not delay the user, obstruct important information, or create accessibility problems.
+
+The interface should remain usable when reduced-motion preferences are enabled.
+
+**Important design requirement:** Build the computational workflow and its corresponding interface together. Never finish the entire backend first and then attempt to decorate it with a frontend.
+
+---
+
+# 8. DEVELOPMENT PHILOSOPHY — HOW WE WILL BUILD IT WITH AI
+
+This section is especially important.
+
+I intend to use AI as a collaborative engineering partner, but I do not want it to take over the learning process.
+
+The goal is to become capable of understanding, maintaining, debugging, and extending the software independently.
+
+### The AI's responsibilities
+
+Act as:
+
+- Senior software architect.
+- Scientific computing mentor.
+- Python engineering mentor.
+- Mathematics and statistics tutor.
+- Frontend engineer.
+- Code reviewer.
+- Testing specialist.
+- Debugging partner.
+- Technical writer.
+
+However, do not simply generate large amounts of code and declare the work complete.
+
+### My responsibilities
+
+I will:
+- Understand the problem before implementing it.
+- Learn the mathematics behind the feature.
+- Understand the algorithms being used.
+- Review architecture and implementation decisions.
+- Execute and inspect the application.
+- Run tests and examine failures.
+- Understand why bugs occur.
+- Participate in debugging.
+- Maintain project documentation.
+- Make informed decisions about improvements.
+
+### The mandatory learning cycle
+
+Every significant feature must follow this cycle:
+
+**STEP 1 — PROBLEM**
+
+Explain the problem the feature solves.
+
+Identify the expected user workflow and technical requirements.
+
+**STEP 2 — THEORY**
+
+Teach the necessary concepts before implementation.
+
+For example, before implementing linear regression, explain:
+- What regression means.
+- The mathematical equation.
+- The loss function.
+- How coefficients are estimated.
+- What assumptions are involved.
+- What the evaluation metrics mean.
+
+Use understandable examples and equations.
+
+**STEP 3 — DESIGN**
+
+Explain the implementation approach.
+
+Show:
+- Component architecture.
+- Data flow.
+- Function responsibilities.
+- API contracts.
+- Data structures.
+- Algorithm selection.
+- Important trade-offs.
+
+**STEP 4 — IMPLEMENTATION**
+
+Build a small, complete vertical slice.
+
+Explain the important code sections and why they exist.
+
+Do not introduce unnecessary abstractions or frameworks.
+
+**STEP 5 — EXECUTION**
+
+Run the feature and demonstrate its actual behaviour.
+
+Use sample inputs and explain expected outputs.
+
+**STEP 6 — TESTING**
+
+Create and execute meaningful tests.
+
+Include normal cases, edge cases, invalid inputs, and numerical correctness where relevant.
+
+**STEP 7 — DEBUGGING**
+
+When an issue occurs:
+- Record the original error.
+- Identify the underlying cause.
+- Explain why it occurred.
+- Investigate possible solutions.
+- Implement the appropriate fix.
+- Test the fix.
+- Record what was learned.
+
+Do not silently patch problems without explaining them.
+
+**STEP 8 — REVIEW**
+
+Ask whether the implementation is technically sound, understandable, maintainable, and sufficiently tested.
+
+**STEP 9 — DOCUMENTATION**
+
+Update the README, technical documentation, development journal, and learning notes as applicable.
+
+**STEP 10 — NEXT STEP**
+
+Only then proceed to the next feature or development slice.
+
+### Teaching depth
+
+For difficult topics, explain at multiple levels:
+
+1. Intuitive explanation.
+2. Mathematical explanation.
+3. Algorithmic explanation.
+4. Code-level implementation.
+5. Practical application.
+6. Limitations and common mistakes.
+
+I should not be expected to memorize every line of generated code, but I must understand the system and be able to explain why its important parts work.
+
+### Important AI behaviour
+
+- Never pretend I understand something merely because I accepted generated code.
+- Ask me to reason through important concepts occasionally.
+- Give small practical exercises when useful.
+- Correct misunderstandings constructively.
+- Do not overwhelm me with unnecessary theory.
+- Adjust explanations to my current understanding.
+- Never sacrifice technical correctness for a shorter explanation.
+- Be honest about uncertainties and limitations.
+
+---
+
+# 9. VERTICAL-SLICE DEVELOPMENT STRATEGY
+
+We will develop the product in complete, testable increments.
+
+Each slice should include a real user workflow, a working computational capability, a corresponding interface, validation, testing, and documentation.
+
+### Proposed development phases
+
+**PHASE 0 — DISCOVERY AND FOUNDATION**
+
+- Define the complete project scope.
+- Identify core use cases.
+- Research relevant scientific methods.
+- Select the initial technology stack.
+- Design the architecture.
+- Create the repository.
+- Establish development conventions.
+- Set up testing and logging.
+- Define the visual direction.
+- Create the initial README and documentation structure.
+
+Deliverable: A clear technical foundation and an approved implementation roadmap.
+
+**PHASE 1 — FIRST COMPLETE COMPUTATIONAL WORKFLOW**
+
+Build the initial dataset workflow.
+
+- Import CSV and Excel data.
+- Validate input.
+- Preview data.
+- Inspect columns.
+- Calculate basic statistics.
+- Display a useful visualization.
+- Save the experiment.
+
+The user should be able to complete this entire workflow through the interface.
+
+Deliverable: First working end-to-end scientific experiment.
+
+**PHASE 2 — DATA LAB AND STATISTICS**
+
+- Expand dataset profiling.
+- Implement missing-value analysis.
+- Add descriptive statistics.
+- Implement selected hypothesis tests.
+- Add confidence intervals.
+- Display assumptions and diagnostics.
+- Add statistical visualizations.
+
+Deliverable: A reliable data analysis and statistical investigation environment.
+
+**PHASE 3 — MATHEMATICAL WORKBENCH**
+
+- Implement expression parsing safely.
+- Add supported mathematical operations.
+- Implement symbolic and numerical computation.
+- Add function plotting.
+- Add linear algebra.
+- Add numerical methods.
+
+Deliverable: Working mathematical computation tools.
+
+**PHASE 4 — MACHINE LEARNING STUDIO**
+
+- Implement preprocessing pipelines.
+- Add regression.
+- Add classification.
+- Add clustering.
+- Implement model evaluation.
+- Add validation safeguards.
+- Add experiment comparison.
+- Save model configurations and results.
+
+Deliverable: An actual, inspectable machine-learning experimentation environment.
+
+**PHASE 5 — EXPERIMENT ENGINE**
+
+- Persistent experiment management.
+- Run history.
+- Parameter versioning.
+- Reproducibility metadata.
+- Experiment comparison.
+- Result restoration.
+- Execution diagnostics.
+
+Deliverable: A unified experimental environment.
+
+**PHASE 6 — AI EXPLANATION LAYER**
+
+- Introduce a replaceable AI provider.
+- Implement structured model inputs and outputs.
+- Explain verified calculations.
+- Explain statistical methods.
+- Explain errors and warnings.
+- Suggest appropriate follow-up experiments.
+
+Deliverable: AI-assisted scientific understanding.
+
+**PHASE 7 — REPORTING AND POLISH**
+
+- Scientific reports.
+- PDF exports.
+- Dataset exports.
+- Performance optimization.
+- Accessibility audit.
+- Security review.
+- Responsive refinement.
+- Deployment.
+- End-to-end testing.
+
+Deliverable: A complete and demonstrable portfolio-grade product.
+
+Phases can be adjusted as we learn more, but changes must be documented.
+
+---
+
+# 10. OPTIONAL ADVANCED CAPABILITIES
+
+These are possible extensions, not initial requirements. Do not attempt to build everything simultaneously.
+
+## Tier A — High-value extensions
+
+These are the first improvements worth considering once the foundational modules are reliable.
+
+1. **Experiment comparison engine:** Compare multiple runs with different algorithms or parameters.
+2. **Interactive parameter exploration:** Modify parameters and observe changes in outputs.
+3. **Cross-validation and model tuning:** More advanced model evaluation and optimization.
+4. **Advanced statistical diagnostics:** Better assumption checking and interpretation.
+5. **Dataset transformation pipelines:** Reusable preprocessing workflows.
+6. **Advanced reporting:** Detailed reports with methodology, diagnostics, and reproducibility information.
+7. **Notebook-style experiment history:** A chronological record of analytical actions and outputs.
+
+## Tier B — Advanced scientific computing
+
+1. Symbolic regression.
+2. Differential equation solvers.
+3. Optimization algorithms.
+4. Monte Carlo simulation.
+5. Sensitivity analysis.
+6. Numerical stability analysis.
+7. Fourier transforms and signal analysis.
+8. Time-series analysis and forecasting.
+9. Interactive 3D mathematical visualization.
+10. Basic physical system modelling.
+
+These extensions can substantially deepen the project's scientific character.
+
+## Tier C — Research-oriented capabilities
+
+1. Computational experiment orchestration.
+2. Automated hypothesis exploration.
+3. Reproducible research environments.
+4. Automated parameter search.
+5. Scientific model comparison.
+6. Uncertainty quantification.
+7. Advanced explainability.
+8. Symbolic mathematical discovery.
+9. Simulation of interconnected systems.
+10. Research-paper and dataset-assisted experimentation.
+
+These should only be introduced when their underlying methods can be properly validated.
+
+## Tier D — Future platform expansion
+
+1. Plugin architecture for external scientific modules.
+2. User-created computational workflows.
+3. Shared experiments and collaboration.
+4. API access to computational capabilities.
+5. Advanced project and dataset management.
+6. Versioned computational environments.
+7. Cloud execution for resource-intensive workloads.
+8. Reproducibility packages for external researchers.
+9. Domain-specific scientific workspaces.
+10. Optional integration with external datasets and scientific repositories.
+
+---
+
+# 11. DOCUMENTATION AND KNOWLEDGE MANAGEMENT
+
+This is a mandatory part of the project, not an afterthought.
+
+I want a clear record of the entire development journey.
+
+Every significant architectural decision, implementation, difficult problem, solution, and learning outcome must be preserved.
+
+The repository should include a structured documentation system.
+
+### Proposed repository structure
+
+```text
+axiom-lab/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   └── ...
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── services/
+│   │   ├── computation/
+│   │   │   ├── data/
+│   │   │   ├── statistics/
+│   │   │   ├── mathematics/
+│   │   │   ├── machine_learning/
+│   │   │   └── simulation/
+│   │   ├── experiments/
+│   │   └── reporting/
+│   └── tests/
+│
+├── docs/
+│   ├── PROJECT_VISION.md
+│   ├── REQUIREMENTS.md
+│   ├── ROADMAP.md
+│   ├── ARCHITECTURE.md
+│   ├── DATA_FLOW.md
+│   ├── API_REFERENCE.md
+│   ├── DATABASE_DESIGN.md
+│   ├── SCIENTIFIC_METHODS.md
+│   ├── MATHEMATICAL_FOUNDATIONS.md
+│   ├── TESTING_STRATEGY.md
+│   ├── SECURITY.md
+│   ├── DEPLOYMENT.md
+│   │
+│   ├── decisions/
+│   │   ├── ADR-001.md
+│   │   ├── ADR-002.md
+│   │   └── ...
+│   │
+│   ├── development-log/
+│   │   ├── DEVELOPMENT_LOG.md
+│   │   ├── SESSION_LOG.md
+│   │   └── milestones/
+│   │
+│   ├── problems-and-solutions/
+│   │   ├── PROBLEM_REGISTER.md
+│   │   └── ...
+│   │
+│   ├── learning/
+│   │   ├── LEARNING_JOURNAL.md
+│   │   ├── concepts/
+│   │   ├── algorithms/
+│   │   └── lessons-learned/
+│   │
+│   ├── testing/
+│   │   ├── TEST_LOG.md
+│   │   └── validation-reports/
+│   │
+│   └── screenshots/
+│
+├── examples/
+│   ├── datasets/
+│   ├── experiments/
+│   └── sample-reports/
+│
+├── scripts/
+├── tests/
+├── logs/
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+└── .gitignore
+```
+
+This is a proposed structure. Keep it organized without creating empty folders or unnecessary documents before they are needed.
+
+### Documentation requirements
+
+**A. DEVELOPMENT_LOG.md**
+
+Record each meaningful development session:
+
+- Date.
+- Development objective.
+- Work completed.
+- Files created or modified.
+- Technical decisions.
+- Tests performed.
+- Problems encountered.
+- Next actions.
+
+**B. SESSION_LOG.md**
+
+Maintain a chronological record of important working sessions, including what was attempted, what succeeded, and what remains incomplete.
+
+**C. PROBLEM_REGISTER.md**
+
+Every significant technical problem must receive an entry containing:
+
+- Problem ID.
+- Date discovered.
+- Affected module.
+- Description.
+- Expected behaviour.
+- Actual behaviour.
+- Error message or evidence.
+- Root cause.
+- Investigations performed.
+- Failed attempts.
+- Final solution.
+- Tests performed after the fix.
+- Lessons learned.
+
+Keep unsuccessful attempts. They are part of the engineering history.
+
+**D. LEARNING_JOURNAL.md**
+
+For each major feature, document:
+
+- What concept I learned.
+- Why it matters.
+- Mathematical foundations.
+- Algorithms involved.
+- How it was implemented.
+- Which libraries were used and why.
+- What I initially misunderstood.
+- What I now understand.
+- What I should be able to explain independently.
+
+**E. ARCHITECTURAL DECISION RECORDS**
+
+Important choices must have their own records.
+
+For example:
+- Why FastAPI was selected.
+- Why a particular statistical algorithm was selected.
+- Why a specific visualization library was used.
+- Why the application uses a particular persistence strategy.
+- Why an architectural change was necessary.
+
+Each decision should explain the alternatives considered and the trade-offs.
+
+**F. TEST_LOG.md**
+
+Maintain a history of:
+- Unit tests.
+- Integration tests.
+- Numerical validation.
+- Regression tests.
+- End-to-end tests.
+- Failed tests.
+- Fixed failures.
+- Known limitations.
+
+### Logging rules
+
+Separate development documentation from runtime logs.
+
+Runtime logs should capture meaningful execution events, errors, and diagnostics without exposing API keys, passwords, sensitive data, or entire uploaded datasets.
+
+Use appropriate log levels.
+
+Do not commit temporary files, secrets, large datasets, generated caches, or uncontrolled log dumps.
+
+---
+
+# 12. THE README — A PROFESSIONAL PROJECT PRESENTATION
+
+The README must be developed alongside the project and updated as features become real.
+
+It should eventually include:
+
+1. Project name and identity.
+2. Strong opening description.
+3. Project vision.
+4. Problem statement.
+5. Key capabilities.
+6. Screenshots and demonstrations.
+7. Feature descriptions.
+8. Architecture diagram.
+9. Technology stack.
+10. Computational methodology.
+11. How the scientific engine works.
+12. Installation instructions.
+13. Environment setup.
+14. Local execution instructions.
+15. Testing instructions.
+16. Example experiments.
+17. Sample outputs.
+18. Project structure.
+19. Development roadmap.
+20. Known limitations.
+21. Future enhancements.
+22. Learning and engineering notes.
+23. Contribution instructions.
+24. License.
+
+### README quality requirements
+
+The README must never claim functionality that has not actually been implemented and verified.
+
+Use clear feature statuses where appropriate:
+
+- Implemented.
+- In development.
+- Planned.
+- Experimental.
+
+Include actual screenshots, genuine computational examples, and reproducible instructions.
+
+The README should communicate both the product and the engineering behind it.
+
+---
+
+# 13. ENGINEERING QUALITY AND ACCEPTANCE CONDITIONS
+
+Every module must satisfy meaningful quality requirements before being considered complete.
+
+### Scientific correctness
+
+- Validate numerical results against trusted reference calculations.
+- Test edge cases.
+- Handle missing and invalid inputs.
+- Document assumptions.
+- Avoid silent numerical failures.
+- Make uncertainty and limitations visible.
+- Distinguish exact solutions from numerical approximations.
+- Ensure evaluation metrics are appropriate for the task.
+
+### Software quality
+
+- Modular architecture.
+- Clear naming.
+- Maintainable code.
+- Type validation.
+- Meaningful error handling.
+- Automated tests.
+- Reusable computational functions.
+- Secure file handling.
+- No hardcoded secrets.
+- No unnecessary dependencies.
+
+### User experience
+
+- A user can identify the next action.
+- Results are understandable.
+- Errors provide actionable guidance.
+- Advanced features are discoverable.
+- Visualizations are readable.
+- Important actions have feedback.
+- The interface remains responsive during computation.
+
+### Reproducibility
+
+Where applicable, a user should be able to retrieve a previous experiment, understand its inputs and configuration, and reproduce its execution.
+
+If exact reproduction is not possible because of nondeterministic algorithms, numerical environment differences, or external data changes, explain that limitation rather than pretending otherwise.
+
+### Completion rule
+
+A feature is not complete merely because its UI exists or its code compiles.
+
+It is complete when:
+1. Its purpose is defined.
+2. Its computational method is implemented.
+3. Its inputs are validated.
+4. Its results are tested.
+5. Its user workflow works.
+6. Its limitations are documented.
+7. Its learning record is updated.
+8. Its relevant documentation is maintained.
+
+---
+
+# 14. POSSIBLE DIFFICULT PROBLEMS TO ANTICIPATE
+
+These are risks to investigate, not claims that these problems have already occurred.
+
+### Scientific and mathematical challenges
+
+- Numerical precision and floating-point errors.
+- Unstable numerical methods.
+- Incorrect statistical assumptions.
+- Invalid test selection.
+- Misleading correlations.
+- Data leakage.
+- Model overfitting.
+- Inappropriate metric selection.
+- Reproducibility across environments.
+
+### Data challenges
+
+- Large file processing.
+- Inconsistent spreadsheet structures.
+- Mixed data types.
+- Missing values.
+- Memory limitations.
+- Encoding problems.
+- Corrupted uploads.
+- Data validation.
+- Data versioning.
+
+### Architectural challenges
+
+- Long-running computations.
+- Safe execution.
+- Keeping the frontend responsive.
+- Maintaining consistent API contracts.
+- Managing experiment state.
+- Storing generated artifacts.
+- Handling failed executions.
+- Preventing one experiment from affecting another.
+
+### Visualization challenges
+
+- Large datasets and rendering performance.
+- Proper numerical scales.
+- Readable mathematical notation.
+- Interactive chart state.
+- Displaying uncertainty.
+- Visualizing high-dimensional data.
+
+### AI challenges
+
+- Hallucinated interpretations.
+- Inaccurate explanations.
+- Excessive token consumption.
+- Provider rate limits.
+- Context limitations.
+- Incorrect interpretation of computational outputs.
+
+The AI layer must be designed so that its failure does not compromise scientific correctness.
+
+---
+
+# 15. FUTURE IMPROVEMENT CHECKPOINTS
+
+Do not wait until the entire project is finished to think about improvements.
+
+At every milestone, conduct a structured review.
+
+### Checkpoint 1 — After the first data workflow
+
+Evaluate:
+- Is the architecture unnecessarily complicated?
+- Is data validation sufficient?
+- Are results mathematically correct?
+- Can the workflow be completed intuitively?
+- Is the documentation useful?
+
+### Checkpoint 2 — After Statistics Lab
+
+Evaluate:
+- Are test assumptions handled correctly?
+- Are interpretations statistically responsible?
+- Can results be independently verified?
+- Can users compare different methods?
+
+### Checkpoint 3 — After Mathematical Workbench
+
+Evaluate:
+- Are symbolic and numerical computations distinguished?
+- Are unsupported expressions handled safely?
+- Are numerical approximations sufficiently accurate?
+- Can users inspect the mathematics?
+
+### Checkpoint 4 — After Machine Learning Studio
+
+Evaluate:
+- Are leakage safeguards working?
+- Are evaluation methods appropriate?
+- Are models reproducible?
+- Are results interpretable?
+- Is the pipeline maintainable?
+
+### Checkpoint 5 — After Experiment Engine
+
+Evaluate:
+- Can experiments be reconstructed?
+- Are execution records complete?
+- Are parameter changes tracked?
+- Are comparisons meaningful?
+- Are failures recoverable?
+
+### Checkpoint 6 — Before release
+
+Conduct:
+- Full scientific validation.
+- Performance testing.
+- Security testing.
+- Accessibility testing.
+- Responsive design review.
+- Documentation audit.
+- Deployment verification.
+
+At each checkpoint, recommend improvements with clear priorities:
+
+- Critical: correctness, security, reliability.
+- High: substantial functional or usability improvement.
+- Medium: meaningful enhancement.
+- Optional: experimental or aesthetic improvement.
+
+Do not introduce new features simply because they are technologically interesting.
+
+---
+
+# 16. HARDWARE AND DEVELOPMENT CONSTRAINTS
+
+The development environment should remain practical and affordable.
+
+Available personal hardware:
+
+- Intel Core i5-12450H.
+- NVIDIA RTX 3050 with 4 GB VRAM.
+- 16 GB RAM.
+
+Design the initial computational engine to run efficiently on a normal CPU.
+
+GPU acceleration should be optional, not a requirement.
+
+Prefer:
+- Efficient scientific libraries.
+- Sensible dataset-size limits.
+- Memory-aware processing.
+- Lightweight local testing.
+- Free and open-source technologies.
+- Replaceable AI providers.
+
+Do not introduce expensive cloud infrastructure, paid APIs, or large local AI models without a demonstrated need.
+
+The application must remain useful when AI services are unavailable.
+
+---
+
+# 17. FINAL PRODUCT IDENTITY
+
+AXIOM LAB should eventually be presented as:
+
+**AXIOM LAB — An Interactive Environment for Scientific Computing and Computational Discovery.**
+
+A platform that brings mathematical computation, statistical investigation, machine learning, data exploration, and reproducible experimentation into one cohesive workspace.
+
+Its strength must come from the actual computational capabilities beneath the interface.
+
+Its visual quality should make those capabilities approachable.
+
+Its architecture should make them extensible.
+
+Its documentation should make them understandable.
+
+Its development process should make the creator capable of explaining and maintaining every important component.
+
+---
+
+# 18. INSTRUCTIONS TO THE AI THAT WILL BUILD THIS PROJECT
+
+Read this entire specification before proposing implementation.
+
+Do not immediately generate the entire application.
+
+Your first responsibility is to understand the project, identify the critical requirements, assess the technical feasibility, and create a practical implementation roadmap.
+
+Then follow these instructions:
+
+1. Start with project discovery and architecture.
+2. Identify essential versus optional functionality.
+3. Evaluate the proposed technology stack rather than blindly accepting it.
+4. Explain important architecture decisions.
+5. Create the repository and documentation foundation.
+6. Establish the testing and logging strategy.
+7. Develop through complete vertical slices.
+8. Build the scientific engine and interface together.
+9. Teach the underlying concepts before and during implementation.
+10. Verify computational correctness with tests and reference examples.
+11. Record important errors, failed attempts, and solutions.
+12. Maintain the README and technical documentation throughout development.
+13. Maintain the learning journal and explain what each major milestone teaches.
+14. Review the system at every milestone.
+15. Never mark a feature complete without evidence.
+16. Never invent successful tests, completed features, or performance results.
+17. Never make unnecessary architectural changes without explaining their value.
+18. Preserve existing working functionality when introducing changes.
+19. Keep optional improvements separate from the essential roadmap.
+20. Ask for approval before major architectural decisions or substantial scope changes.
+
+### Mandatory response format for major development tasks
+
+For every substantial task, provide:
+
+**A. Objective** — What we are building and why.
+
+**B. Concepts** — The theory, mathematics, and engineering concepts involved.
+
+**C. Architecture** — How the feature fits into the existing system.
+
+**D. Implementation plan** — Files and components that will be created or modified.
+
+**E. Implementation** — The actual code and explanation.
+
+**F. Verification** — Tests, execution results, and evidence.
+
+**G. Problems** — Issues discovered, their root causes, and solutions.
+
+**H. Learning outcome** — What I should now understand and be able to explain.
+
+**I. Documentation updates** — Exactly which files need to be updated.
+
+**J. Next milestone** — What should be built next and why.
+
+If a task is small, these sections can be concise. Do not produce unnecessary documentation for trivial changes.
+
+### Final instruction
+
+I do not want you to build a superficial demonstration that looks like an advanced scientific application.
+
+I want us to engineer a real computational platform.
+
+Treat scientific correctness, architectural quality, usability, reproducibility, and learning as equally important goals.
+
+The final result should be something I can demonstrate confidently, explain technically, defend in an interview, maintain independently, and continue extending as my engineering knowledge grows.
+
+**AXIOM LAB is not simply a project to finish. It is an opportunity to learn how sophisticated scientific software is actually engineered, by building one.**

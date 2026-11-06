@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axiom-lab-backend"
+version = "0.0.1"
+description = "Phase 0 backend foundation for AXIOM LAB"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn>=0.30,<1.0",
+    "pydantic>=2.9,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "httpx>=0.27,<1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# JS
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Runtime and user data (never commit)
+.env
+.env.*
+!.env.example
+runtime/
+logs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary bundles and archives
+*.zip
+.bundle-staging/
