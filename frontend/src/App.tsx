@@ -1,6 +1,8 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import { phase, plannedModules } from './phase';
 import { clientFileError, fileSizeLabel, importDataset, type ImportedDataset } from './datasets';
+import { fetchColumnProfile, type DatasetColumnProfile } from './columnProfile';
+import { ColumnProfilePanel } from './ColumnProfilePanel';
 
 type Connection = 'checking' | 'connected' | 'unavailable';
 type Health = { status: string; phase: string; scientific_engine: string };
@@ -11,6 +13,10 @@ export default function App() {
   const [result, setResult] = useState<ImportedDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [profile, setProfile] = useState<DatasetColumnProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const profileRequest = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -32,8 +38,26 @@ export default function App() {
   function selectFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
     setSelectedFile(file);
+    profileRequest.current++;
     setResult(null);
+    setProfile(null);
+    setProfileError(null);
+    setProfileLoading(false);
     setError(file ? clientFileError(file.name, file.size) : null);
+  }
+
+  async function loadProfile(datasetId: string) {
+    const request = ++profileRequest.current;
+    setProfileLoading(true);
+    setProfileError(null);
+    try {
+      const loaded = await fetchColumnProfile(datasetId);
+      if (request === profileRequest.current) setProfile(loaded);
+    } catch (e: unknown) {
+      if (request === profileRequest.current) setProfileError(e instanceof Error ? e.message : 'Profile unavailable.');
+    } finally {
+      if (request === profileRequest.current) setProfileLoading(false);
+    }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -43,9 +67,13 @@ export default function App() {
     if (validationError) { setError(validationError); return; }
     setUploading(true);
     setError(null);
+    profileRequest.current++;
     setResult(null);
+    setProfile(null);
     try {
-      setResult(await importDataset(selectedFile));
+      const imported = await importDataset(selectedFile);
+      setResult(imported);
+      void loadProfile(imported.id);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Dataset upload could not be completed.');
     } finally {
@@ -65,13 +93,13 @@ export default function App() {
         <h1 id="project-title">Begin with <em>evidence.</em></h1>
         <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
         <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01A · Import available</span>
+          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01B · Column inspection available</span>
           <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
         </div>
       </section>
 
       <section className="lab-workspace" aria-labelledby="data-lab-title">
-        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITY — FILE VALIDATION</span></div>
+        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — IMPORT + INSPECTION</span></div>
         <div className="lab-grid">
           <div className="upload-panel">
             <span className="panel-kicker">INPUT / 01</span>
@@ -96,9 +124,9 @@ export default function App() {
               <li><span>01</span> Confirm supported file format and bounded size</li>
               <li><span>02</span> Read headers and verify consistent dataset structure</li>
               <li><span>03</span> Record file fingerprint and store original bytes</li>
-              <li><span>04</span> Preview the first rows without transforming the source</li>
+              <li><span>04</span> Inspect columns without transforming the source</li>
             </ol>
-            <div className="method-footnote">No statistical inference, cleaning, or model training occurs in this phase.</div>
+            <div className="method-footnote">Types are provisional, not scientific declarations. No statistics, cleaning, or model training occurs in this phase.</div>
           </aside>
         </div>
       </section>
@@ -119,13 +147,16 @@ export default function App() {
           <table className="data-table"><thead><tr>{result.headers.map((head, i) => <th key={i} scope="col">{head}</th>)}</tr></thead>
             <tbody>{result.preview.map((row, i) => <tr key={i}>{row.map((value, j) => <td key={j}>{value ?? <span className="missing">null</span>}</td>)}</tr>)}</tbody></table>
         </div>
-        <p className="preview-note">Preview values are displayed as text. Data profiling, type inference and numerical results are planned for later bundles.</p>
+        <p className="preview-note">Preview values remain displayed as originally imported. Column inference is advisory; statistics and numerical computations are planned for later bundles.</p>
+        {profileLoading && <p role="status" className="profile-status">Inspecting columns…</p>}
+        {profileError && <div className="inline-alert error" role="alert"><strong>Inspection unavailable.</strong><p>{profileError}</p><button type="button" className="retry-button" onClick={() => void loadProfile(result.id)}>Retry column inspection</button></div>}
+        {profile && <ColumnProfilePanel data={profile} />}
       </section>}
 
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (
-          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import active' : 'Planned'}</span></div>
+          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + profiling active' : 'Planned'}</span></div>
         ))}</div>
       </section>
       <footer>AXIOM LAB <span>—</span> Computation must be understandable, inspectable, and reproducible. <span className="footer-phase">PHASE {phase}</span></footer>

@@ -85,3 +85,22 @@ def find_dataset(dataset_id: str) -> dict | None:
         "sheet_names": json.loads(record["sheet_names_json"]),
         "warnings": json.loads(record["warnings_json"]),
     }
+
+
+class DatasetStorageError(Exception):
+    """Original dataset is unavailable or differs from its recorded fingerprint."""
+
+
+def read_original_dataset(dataset_id: str, metadata: dict) -> bytes:
+    """Read only the opaque ID-derived path, never a client-provided file path."""
+    extension = '.' + metadata['format']
+    if extension not in {'.csv', '.xlsx', '.xls'}:
+        raise DatasetStorageError('Unsupported stored dataset format.')
+    path = _data_root() / 'datasets' / dataset_id / f'original{extension}'
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise DatasetStorageError('The original dataset is unavailable.') from exc
+    if len(raw) != metadata['size_bytes'] or hashlib.sha256(raw).hexdigest() != metadata['sha256']:
+        raise DatasetStorageError('The original dataset failed its integrity check.')
+    return raw

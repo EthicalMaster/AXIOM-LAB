@@ -5,12 +5,12 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_health_endpoint_returns_phase_01a():
+def test_health_endpoint_returns_phase_01b():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
-        "phase": "01A",
+        "phase": "01B",
         "scientific_engine": "not_implemented",
     }
 
@@ -25,3 +25,4 @@ def test_openapi_contract_includes_health_and_import():
     assert response.status_code == 200
     assert "/api/v1/health" in response.json()["paths"]
     assert "/api/v1/datasets/import" in response.json()["paths"]
+    assert "/api/v1/datasets/{dataset_id}/profile" in response.json()["paths"]

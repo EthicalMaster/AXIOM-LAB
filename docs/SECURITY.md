@@ -20,3 +20,7 @@
 - Mathematical expression parsing and expensive computation will need separate safe execution controls when developed.
 
 Never expose the backend beyond loopback or deploy publicly without an explicit security review.
+
+## Phase 01B storage integrity and output limits
+
+Column inspection reads a server-constructed path using a validated opaque dataset ID, verifies its size and SHA-256 against SQLite metadata, and refuses to profile a changed or missing original (HTTP 409). The endpoint returns small per-column examples (up to three truncated values), not full datasets. Exact distinct-value tracking stops at 1,000 entries per column. Real multi-user service **requires authorization for dataset IDs** and rate/CPU limits before deployment; random IDs are not authorization.

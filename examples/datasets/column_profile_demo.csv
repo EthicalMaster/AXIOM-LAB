@@ -1,0 +1,5 @@
+sample,temperature,code,condition,test_date
+A,22.5,0012,normal,2026-11-10
+B,24.0,0013,cloudy,2026-11-11
+C,,0014,normal,2026-11-12
+D,23.5,0015,,2026-11-13

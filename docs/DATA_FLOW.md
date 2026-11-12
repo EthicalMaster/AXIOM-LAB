@@ -18,11 +18,25 @@ Readback: `GET /api/v1/datasets/{id}` queries SQLite and returns metadata only. 
 
 **Important:** A bounded text preview is derived output; it is not the authoritative dataset and is not a cleaning operation. Spreadsheet formulas are not executed. The first sheet is inspected and the selected sheet is included in the response.
 
+## Added in Phase 01B
+
+```text
+React receives dataset ID from successful import
+  -> GET /api/v1/datasets/{id}/profile
+  -> SQLite lookup by opaque dataset ID
+  -> read stored original bytes from ID-derived path
+  -> compare file length and SHA-256 to recorded metadata
+  -> reuse structural validator, then stream rows for per-column inspection
+  -> return provisional type/missing/distinct/example metadata
+  -> React renders a bounded table, warnings and methodology note
+```
+
+No new database migration, cleaning or statistical computations. The user may retry column inspection if it fails without losing the successful import.
+
 ## Planned later in Phase 01
 
 ```text
 Stored immutable dataset
-  -> column type inference and detailed data inspection (01B)
   -> independently validated statistical methods (01C)
   -> chart data, experiment, run and result records (01D)
 ```

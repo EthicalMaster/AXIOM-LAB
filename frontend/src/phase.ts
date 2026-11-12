@@ -1,5 +1,5 @@
-/** Capability manifest. Phase 01A implements dataset import, not analytics. */
-export const phase = '01A' as const;
+/** Capability manifest. Phase 01B adds structural column profiling, not statistics. */
+export const phase = '01B' as const;
 export const plannedModules = [
   'Data Lab',
   'Statistics Lab',
@@ -9,4 +9,4 @@ export const plannedModules = [
   'Experiment Engine',
   'Scientific Reporting',
 ] as const;
-export const implementedCapability = 'Dataset import and validation' as const;
+export const implementedCapability = 'Dataset import, validation and column profiling' as const;
