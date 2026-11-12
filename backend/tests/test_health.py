@@ -1,16 +1,16 @@
-"""Foundation checks: honest phase status and stable API contract."""
+"""Operational health remains truthful after the first data import feature."""
 from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
 
 
-def test_health_endpoint_returns_phase_zero():
+def test_health_endpoint_returns_phase_01a():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
-        "phase": "0",
+        "phase": "01A",
         "scientific_engine": "not_implemented",
     }
 
@@ -20,7 +20,8 @@ def test_unknown_science_route_is_not_implemented():
     assert response.status_code == 404
 
 
-def test_openapi_contract_includes_health():
+def test_openapi_contract_includes_health_and_import():
     response = client.get("/openapi.json")
     assert response.status_code == 200
     assert "/api/v1/health" in response.json()["paths"]
+    assert "/api/v1/datasets/import" in response.json()["paths"]

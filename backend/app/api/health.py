@@ -1,4 +1,4 @@
-"""Phase 0 health endpoint. No scientific computation happens here."""
+"""Operational health is not a scientific correctness check."""
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -13,4 +13,4 @@ class HealthResponse(BaseModel):
 
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", phase="0", scientific_engine="not_implemented")
+    return HealthResponse(status="ok", phase="01A", scientific_engine="not_implemented")

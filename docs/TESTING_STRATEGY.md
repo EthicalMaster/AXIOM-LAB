@@ -1,21 +1,25 @@
-# Test strategy
+# Test strategy — Phase 01A
 
-## Phase 0 actual tests
+## Executed builder tests
 
-- Backend `test_health_endpoint_returns_phase_zero`: HTTP 200 and exact health fields.
-- Backend `test_unknown_science_route_is_not_implemented`: scientific endpoint returns 404.
-- Backend `test_openapi_contract_includes_health`: API docs expose health route.
-- Frontend unit tests: phase identifier and 7 planned modules.
-- Frontend typecheck and production build.
-- Manual end-to-end check: backend running -> UI reports API connected; backend stopped -> API unavailable on refresh.
+See `docs/testing/PHASE_01A_TEST_EVIDENCE.md` for actual test output and limitations. Backend includes 14 tests covering health, OpenAPI, CSV parsing, XLSX validation, data retention, metadata lookup, invalid formats, size bounds, and malformed files.
+
+## Required local tests before acceptance
+
+- Backend `pytest` and `compileall` using the local venv.
+- Frontend `npm run test`, `npm run typecheck`, and `npm run build`.
+- Browser manual import of valid UTF-8 CSV, XLSX and genuine legacy XLS.
+- Metadata lookup after restarting server; file integrity/fingerprint verification.
+- Invalid-input attempts, backend downtime, keyboard navigation and responsive preview.
+- Check Git ignore rules to ensure uploaded data and SQLite files are never staged.
 
 ## Later testing levels
 
-1. Pure scientific unit tests with independently verified numbers.
+1. Scientific unit tests against independent reference numbers.
 2. API contract and validation tests.
-3. Persistence and execution integration tests.
-4. Browser end-to-end workflows.
-5. Resource limit, abuse, and error-handling tests.
-6. Reproducibility and migration tests.
+3. Persistence/execution integration tests and migrations.
+4. Browser end-to-end workflow automation.
+5. Resource limit, abuse and failure-mode testing.
+6. Reproducibility and experiment versioning checks.
 
-No benchmark claims or pass counts should be committed until actually measured. Record test date, environment, command, exit code, and observed output in `testing/TEST_LOG.md`.
+No pass count is a claim of local Windows success until the developer runs and records it.

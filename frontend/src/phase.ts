@@ -1,5 +1,5 @@
-/** Phase 0 has no scientific methods. This manifest is a UI placeholder only. */
-export const phase = '00' as const;
+/** Capability manifest. Phase 01A implements dataset import, not analytics. */
+export const phase = '01A' as const;
 export const plannedModules = [
   'Data Lab',
   'Statistics Lab',
@@ -9,3 +9,4 @@ export const plannedModules = [
   'Experiment Engine',
   'Scientific Reporting',
 ] as const;
+export const implementedCapability = 'Dataset import and validation' as const;

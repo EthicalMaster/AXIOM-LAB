@@ -1,35 +1,43 @@
-# Architecture — Phase 0 proposal and runnable scaffold
+# Architecture — Phase 01A implementation candidate
 
 ## Decision
 
-Modular monolith with two development processes: React/Vite frontend and Python/FastAPI backend. Neither can perform unbounded scientific code execution. API contracts are versioned from the outset. SQLite metadata and local immutable artifacts are **planned for Phase 01**, not currently implemented.
+AXIOM LAB is a local-first modular monolith with React/Vite frontend and Python/FastAPI backend. Versioned API routes call independently testable services. SQLite is used for dataset **metadata**; uploaded original bytes live in `runtime/datasets`. Scientific computation and LLM interpretation are **not** implemented in this milestone.
 
 ```text
-Browser (React/TypeScript)
-  -> /api/v1 HTTP requests (Vite dev proxy)
-FastAPI application
-  -> API validation / service layer (future)
-  -> scientific computation functions (future; independently tested)
-  -> experiment and dataset persistence (future)
-  -> optional AI interpretation (future; never scientific source of truth)
+Browser (React + TypeScript)
+    -> /api/v1/datasets/import  [multipart file]
+Vite proxy -> FastAPI dataset API (api/datasets.py)
+    -> validation service (services/dataset_validation.py)
+    -> immutable byte storage + SQLite metadata (persistence/dataset_store.py)
+    -> HTTP 201 structured metadata + bounded preview
+Browser renders raw preview, warning messages and source fingerprint.
+
+GET /api/v1/datasets/{id} -> stored metadata (no raw-file download).
 ```
 
-## Implemented now
+## Implemented in 01A
 
-- `/api/v1/health` returns an explicit Phase 0 contract.
-- Frontend shows real API connectivity based on that response.
-- Backend test verifies a scientific route is **not** yet available.
+- `GET /api/v1/health`: operational status, phase 01A; numerical scientific engine explicitly not implemented.
+- `POST /api/v1/datasets/import`: validated format, encoding, rows and columns, bounded upload, original file saved, record created, preview returned.
+- `GET /api/v1/datasets/{id}`: read back persisted dataset metadata using opaque random ID.
+- React UI: file selection, upload, status, result preview, warnings and error handling.
+- Backend unit/integration tests; frontend tests require verification on the developer machine.
+
+## Architectural boundary: validation vs computation
+
+Dataset validation is not data analysis. Phase 01B will add type inference and profiling. Phase 01C will calculate reference-tested descriptive statistics. Phase 01D will add charting and minimal experiment/run records. Later phases will add inference and ML with explicit method assumptions.
 
 ## Boundaries to preserve
 
-1. UI cannot execute arbitrary Python or shell commands.
-2. Scientific functions must remain independently testable, without requiring a browser or LLM.
-3. Dataset originals will be immutable; new cleaning steps create versions.
-4. Every future run will reference the precise data version and frozen configuration.
-5. Algorithms will return numerical evidence, diagnostics, warnings, and defined error information.
-6. Optional LLM explanations can only use compact verified results.
-7. No premature worker queues, cloud infra, or GPUs without benchmarked need.
+1. The UI does not execute arbitrary Python or shell commands.
+2. Computational functions remain independent of API/React and must be reference-tested.
+3. Uploaded originals are immutable; derived datasets must get separate versions.
+4. A future experiment run will reference a precise dataset version and frozen configuration.
+5. Numerical results will include evidence, assumptions and diagnostic warnings.
+6. AI is optional and cannot invent scientific outputs.
+7. Do not introduce unneeded queues, cloud infrastructure or GPU dependencies.
 
 ## Runtime considerations
 
-Vite proxies `/api` requests to `127.0.0.1:8000` in local development. This is not a deployment architecture; production reverse proxy and same-origin security rules will be evaluated in Phase 07.
+Developer selected port **8898** after Windows denied binding to 8000. The Vite proxy points to the backend's actual local port in the developer's working configuration and is intentionally **not modified** by Bundle 01A. This is local-only architecture; public deployment needs authentication, resource isolation and a production reverse proxy.

@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { phase, plannedModules } from './phase';
+import { phase, plannedModules, implementedCapability } from './phase';
 
-describe('phase 0 manifest', () => {
-  it('identifies the initial phase', () => {
-    expect(phase).toBe('00');
+describe('Phase 01A capability manifest', () => {
+  it('identifies the dataset import milestone', () => {
+    expect(phase).toBe('01A');
+    expect(implementedCapability).toBe('Dataset import and validation');
   });
-  it('lists seven proposed workspaces without claiming implementation', () => {
+  it('lists seven workspaces without claiming scientific analysis exists', () => {
     expect(plannedModules).toHaveLength(7);
     expect(new Set(plannedModules).size).toBe(7);
   });
