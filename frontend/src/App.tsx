@@ -3,6 +3,7 @@ import { phase, plannedModules } from './phase';
 import { clientFileError, fileSizeLabel, importDataset, type ImportedDataset } from './datasets';
 import { fetchColumnProfile, type DatasetColumnProfile } from './columnProfile';
 import { ColumnProfilePanel } from './ColumnProfilePanel';
+import { StatisticsPanel } from './StatisticsPanel';
 
 type Connection = 'checking' | 'connected' | 'unavailable';
 type Health = { status: string; phase: string; scientific_engine: string };
@@ -26,7 +27,7 @@ export default function App() {
         return res.json() as Promise<Health>;
       })
       .then((data) => {
-        setConnection(data.status === 'ok' && data.scientific_engine === 'not_implemented' ? 'connected' : 'unavailable');
+        setConnection(data.status === 'ok' ? 'connected' : 'unavailable');
       })
       .catch((e: unknown) => {
         if (e instanceof Error && e.name === 'AbortError') return;
@@ -93,13 +94,13 @@ export default function App() {
         <h1 id="project-title">Begin with <em>evidence.</em></h1>
         <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
         <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01B · Column inspection available</span>
+          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01C · Descriptive statistics available</span>
           <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
         </div>
       </section>
 
       <section className="lab-workspace" aria-labelledby="data-lab-title">
-        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — IMPORT + INSPECTION</span></div>
+        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — IMPORT + STATISTICS</span></div>
         <div className="lab-grid">
           <div className="upload-panel">
             <span className="panel-kicker">INPUT / 01</span>
@@ -126,7 +127,7 @@ export default function App() {
               <li><span>03</span> Record file fingerprint and store original bytes</li>
               <li><span>04</span> Inspect columns without transforming the source</li>
             </ol>
-            <div className="method-footnote">Types are provisional, not scientific declarations. No statistics, cleaning, or model training occurs in this phase.</div>
+            <div className="method-footnote">Types are provisional. Statistics operate only on consistently numeric columns; no cleaning or model training occurs in this phase.</div>
           </aside>
         </div>
       </section>
@@ -147,16 +148,17 @@ export default function App() {
           <table className="data-table"><thead><tr>{result.headers.map((head, i) => <th key={i} scope="col">{head}</th>)}</tr></thead>
             <tbody>{result.preview.map((row, i) => <tr key={i}>{row.map((value, j) => <td key={j}>{value ?? <span className="missing">null</span>}</td>)}</tr>)}</tbody></table>
         </div>
-        <p className="preview-note">Preview values remain displayed as originally imported. Column inference is advisory; statistics and numerical computations are planned for later bundles.</p>
+        <p className="preview-note">Preview values remain displayed as originally imported. Column inference is advisory; descriptive numerical summaries appear below.</p>
         {profileLoading && <p role="status" className="profile-status">Inspecting columns…</p>}
         {profileError && <div className="inline-alert error" role="alert"><strong>Inspection unavailable.</strong><p>{profileError}</p><button type="button" className="retry-button" onClick={() => void loadProfile(result.id)}>Retry column inspection</button></div>}
         {profile && <ColumnProfilePanel data={profile} />}
+        <StatisticsPanel key={result.id} datasetId={result.id} />
       </section>}
 
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (
-          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + profiling active' : 'Planned'}</span></div>
+          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + descriptive statistics active' : 'Planned'}</span></div>
         ))}</div>
       </section>
       <footer>AXIOM LAB <span>—</span> Computation must be understandable, inspectable, and reproducible. <span className="footer-phase">PHASE {phase}</span></footer>

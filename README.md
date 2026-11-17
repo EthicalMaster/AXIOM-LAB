@@ -2,7 +2,7 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> Status: **Phase 01B — Column Inspection and Profiling (implementation candidate).** CSV/XLSX/XLS validation, immutable original storage, dataset metadata lookup, bounded text preview and conservative column inspection are implemented. Statistical computation, cleaning, plotting, experiments and AI are **not** implemented yet. See `docs/PHASE_01B_REVIEW.md` before marking this milestone verified.
+> Status: **Phase 01C — Descriptive Statistics (implementation candidate).** CSV/XLSX/XLS validation, immutable original storage, dataset metadata lookup, bounded text preview and conservative column inspection are implemented. Statistical computation, cleaning, plotting, experiments and AI are **not** implemented yet. See `docs/PHASE_01B_REVIEW.md` before marking this milestone verified.
 
 AXIOM LAB is a planned, local-first scientific environment for data exploration, mathematical computation, hypothesis testing, predictive modelling, interactive visualization, persistent experiments, and reproducible reporting.
 
@@ -103,3 +103,7 @@ Future bundles are applied with Git on a clean repository (see `docs/BUNDLE_PROT
 See `docs/PHASE_01B_REVIEW.md` for current acceptance criteria (Phase 00 review remains in `docs/PHASE_00_REVIEW.md`) and learning questions, and `docs/ROADMAP.md` for milestones.
 
 **License:** Not selected. This repository should remain private until its license is explicitly decided. No license rights are granted by this README.
+
+### Phase 01C candidate
+
+`GET /api/v1/datasets/{dataset_id}/statistics` computes descriptive results only for consistently numeric columns. See `docs/PHASE_01C_REVIEW.md`. No inferential analysis is implemented.

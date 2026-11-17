@@ -13,3 +13,6 @@
 - Added explicit API connectivity and Phase 0 status.
 - Added initial tests and project documentation.
 - No scientific functionality is implemented.
+
+## 01C (candidate)
+- Descriptive numeric summaries, explicit statistical definitions and reference tests.

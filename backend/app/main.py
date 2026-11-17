@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from app.api.datasets import router as dataset_router
 from app.api.health import router as health_router
+from app.api.statistics import router as statistics_router
 
 app = FastAPI(
     title="AXIOM LAB API",
@@ -11,3 +12,4 @@ app = FastAPI(
 )
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(dataset_router, prefix="/api/v1")
+app.include_router(statistics_router, prefix="/api/v1")
