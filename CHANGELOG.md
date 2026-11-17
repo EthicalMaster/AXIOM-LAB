@@ -19,3 +19,6 @@
 
 ## 01D (candidate)
 - Bounded numerical observation chart, persistent experiment and run records, reload endpoint and tests.
+
+## 02A (candidate)
+- Source-quality audit: missingness percentages, bounded duplicate-row detection, client diagnostics and tests.

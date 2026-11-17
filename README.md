@@ -2,7 +2,7 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> Status: **Phase 01D — Visualization and Experiment Saving (implementation candidate).** CSV/XLSX/XLS validation, immutable original storage, dataset metadata lookup, bounded text preview and conservative column inspection are implemented. Statistical computation, cleaning, plotting, experiments and AI are **not** implemented yet. See `docs/PHASE_01B_REVIEW.md` before marking this milestone verified.
+> Status: **Phase 02A — Data Quality Profiling (implementation candidate).** CSV/XLSX/XLS validation, immutable original storage, dataset metadata lookup, bounded text preview and conservative column inspection are implemented. Statistical computation, cleaning, plotting, experiments and AI are **not** implemented yet. See `docs/PHASE_01B_REVIEW.md` before marking this milestone verified.
 
 AXIOM LAB is a planned, local-first scientific environment for data exploration, mathematical computation, hypothesis testing, predictive modelling, interactive visualization, persistent experiments, and reproducible reporting.
 
@@ -111,3 +111,7 @@ See `docs/PHASE_01B_REVIEW.md` for current acceptance criteria (Phase 00 review 
 ### Phase 01D candidate
 
 `POST /api/v1/experiments` and `GET /api/v1/experiments/{id}` save and reload an immutable observation chart and run. The chart is not a time series. Single-user and local-only; see `docs/PHASE_01D_REVIEW.md`.
+
+### Phase 02A candidate
+
+`GET /api/v1/datasets/{dataset_id}/quality` audits missing cells, completeness and duplicate source rows with an explicit memory cap. It does not clean datasets. See `docs/PHASE_02A_REVIEW.md`.
