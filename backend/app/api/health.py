@@ -13,4 +13,4 @@ class HealthResponse(BaseModel):
 
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", phase="01C", scientific_engine="descriptive_statistics")
+    return HealthResponse(status="ok", phase="01D", scientific_engine="descriptive_statistics")

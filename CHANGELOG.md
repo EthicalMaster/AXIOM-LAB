@@ -16,3 +16,6 @@
 
 ## 01C (candidate)
 - Descriptive numeric summaries, explicit statistical definitions and reference tests.
+
+## 01D (candidate)
+- Bounded numerical observation chart, persistent experiment and run records, reload endpoint and tests.

@@ -23,6 +23,10 @@ Minimal experiment identity/configuration/run records are intentionally introduc
 
 Bundle 01A adds a bounded import UI, backend CSV/XLSX/XLS validation, immutable original-file storage, SQLite metadata and readback. It does **not** include statistics, cleaning, interactive charts, or experiment records. Accept the bundle only after the Windows verification in `PHASE_01A_REVIEW.md` and a human review of the learning questions.
 
+### Phase 01D exit gate
+
+An experiment must persist one validated numerical chart run with dataset fingerprint and frozen configuration; browser UI must reopen the saved result.
+
 ### Phase 01C exit gate
 
 Descriptive measures are calculated only from consistently numeric columns, record quartile and variance conventions, and correctly handle missing values and singletons.

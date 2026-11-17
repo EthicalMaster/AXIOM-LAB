@@ -4,6 +4,7 @@ import { clientFileError, fileSizeLabel, importDataset, type ImportedDataset } f
 import { fetchColumnProfile, type DatasetColumnProfile } from './columnProfile';
 import { ColumnProfilePanel } from './ColumnProfilePanel';
 import { StatisticsPanel } from './StatisticsPanel';
+import { ExperimentPanel } from './ExperimentPanel';
 
 type Connection = 'checking' | 'connected' | 'unavailable';
 type Health = { status: string; phase: string; scientific_engine: string };
@@ -94,13 +95,13 @@ export default function App() {
         <h1 id="project-title">Begin with <em>evidence.</em></h1>
         <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
         <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01C · Descriptive statistics available</span>
+          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01D · Experiments and charts available</span>
           <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
         </div>
       </section>
 
       <section className="lab-workspace" aria-labelledby="data-lab-title">
-        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — IMPORT + STATISTICS</span></div>
+        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — COMPUTE + SAVE</span></div>
         <div className="lab-grid">
           <div className="upload-panel">
             <span className="panel-kicker">INPUT / 01</span>
@@ -127,7 +128,7 @@ export default function App() {
               <li><span>03</span> Record file fingerprint and store original bytes</li>
               <li><span>04</span> Inspect columns without transforming the source</li>
             </ol>
-            <div className="method-footnote">Types are provisional. Statistics operate only on consistently numeric columns; no cleaning or model training occurs in this phase.</div>
+            <div className="method-footnote">Types are provisional. Statistics operate only on consistently numeric columns; no cleaning or model training occurs in this phase. Charts and experiment runs can now be saved.</div>
           </aside>
         </div>
       </section>
@@ -153,12 +154,13 @@ export default function App() {
         {profileError && <div className="inline-alert error" role="alert"><strong>Inspection unavailable.</strong><p>{profileError}</p><button type="button" className="retry-button" onClick={() => void loadProfile(result.id)}>Retry column inspection</button></div>}
         {profile && <ColumnProfilePanel data={profile} />}
         <StatisticsPanel key={result.id} datasetId={result.id} />
+        {profile && <ExperimentPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
       </section>}
 
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (
-          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + descriptive statistics active' : 'Planned'}</span></div>
+          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + chart experiments active' : 'Planned'}</span></div>
         ))}</div>
       </section>
       <footer>AXIOM LAB <span>—</span> Computation must be understandable, inspectable, and reproducible. <span className="footer-phase">PHASE {phase}</span></footer>
