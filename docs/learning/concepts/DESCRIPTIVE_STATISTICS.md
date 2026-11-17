@@ -8,3 +8,5 @@
 - **Alternatives**: NumPy/Pandas can speed vectorized computation but add dependencies and dtype policy; `statistics` works for bounded early workloads.
 - **Limitations**: finite floating-point arithmetic; explicit large-magnitude rejection; no units, weights, uncertainty estimates, or inferential tests yet.
 - **Scale**: 50k rows/5MiB max and repeated reading are deliberate temporary constraints; production needs benchmarks and job isolation.
+
+- **02B performance follow-up:** the all-column summary uses one bounded data read instead of re-reading the complete file for every numeric column.

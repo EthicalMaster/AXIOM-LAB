@@ -22,3 +22,6 @@
 
 ## 02A (candidate)
 - Source-quality audit: missingness percentages, bounded duplicate-row detection, client diagnostics and tests.
+
+## 02B (candidate)
+- Empirical histogram, validated bin counts, type-7 quartiles and Tukey-fence indicators with methodological warnings.

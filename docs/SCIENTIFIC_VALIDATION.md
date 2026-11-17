@@ -1,6 +1,6 @@
 # Scientific validation policy
 
-No scientific algorithms exist in Phase 0; this is an agreement for later phases.
+Phase 01C–02B now includes descriptive numerical methods, empirical histogram bins and heuristic outlier indicators. These are candidates pending developer-machine acceptance; the following scientific validation principles remain mandatory.
 
 ## Required evidence for each method
 

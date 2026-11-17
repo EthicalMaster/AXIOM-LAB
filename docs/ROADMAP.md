@@ -23,6 +23,10 @@ Minimal experiment identity/configuration/run records are intentionally introduc
 
 Bundle 01A adds a bounded import UI, backend CSV/XLSX/XLS validation, immutable original-file storage, SQLite metadata and readback. It does **not** include statistics, cleaning, interactive charts, or experiment records. Accept the bundle only after the Windows verification in `PHASE_01A_REVIEW.md` and a human review of the learning questions.
 
+### Phase 02B exit gate
+
+One consistently numeric column must produce a documented empirical histogram, exact frequency table, quartile markers, and appropriately qualified outlier indicators.
+
 ### Phase 02A exit gate
 
 A read-only data quality audit must report source-level missingness, duplicate rows and accurate limitations, while preserving all earlier capabilities.

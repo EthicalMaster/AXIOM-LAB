@@ -1,8 +1,8 @@
-# Architecture — Phase 01B implementation candidate
+# Architecture — Phase 02B implementation candidate
 
 ## Decision
 
-AXIOM LAB is a local-first modular monolith with React/Vite frontend and Python/FastAPI backend. Versioned API routes call independently testable services. SQLite is used for dataset **metadata**; uploaded original bytes live in `runtime/datasets`. Scientific computation and LLM interpretation are **not** implemented in this milestone.
+AXIOM LAB is a local-first modular monolith with React/Vite frontend and Python/FastAPI backend. Versioned API routes call independently testable services. SQLite is used for dataset **metadata**; uploaded original bytes live in `runtime/datasets`. Descriptive scientific computation and minimal experiment runs are implemented. AI interpretation, hypothesis tests, multi-user access control and numerical job isolation are **not** implemented.
 
 ```text
 Browser (React + TypeScript)
@@ -51,3 +51,12 @@ Developer selected port **8898** after Windows denied binding to 8000. The Vite 
 Column types are conservative hints only (`numeric`, `boolean`, `datetime`, `categorical`, `mixed`, `empty`); mixed or identifier-like values are never coerced. Distinct values are tracked up to 1,000 examples per column to bound memory, with the API explicitly marking lower bounds.
 
 Multi-tenant deployment requires authorization on dataset IDs, per-user storage isolation, request limits and asynchronous job handling; none of those claims are made for Phase 01B.
+
+## Phase 01C–02B additions (implementation candidates)
+
+- **01C:** `api/statistics.py` calls `services/descriptive_statistics.py`, returning validated and explicitly defined means, medians, quartiles, sample and population variance/SD. Result formatting belongs to React; backend numbers remain numerical.
+- **01D:** `api/experiments.py` computes `services/experiment_visualization.py` observation-series charts and writes `experiments` and `runs` tables via `persistence/experiment_store.py`. Frozen JSON, dataset SHA-256, timestamp and method version support later verification. One experiment currently has one run; history/comparison come in Phase 05.
+- **02A:** `api/quality.py` computes source missingness and bounded duplicate-row indicators, without cleanup.
+- **02B:** `api/distributions.py` returns Sturges equal-width histogram counts and cautious Tukey outlier indicators for entirely numeric columns.
+
+**Boundary:** all dataset analysis rechecks stored raw bytes against SHA-256. Run data are stored locally in SQLite; experiments do not yet enforce per-user ownership. API requests perform synchronous CPU work. This design is *not* suitable for thousands of concurrent computation jobs without queueing, resource limits, distributed storage, and authentication.

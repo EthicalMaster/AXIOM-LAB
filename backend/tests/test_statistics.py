@@ -55,3 +55,8 @@ def test_numerical_overflow_rejected():
     from app.services.dataset_validation import DatasetValidationError
     with pytest.raises(DatasetValidationError):
         describe_values([1e308, -1e308], 0)
+
+
+def test_multiple_numeric_columns_use_correct_independent_values():
+    results = stats(b'a,b,c\n1,10,100\n2,20,200\n3,30,300\n').json()['columns']
+    assert [c['mean'] for c in results] == [2, 20, 200]

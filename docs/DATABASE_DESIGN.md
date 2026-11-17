@@ -20,3 +20,7 @@ Primary key: random hex UUID `id`. Fields include `original_name`, `file_format`
 - ExecutionDiagnostic and method-version metadata.
 
 Future runs must reference exact dataset versions, configurations, diagnostic results, method versions and random seeds where applicable.
+
+## Phase 01D minimal experiment schema
+
+`experiments` stores opaque id, name, dataset ID and SHA-256, created_at. `runs` stores immutable id, experiment id, method, configuration/result/environment JSON, status and created_at. Both tables are lazily created in local SQLite. This is single-user, not a multi-tenant schema; future migration to PostgreSQL requires ownership model, permissions, migrations and safe artifact storage.

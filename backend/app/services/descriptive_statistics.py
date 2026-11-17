@@ -93,11 +93,30 @@ def describe_values(values: list[float], missing: int) -> dict[str, Any]:
 
 
 def dataset_statistics(raw: bytes, suffix: str) -> dict[str, Any]:
+    # One profiling pass + one value pass, not a separate full-file parse for each
+    # numeric column. With 150 columns the latter would be prohibitively slow.
     profile = profile_columns(raw, suffix)
-    output = []
-    for col in profile['columns']:
-        if col['inferred_type'] == 'numeric':
-            values, missing = numeric_series(raw, suffix, col['name'])
-            output.append({'column': col['name'], **describe_values(values, missing)})
+    selected = [(i, col) for i, col in enumerate(profile['columns']) if col['inferred_type'] == 'numeric']
+    accumulators: dict[int, list[float]] = {i: [] for i, _ in selected}
+    if selected:
+        first = True
+        with _source_rows(raw, suffix) as rows:
+            for row in rows:
+                cells = list(row)
+                if not cells or all(v is None or not str(v).strip() for v in cells):
+                    continue
+                if first:
+                    first = False
+                    continue
+                for i, _ in selected:
+                    value = cells[i] if i < len(cells) else None
+                    if value is None or not str(value).strip():
+                        continue
+                    number = float(value)
+                    if not math.isfinite(number):
+                        raise DatasetValidationError('non_finite', 'Non-finite numerical values cannot be analysed.')
+                    accumulators[i].append(number)
+    output = [{'column': col['name'],
+               **describe_values(accumulators[i], col['missing_count'])} for i, col in selected]
     return {'method': METHOD_VERSION, 'row_count': profile['row_count'], 'columns': output,
             'note': 'Descriptive measures only; no inferential claims, units or cleaning implied.'}
