@@ -5,6 +5,7 @@ import { fetchColumnProfile, type DatasetColumnProfile } from './columnProfile';
 import { ColumnProfilePanel } from './ColumnProfilePanel';
 import { StatisticsPanel } from './StatisticsPanel';
 import { ExperimentPanel } from './ExperimentPanel';
+import { QualityPanel } from './QualityPanel';
 
 type Connection = 'checking' | 'connected' | 'unavailable';
 type Health = { status: string; phase: string; scientific_engine: string };
@@ -95,7 +96,7 @@ export default function App() {
         <h1 id="project-title">Begin with <em>evidence.</em></h1>
         <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
         <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 01D · Experiments and charts available</span>
+          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 02A · Data quality audit available</span>
           <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
         </div>
       </section>
@@ -153,6 +154,7 @@ export default function App() {
         {profileLoading && <p role="status" className="profile-status">Inspecting columns…</p>}
         {profileError && <div className="inline-alert error" role="alert"><strong>Inspection unavailable.</strong><p>{profileError}</p><button type="button" className="retry-button" onClick={() => void loadProfile(result.id)}>Retry column inspection</button></div>}
         {profile && <ColumnProfilePanel data={profile} />}
+        <QualityPanel key={result.id} datasetId={result.id} />
         <StatisticsPanel key={result.id} datasetId={result.id} />
         {profile && <ExperimentPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
       </section>}

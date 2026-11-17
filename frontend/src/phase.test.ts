@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { phase, plannedModules, implementedCapability } from './phase';
 
-describe('Phase 01D capability manifest', () => {
+describe('Phase 02A capability manifest', () => {
   it('identifies the dataset inspection milestone', () => {
-    expect(phase).toBe('01D');
-    expect(implementedCapability).toBe('Dataset import, numerical statistics, charting and minimal experiment persistence');
+    expect(phase).toBe('02A');
+    expect(implementedCapability).toBe('Dataset import, quality profiling, descriptive statistics and saved chart runs');
   });
   it('lists seven workspaces without claiming scientific analysis exists', () => {
     expect(plannedModules).toHaveLength(7);
