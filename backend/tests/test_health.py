@@ -10,7 +10,7 @@ def test_health_endpoint_returns_phase_02c():
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
-        "phase": "03B",
+        "phase": "03C",
         "scientific_engine": "descriptive_statistics",
     }
 

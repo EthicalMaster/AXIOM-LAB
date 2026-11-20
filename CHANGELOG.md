@@ -37,3 +37,6 @@
 
 ## Phase 03B (candidate)
 - Degree-limited polynomial differentiation, antiderivatives and approximate root calculations from validated coefficients.
+
+## Phase 03C (candidate)
+- Small bounded linear algebra operations with condition-number diagnostics.

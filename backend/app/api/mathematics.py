@@ -27,3 +27,16 @@ def polynomial(request: PolynomialInput) -> dict:
         return polynomial_calculus(request.coefficients)
     except DatasetValidationError as exc:
         raise HTTPException(exc.status_code, detail={'code': exc.code, 'message': exc.message}) from exc
+
+from app.services.linear_algebra import analyse_matrix
+
+class MatrixInput(BaseModel):
+    matrix: list[list[float]] = Field(min_length=1, max_length=8)
+    vector: list[float] | None = None
+
+@router.post('/matrix')
+def matrix_operations(request: MatrixInput) -> dict:
+    try:
+        return analyse_matrix(request.matrix, request.vector)
+    except DatasetValidationError as exc:
+        raise HTTPException(exc.status_code, detail={'code': exc.code, 'message': exc.message}) from exc
