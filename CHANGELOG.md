@@ -31,3 +31,6 @@
 
 ## Phase 02D (candidate)
 - Shapiro–Wilk normality diagnostic, withholding unsafe/unsupported cases and documenting assumptions.
+
+## Phase 03A (candidate)
+- Small whitelisted mathematical expression evaluator with explicit resource and syntax limits.

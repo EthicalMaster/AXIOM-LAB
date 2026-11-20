@@ -1,3 +1,4 @@
+import { MathWorkbenchPanel } from './MathWorkbenchPanel';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { HypothesisPanel } from './HypothesisPanel';
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
@@ -165,6 +166,7 @@ export default function App() {
         {profile && <ExperimentPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
       </section>}
 
+      <MathWorkbenchPanel />
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (
