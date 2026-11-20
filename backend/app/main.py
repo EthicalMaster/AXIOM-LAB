@@ -14,6 +14,8 @@ from app.api.diagnostics import router as diagnostics_router
 
 from app.api.mathematics import router as mathematics_router
 
+from app.api.ml import router as ml_router
+
 app = FastAPI(
     title="AXIOM LAB API",
     description="Scientific computing API: import, column profiling, descriptive statistics, persisted chart runs, source quality and distributions.",
@@ -31,3 +33,5 @@ app.include_router(hypothesis_router, prefix="/api/v1")
 app.include_router(diagnostics_router, prefix="/api/v1")
 
 app.include_router(mathematics_router, prefix="/api/v1")
+
+app.include_router(ml_router, prefix="/api/v1")

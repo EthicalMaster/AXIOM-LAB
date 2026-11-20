@@ -1,3 +1,4 @@
+import { MLStudioPanel } from './MLStudioPanel';
 import { NumericalPanel } from './NumericalPanel';
 import { MatrixPanel } from './MatrixPanel';
 import { PolynomialPanel } from './PolynomialPanel';
@@ -173,6 +174,7 @@ export default function App() {
       <PolynomialPanel />
       <MatrixPanel />
       <NumericalPanel />
+      {result && profile && <MLStudioPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} targetColumns={profile.columns.filter(c=>c.inferred_type === 'categorical' || c.inferred_type === 'boolean').map(c=>c.name)} />}
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (

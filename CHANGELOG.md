@@ -43,3 +43,6 @@
 
 ## Phase 03D (candidate)
 - Bounded bracketed root-finding and numerical quadrature with estimates and failure explanations.
+
+## Phase 04A (candidate)
+- Deterministic supervised holdout and fitted preprocessing restricted to training rows.

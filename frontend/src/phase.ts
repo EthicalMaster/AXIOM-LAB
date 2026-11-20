@@ -1,5 +1,5 @@
 /** Capability manifest. Phase 01B adds structural column profiling, not statistics. */
-export const phase = '03D' as const;
+export const phase = '04A' as const;
 export const plannedModules = [
   'Data Lab',
   'Statistics Lab',
