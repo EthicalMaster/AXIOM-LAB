@@ -40,3 +40,17 @@ def matrix_operations(request: MatrixInput) -> dict:
         return analyse_matrix(request.matrix, request.vector)
     except DatasetValidationError as exc:
         raise HTTPException(exc.status_code, detail={'code': exc.code, 'message': exc.message}) from exc
+
+from app.services.numerical_methods import analyse_interval
+
+class IntervalInput(BaseModel):
+    coefficients: list[float] = Field(min_length=2, max_length=7)
+    lower: float = Field(allow_inf_nan=False)
+    upper: float = Field(allow_inf_nan=False)
+
+@router.post('/numerical')
+def numerical_methods(request: IntervalInput) -> dict:
+    try:
+        return analyse_interval(request.coefficients, request.lower, request.upper)
+    except DatasetValidationError as exc:
+        raise HTTPException(exc.status_code, detail={'code': exc.code, 'message': exc.message}) from exc

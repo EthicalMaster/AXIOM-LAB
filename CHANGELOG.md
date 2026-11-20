@@ -40,3 +40,6 @@
 
 ## Phase 03C (candidate)
 - Small bounded linear algebra operations with condition-number diagnostics.
+
+## Phase 03D (candidate)
+- Bounded bracketed root-finding and numerical quadrature with estimates and failure explanations.
