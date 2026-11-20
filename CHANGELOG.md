@@ -28,3 +28,6 @@
 
 ## Phase 02C (candidate)
 - Bounded, reference-tested two-sided one-sample t-test with confidence interval, effect size and warnings.
+
+## Phase 02D (candidate)
+- Shapiro–Wilk normality diagnostic, withholding unsafe/unsupported cases and documenting assumptions.

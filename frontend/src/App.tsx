@@ -1,3 +1,4 @@
+import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { HypothesisPanel } from './HypothesisPanel';
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
 import { phase, plannedModules } from './phase';
@@ -160,6 +161,7 @@ export default function App() {
         {profile && <DistributionPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type==='numeric').map(c=>c.name)} />}
         <StatisticsPanel key={result.id} datasetId={result.id} />
         {profile && <HypothesisPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
+        {profile && <DiagnosticsPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
         {profile && <ExperimentPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
       </section>}
 
