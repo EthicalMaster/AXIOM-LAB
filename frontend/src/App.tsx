@@ -1,3 +1,4 @@
+import { PolynomialPanel } from './PolynomialPanel';
 import { MathWorkbenchPanel } from './MathWorkbenchPanel';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { HypothesisPanel } from './HypothesisPanel';
@@ -167,6 +168,7 @@ export default function App() {
       </section>}
 
       <MathWorkbenchPanel />
+      <PolynomialPanel />
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (

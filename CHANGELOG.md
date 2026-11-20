@@ -34,3 +34,6 @@
 
 ## Phase 03A (candidate)
 - Small whitelisted mathematical expression evaluator with explicit resource and syntax limits.
+
+## Phase 03B (candidate)
+- Degree-limited polynomial differentiation, antiderivatives and approximate root calculations from validated coefficients.

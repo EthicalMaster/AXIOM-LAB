@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { phase, plannedModules, implementedCapability } from './phase';
 
-describe('Phase 03A capability manifest', () => {
+describe('Phase 03B capability manifest', () => {
   it('identifies the distribution analysis milestone', () => {
-    expect(phase).toBe('03A');
+    expect(phase).toBe('03B');
     expect(implementedCapability).toBe('Dataset import, statistics, quality profiling, histogram distributions and saved chart runs');
   });
   it('lists seven workspaces without claiming unimplemented AI or ML exists', () => {
