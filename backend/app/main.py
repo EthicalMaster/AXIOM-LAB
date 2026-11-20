@@ -8,6 +8,8 @@ from app.api.experiments import router as experiment_router
 from app.api.quality import router as quality_router
 from app.api.distributions import router as distribution_router
 
+from app.api.hypothesis import router as hypothesis_router
+
 app = FastAPI(
     title="AXIOM LAB API",
     description="Scientific computing API: import, column profiling, descriptive statistics, persisted chart runs, source quality and distributions.",
@@ -19,3 +21,5 @@ app.include_router(statistics_router, prefix="/api/v1")
 app.include_router(experiment_router, prefix="/api/v1")
 app.include_router(quality_router, prefix="/api/v1")
 app.include_router(distribution_router, prefix="/api/v1")
+
+app.include_router(hypothesis_router, prefix="/api/v1")

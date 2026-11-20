@@ -25,3 +25,6 @@
 
 ## 02B (candidate)
 - Empirical histogram, validated bin counts, type-7 quartiles and Tukey-fence indicators with methodological warnings.
+
+## Phase 02C (candidate)
+- Bounded, reference-tested two-sided one-sample t-test with confidence interval, effect size and warnings.

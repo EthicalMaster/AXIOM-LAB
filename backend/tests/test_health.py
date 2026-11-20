@@ -5,12 +5,12 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_health_endpoint_returns_phase_02b():
+def test_health_endpoint_returns_phase_02c():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
-        "phase": "02B",
+        "phase": "02C",
         "scientific_engine": "descriptive_statistics",
     }
 
