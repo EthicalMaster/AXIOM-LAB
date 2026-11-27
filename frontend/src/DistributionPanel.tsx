@@ -1,7 +1,7 @@
-import {BoxPlot,Details} from './Visuals';
+import {BoxPlot,Details,XYPlot} from './Visuals';
 import {Loading} from './WorkspaceTools';
 import { useEffect, useState } from 'react';
-import { fetchDistribution, histogramHeight, type DistributionReport } from './distribution';
+import { fetchDistribution, type DistributionReport } from './distribution';
 import { displayNumber } from './statistics';
 
 export function DistributionPanel({datasetId,numericColumns}:{datasetId:string;numericColumns:string[]}) {
@@ -18,7 +18,6 @@ export function DistributionPanel({datasetId,numericColumns}:{datasetId:string;n
       .finally(()=>{if(active)setLoading(false);});
     return ()=>{active=false;};
   },[datasetId,selected]);
-  const maxCount=Math.max(0,...(report?.bins.map(b=>b.count)??[]));
   return <section className="science-panel" aria-labelledby="distribution-title">
     <div className="preview-heading"><h3 id="distribution-title">Distribution explorer</h3><span>PHASE 02B · HISTOGRAM</span></div>
     <p className="profile-description">Equal-width count bins (Sturges heuristic, up to 20). Numeric observations only; chart represents frequency, not a fitted probability distribution.</p>
@@ -26,10 +25,7 @@ export function DistributionPanel({datasetId,numericColumns}:{datasetId:string;n
     {loading&&<Loading label="Calculating frequency bins"/>}
     {error&&<div className="inline-alert error" role="alert">{error}</div>}
     {report&&<>
-      <div className="histogram" role="img" aria-label={`Histogram for ${report.column}; ${report.count} nonempty observations across ${report.bin_count} bins`}>
-        {report.bins.map((b,i)=><div className="histogram-bin" key={i} title={`${displayNumber(b.lower)} to ${displayNumber(b.upper)}: ${b.count} observations`}>
-          <span className="histogram-label">{b.count}</span><div className="histogram-bar" style={{height:`${histogramHeight(b.count,maxCount)}%`}}/></div>)}
-      </div>
+      <XYPlot points={[]} bins={report.bins} label={`Frequency · ${report.column}`} xLabel={report.column} yLabel="Count"/>
       <div className="distribution-summary"><span><strong>{report.count}</strong> observations</span><span><strong>{report.missing_count}</strong> missing</span><span><strong>{displayNumber(report.median)}</strong> median</span><span><strong>{report.outlier_count===null?'N/A':report.outlier_count}</strong> outlier indicators</span></div>
       <BoxPlot label={report.column} min={report.minimum} max={report.maximum} q1={report.q1} q3={report.q3} median={report.median}/><Details title="Exact frequency table"><div className="table-scroll" tabIndex={0} aria-label="Exact distribution frequency table">
         <table className="data-table"><thead><tr><th scope="col">Bin</th><th scope="col">Lower bound</th><th scope="col">Upper bound</th><th scope="col">Count</th><th scope="col">Share</th></tr></thead>

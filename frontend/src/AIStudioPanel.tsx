@@ -8,6 +8,7 @@ export function AIStudioPanel({datasetId}:{datasetId?:string}){
   const [goal,setGoal]=useState('describe');
   const [guidance,setGuidance]=useState<Record<string,unknown>|null>(null);
   const [status,setStatus]=useState<Status|null>(null);
+  const [remote,setRemote]=useState(false);
   const [error,setError]=useState('');
   async function refresh(){
     setError('');
@@ -18,15 +19,17 @@ export function AIStudioPanel({datasetId}:{datasetId?:string}){
     if(!datasetId||busy)return;setBusy(true);
     setError('');setGuidance(null);
     try{
-      const res=await apiFetch('/api/v1/ai/guidance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataset_id:datasetId,goal})});
+      const res=await apiFetch('/api/v1/ai/guidance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataset_id:datasetId,goal,use_provider:remote})});
       if(!res.ok)throw Error(`Guidance failed (HTTP ${res.status})`);
       setGuidance(await res.json() as Record<string,unknown>);
     }catch(e){setError(e instanceof Error?e.message:'Guidance unavailable');}finally{setBusy(false);}
   }
   return <section className="science-panel" aria-labelledby="ai-title">
-    <div className="preview-heading"><h3 id="ai-title">Scientific assistant</h3><span>PHASE 06A–06C · GROUNDED ADVICE</span></div>
+    <div className="preview-heading"><h3 id="ai-title">Scientific assistant</h3><span>OPTIONAL PROVIDER · GROUNDED ADVICE</span></div>
     <p className="profile-description">Scientific calculations never depend on an AI subscription. AI commentary is optional, bounded, and separate from verified numerical evidence.</p>
     <button type="button" className="retry-button" onClick={()=>void refresh()}>Check provider status</button>
+    <details className="lab-details"><summary>Configure an AI provider</summary><p>Set AXIOM_AI_BASE_URL, AXIOM_AI_MODEL and AXIOM_AI_API_KEY in the backend process environment, restart FastAPI, then check provider status. Never put a provider key in frontend code or commit it. See docs/AI_SETUP.md for commands. Configuration status does not test the remote key.</p></details>
+    {datasetId&&<label className="guide-consent"><input type="checkbox" checked={remote} onChange={e=>setRemote(e.target.checked)}/>Allow external commentary using limited dataset structure and method summary. Do not enable for confidential data.</label>}
     {datasetId&&<div className="experiment-controls"><label>Research goal
       <select value={goal} onChange={e=>setGoal(e.target.value)}><option value="describe">Describe data</option><option value="distribution">Examine distributions</option><option value="mean_test">Test a reference mean</option><option value="prediction">Predict outcomes</option></select>
     </label><button type="button" className="primary-button" disabled={busy} onClick={()=>void recommend()}>Suggest grounded methods</button></div>}

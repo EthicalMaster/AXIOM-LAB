@@ -1,0 +1,9 @@
+# Interaction and recovery upgrade
+
+- Coordinate charts share a bounded data viewport. Zoom via +/- or Ctrl/Cmd+wheel; drag after zooming, keyboard arrows, Home/reset. Tick labels are recomputed from the actual visible domain. Fixed diagrams (box plot, confidence interval, composition ring, heatmaps) stay static intentionally; exact table values remain accessible.
+- Import now supports file drop, browse, validation, retry and a synthetic practice CSV. The previous successful dataset remains active until replacement succeeds. Upload is not fabricated percent progress.
+- ML has explicit regression/classification/clustering choices and multi-feature supervised selection. The practice dataset is synthetic and not evidence of real-world accuracy.
+- Shared CSS button patterns are inspired by Origin UI animated arrow and Native Button glow on 21st.dev (https://preview.21st.dev/@originui/components/button/button-with-animated-arrow and https://preview.21st.dev/@moumensoliman/components/native-button/glow). Custom native React/CSS implementation; no copied third-party source or new dependency.
+- Request-driven loaders display skeletons while work is pending; fast requests may finish before a frame is painted. No artificial delay. Full-page startup recovery handles unavailable auth status, in-workspace recovery supports retry and diagnostics. System checks existed before this upgrade and remain available. No new URL routing or hosting error-page deployment.
+- Single-column scientific results avoid CSS grid row gaps after expanding details. Overview remains bento. Responsive CSS and reduced motion are retained.
+- Backend algorithms, protections and API contracts unchanged. Browser visual acceptance and npm typecheck/build must be run on the user's laptop if unavailable in builder.

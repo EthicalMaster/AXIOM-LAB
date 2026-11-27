@@ -1,4 +1,4 @@
-import {Loading} from './WorkspaceTools';
+import {Loading,RecoveryScreen} from './WorkspaceTools';
 import {apiFetch} from './apiClient';
 import {useEffect,useState,type FormEvent,type ReactNode} from 'react';
 type State={required:boolean;authenticated:boolean};
@@ -7,6 +7,7 @@ export function AccessGate({children}:{children:ReactNode}){
   const [token,setToken]=useState('');
   const [error,setError]=useState('');
   const [busy,setBusy]=useState(false);
+  const [attempt,setAttempt]=useState(0);
   useEffect(()=>{
     const controller=new AbortController();
     void apiFetch('/api/v1/auth/status',{signal:controller.signal}).then(res=>{
@@ -14,7 +15,7 @@ export function AccessGate({children}:{children:ReactNode}){
       return res.json() as Promise<State>;
     }).then(setState).catch(e=>{if(e instanceof Error && e.name!=='AbortError')setError(e.message);});
     return ()=>controller.abort();
-  },[]);
+  },[attempt]);
   async function login(e:FormEvent){
     e.preventDefault();setBusy(true);setError('');
     try{
@@ -37,6 +38,7 @@ export function AccessGate({children}:{children:ReactNode}){
     {children}
   </>;
   if(!state&&!error)return <main className="startup-screen"><div><h1>∴ AXIOM LAB</h1><Loading label="Connecting to scientific engine"/></div></main>;
+  if(!state&&error)return <RecoveryScreen full title="Cannot connect to AXIOM LAB" detail={error} onRetry={()=>{setError('');setAttempt(n=>n+1)}}/>;
   return <main className="access-shell" aria-labelledby="access-title">
     <h1 id="access-title">AXIOM LAB</h1>
     {!state ? <p role="status">Connecting to the scientific workspace…</p>:
@@ -45,7 +47,8 @@ export function AccessGate({children}:{children:ReactNode}){
         <label htmlFor="access-token">Access token</label>
         <input id="access-token" type="password" value={token} onChange={e=>setToken(e.target.value)} required autoComplete="current-password"/>
         <button type="submit" className="primary-button" disabled={busy||!token}> {busy?'Checking…':'Unlock workspace'} </button>
+        {busy&&<Loading label="Checking workspace access"/>}
       </form>}
-    {error&&<div className="inline-alert error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
+    {error&&<div className="inline-alert error" role="alert">{error} <button type="button" onClick={()=>setError('')}>Dismiss</button></div>}
   </main>;
 }

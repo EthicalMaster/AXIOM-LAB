@@ -1,22 +1,16 @@
 import {useState} from 'react';
+import {InteractivePlot} from './InteractivePlot';
 import type {ImportedDataset} from './datasets';
 import type {DatasetColumnProfile} from './columnProfile';
 import {WorkspaceIcon} from './WorkspaceIcon';
 import {previewPoints,profileSummary} from './overviewData';
 const colors=['var(--accent)','var(--cyan)','var(--amber)','var(--pink)','var(--blue)','var(--muted)'];
-const fmt=(v:number)=>new Intl.NumberFormat(undefined,{maximumSignificantDigits:5}).format(v);
 function ObservationPlot({dataset,profile}:{dataset:ImportedDataset;profile:DatasetColumnProfile|null}){
  const numeric=profile?.columns.filter(c=>c.inferred_type==='numeric').map(c=>c.name)??[];
  const [selected,setSelected]=useState('');const column=numeric.includes(selected)?selected:numeric[0];
  const points=previewPoints(dataset,column??'');
- const low=points.length?Math.min(...points.map(p=>p.y)):0,high=points.length?Math.max(...points.map(p=>p.y)):1;
- const X=(x:number)=>68+(x-1)/Math.max(1,dataset.preview.length-1)*536;
- const Y=(y:number)=>200-(high===low?.5:(y-low)/(high-low))*164;
  return <section className="intel-card observation-card"><div className="intel-heading"><div><span className="overline">01 / SIGNAL</span><h2>Observation explorer</h2></div>{numeric.length>0&&<label className="chart-select"><span>Variable</span><select value={column} onChange={e=>setSelected(e.target.value)}>{numeric.map(n=><option key={n}>{n}</option>)}</select></label>}</div>
- {points.length>0?<><svg className="signal-plot" viewBox="0 0 640 242" role="img" aria-label={`${column}: ${points.length} numeric points in the imported preview, observation order not time`}>
- {(high===low?[.5]:[0,.25,.5,.75,1]).map(t=><g key={t}><line x1="68" x2="604" y1={200-t*164} y2={200-t*164} stroke="var(--line)" strokeDasharray="3 5"/><text x="59" y={204-t*164} textAnchor="end">{fmt(low+t*(high-low))}</text></g>)}
- {points.map(p=><g key={p.x}><line x1={X(p.x)} x2={X(p.x)} y1="200" y2={Y(p.y)} stroke="var(--accent)" opacity=".15"/><circle cx={X(p.x)} cy={Y(p.y)} r="4.5" fill="var(--accent)" stroke="var(--surface)" strokeWidth="1.5"><title>{`Preview row ${p.x}: ${p.y}`}</title></circle></g>)}
- <text x="68" y="225">1</text><text x="604" y="225" textAnchor="end">{dataset.preview.length}</text><text x="336" y="225" textAnchor="middle">Preview row</text></svg><div className="intel-foot"><span><i className="plot-dot"/> {column}</span><span>{points.length} present points · preview only</span></div></>:<div className="intel-empty">{profile?'No numeric preview values available.':'Inspecting columns…'}</div>}
+ {points.length>0?<><InteractivePlot key={column} points={points} label={`${column} · preview observations`} xLabel="Preview row" yLabel={column??'Value'} xDomain={[1,Math.max(2,dataset.preview.length)]}/><div className="intel-foot"><span><i className="plot-dot"/> {column}</span><span>{points.length} present points · preview only</span></div></>:<div className="intel-empty">{profile?'No numeric preview values available.':'Inspecting columns…'}</div>}
  </section>
 }
 export function Overview({dataset,profile,onNavigate}:{dataset:ImportedDataset|null;profile:DatasetColumnProfile|null;onNavigate:(page:'Data Lab'|'Statistics'|'Machine Learning'|'Experiments')=>void}){
