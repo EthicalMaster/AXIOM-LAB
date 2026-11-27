@@ -4,6 +4,8 @@ from __future__ import annotations
 import os
 import re
 import time
+import ssl
+from tempfile import NamedTemporaryFile
 from threading import Lock
 from urllib.parse import urlsplit
 from contextlib import contextmanager
@@ -54,13 +56,21 @@ def configuration() -> None:
 def database():
     import psycopg
     from psycopg.rows import dict_row
-    with psycopg.connect(os.environ["AXIOM_DATABASE_URL"], connect_timeout=5,
-                         sslmode="verify-full", sslrootcert="system",
-                         prepare_threshold=None, row_factory=dict_row) as conn:
-        conn.execute("SET LOCAL search_path TO axiom_lab, pg_catalog")
-        conn.execute("SET LOCAL statement_timeout TO '8s'")
-        conn.execute("SET LOCAL lock_timeout TO '5s'")
-        yield conn
+    # Supabase uses its own CA. Trust the certificate supplied by the operator
+    # from the authenticated database settings page, never a peer-provided CA.
+    pem = os.getenv("AXIOM_SUPABASE_CA_PEM", "").strip()
+    with NamedTemporaryFile(mode="w", suffix=".crt") as certificate:
+        if pem:
+            ssl.create_default_context(cadata=pem)
+            certificate.write(pem + "\n")
+            certificate.flush()
+        with psycopg.connect(os.environ["AXIOM_DATABASE_URL"], connect_timeout=5,
+                             sslmode="verify-full", sslrootcert=certificate.name if pem else "system",
+                             prepare_threshold=None, row_factory=dict_row) as conn:
+            conn.execute("SET LOCAL search_path TO axiom_lab, pg_catalog")
+            conn.execute("SET LOCAL statement_timeout TO '8s'")
+            conn.execute("SET LOCAL lock_timeout TO '5s'")
+            yield conn
 
 
 def _access_token(client: httpx.Client) -> str:

@@ -16,3 +16,5 @@ Use same-origin frontend API rewrites. Verify session cookies, origin enforcemen
 limits, uploads, SHA-256, revision concurrency, restart persistence and reports before production.
 Rate limits are fixed-window and shared; the in-flight guard remains process-local.
 No existing local data is automatically migrated.
+
+For the hosted pooler, download the official public CA certificate from Supabase Database Settings > SSL Configuration. Set AXIOM_SUPABASE_CA_PEM to the complete PEM (including BEGIN/END CERTIFICATE). The backend uses verify-full with that CA; absent the variable, it uses system roots. Never disable hostname or certificate verification.
