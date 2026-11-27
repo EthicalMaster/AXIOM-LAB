@@ -1,6 +1,6 @@
-/** Current candidate capabilities; future phases remain in plannedModules. */
-export const phase = '05A' as const;
-export const plannedModules = [
+/** Current bounded capabilities; release acceptance remains separate from code availability. */
+export const phase = '07D' as const;
+export const workspaceModules = [
   'Data Lab',
   'Statistics Lab',
   'Visualization Studio',
@@ -9,4 +9,4 @@ export const plannedModules = [
   'Experiment Engine',
   'Scientific Reporting',
 ] as const;
-export const implementedCapability = 'Dataset analysis, guarded inference, bounded mathematics, ML baselines, and experiment history' as const;
+export const implementedCapability = 'Bounded scientific analysis, experiment lineage, advisory AI, and evidence-only reports' as const;

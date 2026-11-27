@@ -1,0 +1,48 @@
+name: axiom-lab
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.backend
+    environment:
+      AXIOM_DATA_DIR: /data
+      AXIOM_PUBLIC_MODE: ${AXIOM_PUBLIC_MODE:-0}
+      AXIOM_ACCESS_TOKEN: ${AXIOM_ACCESS_TOKEN:-}
+      AXIOM_AI_BASE_URL: ${AXIOM_AI_BASE_URL:-}
+      AXIOM_AI_MODEL: ${AXIOM_AI_MODEL:-}
+      AXIOM_AI_API_KEY: ${AXIOM_AI_API_KEY:-}
+      AXIOM_AI_ALLOW_LOOPBACK: ${AXIOM_AI_ALLOW_LOOPBACK:-0}
+    volumes:
+      - axiom-data:/data
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3).read()"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+volumes:
+  axiom-data:

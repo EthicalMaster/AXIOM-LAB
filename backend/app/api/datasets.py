@@ -9,7 +9,6 @@ from pydantic import BaseModel
 
 from app.persistence.dataset_store import DatasetStorageError, find_dataset, read_original_dataset, save_dataset
 from app.services.column_profiling import profile_columns
-from app.services.descriptive_statistics import dataset_statistics
 from app.services.dataset_validation import (
     MAX_FILE_BYTES, DatasetValidationError, safe_filename, validate_dataset,
 )

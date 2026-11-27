@@ -19,3 +19,19 @@ h2{font-size:20px;font-weight:500;margin:0}.section-topline{display:flex;justify
 
 /* 02B distribution investigation: data graphics, not decoration */
 .distribution-picker{display:flex;flex-direction:column;max-width:420px;gap:9px;font-size:12px;color:#b9c3c5;margin:22px 0}.distribution-picker select{min-height:44px;padding:9px;background:#171d22;border:1px solid #4b5559;border-radius:5px;color:#e5e8e4}.histogram{display:flex;align-items:end;gap:5px;width:100%;height:220px;padding:20px 14px 0;border-bottom:1px solid #626c6e;border-left:1px solid #626c6e;margin:30px 0 16px}.histogram-bin{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;flex:1 1 0;min-width:6px;height:100%;gap:5px}.histogram-label{color:#b8c4be;font-size:10px}.histogram-bar{min-height:0;background:#b8a17e;width:100%;border-radius:3px 3px 0 0;transition:height .16s ease}.distribution-summary{display:flex;flex-wrap:wrap;gap:18px 28px;margin-bottom:25px;color:#a5b0b1;font-size:13px}.distribution-summary strong{color:#e5e7e2}.histogram-bin:hover .histogram-bar{background:#dfc79c}
+
+/* Phase 07C: robust keyboard and reduced-motion access, consistent with existing graphite theme. */
+:where(a,button,select,input,textarea,[tabindex="0"]):focus-visible{outline:3px solid #e5c89e;outline-offset:3px}
+button,a,select{min-height:36px}
+a{color:#e8d2ab;text-underline-offset:3px}
+a:hover{color:#fff0d0}
+.access-shell{width:min(480px,calc(100% - 32px));margin:10vh auto;padding:28px;border:1px solid #455158;border-radius:10px;background:#171c21}
+.access-shell h1{letter-spacing:.14em;font-size:23px}
+.access-shell form{display:flex;flex-direction:column;gap:15px}
+.access-shell input{min-height:46px;padding:12px;border-radius:5px;border:1px solid #727c7d;background:#11181b;color:#eee}
+.access-shell .primary-button{margin:0}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
+
+.session-toolbar{display:flex;justify-content:flex-end;padding:7px 22px 0}
+.session-toolbar .retry-button{margin:0}
+a.retry-button{display:inline-flex;align-items:center;margin:6px 4px;text-decoration:none}

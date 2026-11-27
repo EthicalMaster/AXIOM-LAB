@@ -24,8 +24,17 @@ def _ensure_tables(connection: sqlite3.Connection) -> None:
         id TEXT PRIMARY KEY, experiment_id TEXT NOT NULL, created_at TEXT NOT NULL,
         status TEXT NOT NULL, method TEXT NOT NULL, configuration_json TEXT NOT NULL,
         result_json TEXT NOT NULL, environment_json TEXT NOT NULL,
+        revision INTEGER NOT NULL DEFAULT 1, source_run_id TEXT,
         FOREIGN KEY(experiment_id) REFERENCES experiments(id)
     )""")
+    # Forward-only migration: historical run rows retain revision 1.
+    columns = {row[1] for row in connection.execute('PRAGMA table_info(runs)')}
+    if 'revision' not in columns:
+        connection.execute('ALTER TABLE runs ADD COLUMN revision INTEGER NOT NULL DEFAULT 1')
+    if 'source_run_id' not in columns:
+        connection.execute('ALTER TABLE runs ADD COLUMN source_run_id TEXT')
+    connection.execute('CREATE INDEX IF NOT EXISTS idx_runs_experiment_revision ON runs(experiment_id, revision DESC)')
+    connection.execute('CREATE INDEX IF NOT EXISTS idx_experiments_created ON experiments(created_at DESC, id DESC)')
 
 
 def create_experiment(*, name: str, dataset_id: str, dataset_sha256: str,
@@ -39,14 +48,16 @@ def create_experiment(*, name: str, dataset_id: str, dataset_sha256: str,
         _ensure_tables(connection)
         connection.execute('INSERT INTO experiments VALUES (?, ?, ?, ?, ?)',
                            (experiment_id, name, dataset_id, dataset_sha256, timestamp))
-        connection.execute('INSERT INTO runs VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                           (run_id, experiment_id, timestamp, 'completed', result['method'],
-                            json.dumps(configuration, allow_nan=False),
-                            json.dumps(result, allow_nan=False), json.dumps(environment)))
+        connection.execute('''INSERT INTO runs
+            (id, experiment_id, created_at, status, method, configuration_json,
+             result_json, environment_json, revision) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)''',
+            (run_id, experiment_id, timestamp, 'completed', result['method'],
+             json.dumps(configuration, allow_nan=False),
+             json.dumps(result, allow_nan=False), json.dumps(environment)))
     return {'id': experiment_id, 'name': name, 'dataset_id': dataset_id,
             'dataset_sha256': dataset_sha256, 'created_at': timestamp,
             'run': {'id': run_id, 'created_at': timestamp, 'status': 'completed',
-                    'method': result['method'], 'configuration': configuration,
+                    'method': result['method'], 'revision': 1, 'source_run_id': None, 'configuration': configuration,
                     'result': result, 'environment': environment}}
 
 
@@ -60,14 +71,15 @@ def read_experiment(experiment_id: str) -> dict | None:
         experiment = connection.execute('SELECT * FROM experiments WHERE id = ?', (experiment_id,)).fetchone()
         if experiment is None:
             return None
-        run = connection.execute('SELECT * FROM runs WHERE experiment_id = ? ORDER BY created_at ASC LIMIT 1', (experiment_id,)).fetchone()
+        run = connection.execute('SELECT * FROM runs WHERE experiment_id = ? ORDER BY revision DESC, created_at DESC LIMIT 1', (experiment_id,)).fetchone()
         if run is None:
             return None
         return {
             'id': experiment['id'], 'name': experiment['name'], 'dataset_id': experiment['dataset_id'],
             'dataset_sha256': experiment['dataset_sha256'], 'created_at': experiment['created_at'],
             'run': {'id': run['id'], 'created_at': run['created_at'], 'status': run['status'],
-                    'method': run['method'], 'configuration': json.loads(run['configuration_json']),
+                    'method': run['method'], 'revision': run['revision'], 'source_run_id': run['source_run_id'],
+                    'configuration': json.loads(run['configuration_json']),
                     'result': json.loads(run['result_json']), 'environment': json.loads(run['environment_json'])},
         }
 
@@ -103,6 +115,53 @@ def list_experiment_runs(experiment_id: str, limit: int = 20, offset: int = 0) -
             ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?''', (experiment_id, limit, offset)).fetchall()
         return {'experiment_id': experiment_id, 'total': total, 'limit': limit, 'offset': offset,
                 'items': [{'id': r['id'], 'created_at': r['created_at'], 'status': r['status'],
-                           'method': r['method'], 'configuration': json.loads(r['configuration_json']),
+                           'method': r['method'], 'revision': r['revision'], 'source_run_id': r['source_run_id'],
+                           'configuration': json.loads(r['configuration_json']),
                            'result': json.loads(r['result_json']), 'environment': json.loads(r['environment_json'])}
                           for r in rows]}
+
+
+def append_experiment_run(experiment_id: str, configuration: dict, result: dict,
+                          *, source_run_id: str | None = None) -> dict | None:
+    """Append a run under an atomic per-experiment revision number."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+    run_id = uuid.uuid4().hex
+    environment = {'python': '.'.join(map(str, sys.version_info[:3])), 'algorithm': result['method']}
+    with closing(_database(_data_root())) as connection:
+        connection.execute('PRAGMA foreign_keys = ON')
+        _ensure_tables(connection)
+        with connection:
+            connection.execute('BEGIN IMMEDIATE')
+            exists = connection.execute('SELECT id FROM experiments WHERE id = ?', (experiment_id,)).fetchone()
+            if exists is None:
+                return None
+            revision = connection.execute('SELECT COALESCE(MAX(revision), 0)+1 FROM runs WHERE experiment_id=?',
+                                          (experiment_id,)).fetchone()[0]
+            connection.execute('''INSERT INTO runs (id, experiment_id, created_at, status, method,
+                configuration_json, result_json, environment_json, revision, source_run_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                (run_id, experiment_id, timestamp, 'completed', result['method'],
+                 json.dumps(configuration, allow_nan=False), json.dumps(result, allow_nan=False),
+                 json.dumps(environment), revision, source_run_id))
+    return {'id': run_id, 'created_at': timestamp, 'status': 'completed', 'method': result['method'],
+            'revision': revision, 'source_run_id': source_run_id,
+            'configuration': configuration, 'result': result, 'environment': environment}
+
+
+def get_run(experiment_id: str, run_id: str) -> dict | None:
+    # Direct indexed lookup avoids a 50-run pagination limit.
+    root = _data_root()
+    if not (root / 'axiom.sqlite3').exists():
+        return None
+    with closing(_database(root)) as connection:
+        connection.row_factory = sqlite3.Row
+        _ensure_tables(connection)
+        row = connection.execute('SELECT * FROM runs WHERE experiment_id=? AND id=?',
+                                 (experiment_id, run_id)).fetchone()
+        if row is None:
+            return None
+        return {'id': row['id'], 'created_at': row['created_at'], 'status': row['status'],
+                'method': row['method'], 'revision': row['revision'],
+                'source_run_id': row['source_run_id'],
+                'configuration': json.loads(row['configuration_json']),
+                'result': json.loads(row['result_json']), 'environment': json.loads(row['environment_json'])}

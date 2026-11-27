@@ -1,4 +1,4 @@
-# Security — Phase 01A local-only dataset import
+# Security — Through Phase 07D local release candidate
 
 ## Current safeguards
 
@@ -32,3 +32,11 @@ Column inspection reads a server-constructed path using a validated opaque datas
 - No user accounts or authorization checks protect imported dataset, model result or experiment IDs. Opaque random IDs are **not access control**. Do not deploy on a publicly accessible server until authorization, rate limiting, job isolation, storage policy and operational load testing are implemented.
 - Model training and CV currently execute synchronously; under public load use dedicated CPU-limited worker processes with cancellation and request quotas.
 - Treat Excel and CSV as untrusted. Actual reports/exports must mitigate spreadsheet formula injection and avoid leaking source records through logs and AI providers.
+
+## Phase 07C–07D additional safeguards
+
+An opt-in single-user access token protects `/api/v1` when `AXIOM_PUBLIC_MODE` is enabled. HMAC-signed HttpOnly Secure SameSite=Strict cookies expire after eight hours and cookie-authenticated mutations require same-origin browser Origin. Remote deployment also needs real HTTPS, edge rate limits, explicit secret rotation and audit logging. The backend is private to the Compose network; Nginx binds only to host 127.0.0.1:8080. Public multi-user operation remains **unsupported**.
+
+Reporting exports evidence-only chart points, so CSV contains only numeric coordinates and avoids spreadsheet formula injection. AI receives compact server-selected metadata rather than uploaded data; it is optional and its explanations are not verified numerical computations.
+
+**Unresolved:** Preventing uploads from consuming resources before multipart parsing, malicious Excel sandboxing, resource caps per request/user, access control per dataset, data-at-rest encryption, secret rotation, independent pentest, and production load/backup validation.

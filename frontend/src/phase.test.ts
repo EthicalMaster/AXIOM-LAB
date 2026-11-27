@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { phase, plannedModules, implementedCapability } from './phase';
+import { phase, workspaceModules, implementedCapability } from './phase';
 
-describe('Phase 05A capability manifest', () => {
+describe('Phase 07D capability manifest', () => {
   it('identifies the current candidate development milestone', () => {
-    expect(phase).toBe('05A');
-    expect(implementedCapability).toBe('Dataset analysis, guarded inference, bounded mathematics, ML baselines, and experiment history');
+    expect(phase).toBe('07D');
+    expect(implementedCapability).toContain('experiment lineage');
   });
-  it('lists seven workspaces with reporting still planned', () => {
-    expect(plannedModules).toHaveLength(7);
-    expect(new Set(plannedModules).size).toBe(7);
+  it('lists seven workspaces in the bounded release candidate', () => {
+    expect(workspaceModules).toHaveLength(7);
+    expect(new Set(workspaceModules).size).toBe(7);
   });
 });

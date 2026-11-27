@@ -2,7 +2,7 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> **Current build candidate: Phase 05A.** The local-first prototype includes validated dataset import, profiling, descriptive statistics, one-sample inference, normality diagnostics, bounded mathematical operations, small supervised/unsupervised ML experiments, and saved chart-run history. **These are bounded prototypes, not a finished scientific suite or a public multi-user service.** The user must run the Windows/frontend/browser checks in each phase's review file before accepting and pushing it.
+> **Current build candidate: Phase 07D.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
 
 ## Design principles
 
@@ -30,7 +30,7 @@ npm ci
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>; the backend health URL is <http://127.0.0.1:8898/api/v1/health>. The frontend Vite development proxy forwards `/api` traffic to port 8898.
+Open <http://127.0.0.1:5173>; the backend health URL is <http://127.0.0.1:8898/api/v1/health>. The frontend Vite development proxy forwards `/api` traffic to port 8898. For a loopback-bound Compose release candidate see `docs/DEPLOYMENT.md`.
 
 ## Verification
 
@@ -45,7 +45,7 @@ npm run typecheck
 npm run build
 ```
 
-**Builder evidence:** After applying all 12 candidate bundles to the matching Phase 02B starter and running the Python regression suite, 95 backend tests passed. The builder cannot certify the user's browser or a production frontend build; **those checks must run on the developer's actual machine**. The method-specific user checks are in `docs/PHASE_XX_REVIEW.md`.
+**Builder evidence:** The cumulative backend regression suite passed in the isolated builder environment. Exact current count appears in the bundled verification report; that is not a substitute for Windows, npm, browser, security or Docker runtime acceptance. The corresponding user checks are in the phase review files.
 
 ## Current bounded capabilities
 
@@ -63,9 +63,12 @@ npm run build
 | 04C | Stratified logistic classification | Categorical targets, bounded classes, classification assumptions |
 | 04D | K-means clustering | Internal metrics, no ground-truth labels |
 | 04E | 3-fold training-only CV comparison | Two models per task, one holdout, not automated model discovery |
-| 05A | Read-only paginated experiment history and stored runs | Local single-user; new multi-run execution comes later |
+| 05A–05D | History, append-only chart-run revisions, guarded comparison and replay lineage | Replay limited to stored chart methods; not arbitrary ML experiments |
+| 06A–06C | Replaceable optional AI adapter, rule-grounded methods and saved-run explanations | AI advisory only, does not compute numerical truth; external service optional |
+| 07A | Evidence-based PDF, JSON and bounded chart CSV exports | Not a complete scientific manuscript or full-data CSV |
+| 07B–07D | SQLite indexes, local load smoke, optional single-user access gate, Docker packaging | Not multi-tenant; external security, load, and Docker acceptance remain |
 
-**Planned, not implemented:** Experiment revisions/comparison/reproducibility packages (05B–05D), AI provider and grounded explanations (06A–06C), scientific PDF reporting, load testing, production authentication, public deployment and scaling (07A–07D).
+**Still not implemented:** Multi-user identity and authorization, distributed worker scheduling, production object storage, high-concurrency load certification, and fully automated public-cloud deployment. See `docs/DEPLOYMENT.md`.
 
 ## Architecture map
 
@@ -81,6 +84,6 @@ npm run build
 
 Apply **one patch per phase**, from a clean, committed parent state, with `git apply --check` before `git apply`. Install updated Python dependencies, run all automated checks, complete the matching review checklist, document errors, and **only then** commit/push. Never force a conflicting patch or silently drop failing tests. See `docs/BUNDLE_PROTOCOL.md`.
 
-**Public-release warning:** The application lacks accounts/authorization, rate limits, isolated compute workers, shared storage, formal threat modeling and multi-user load testing. **Do not expose it as a public scientific service yet.**
+**Public-release warning:** The optional access token is single-user only. There are no managed accounts, per-user dataset authorization, validated rate limits, isolated compute workers, shared storage, formal threat modeling or large-scale load testing. **Do not expose it as a public multi-user scientific service yet.**
 
-**License:** Undecided. Keep private until license and data-handling policies are approved.
+**License:** No license file has been supplied. Select an explicit license and data-handling policy before inviting external contributions.

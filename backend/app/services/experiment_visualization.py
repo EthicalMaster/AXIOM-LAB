@@ -1,7 +1,6 @@
 """Produces a bounded, inspectable numerical sequence chart from a validated dataset."""
 from __future__ import annotations
 
-import math
 
 from app.services.descriptive_statistics import numeric_series
 

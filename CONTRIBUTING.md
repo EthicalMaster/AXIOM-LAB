@@ -13,3 +13,7 @@
 Before adding code: (1) name the behaviour and necessary invariant, (2) reuse the existing service/contracts where appropriate, (3) reject new dependencies and abstraction layers without a specific benefit, (4) prefer the shortest readable implementation that preserves correctness and safe failure modes, (5) add numerical/edge-case regression tests, and (6) document the decision, alternatives and disadvantage. Keep source bytes immutable and avoid hidden side effects.
 
 At the final release gate, perform a **dead-code and redundant-module audit**, consolidate duplicated logic only when tests prove equivalence, remove stale placeholder UI and docs, benchmark performance hotspots, and run a complete security, numerical, usability, accessibility and load review. No uncontrolled refactoring immediately before release.
+
+## Final audit policy
+
+Before release, identify unused imports, dead routes, duplicated service logic, stale documentation and redundant dependencies. Remove only demonstrated redundancy and rerun all numerical/API regression tests after changes. Never compress code to the point that assumptions, input validation or errors become obscure. Treat design and scientific integrity as part of maintainability.

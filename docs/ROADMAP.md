@@ -45,3 +45,7 @@ Descriptive measures are calculated only from consistently numeric columns, reco
 ### Phase 01B exit gate
 
 Column inspection must show truthful provisional type labels, missingness and bounded distinct counts from original persisted data, preserve the 01A workflow, and pass numerical-free structural tests. See `docs/PHASE_01B_REVIEW.md`.
+
+## Phase 05B–07D development candidates (November 2026)
+
+The final ten bounded implementation slices now have review files: append-only chart revisions, same-method comparisons, chart replay lineage, optional AI provider, rule-based method guidance, evidence-separated explanations, PDF/CSV/JSON chart exports, SQLite history indexes and a local load smoke, single-user access controls, and loopback-bound Docker Compose packaging. These are **implementation candidates** until Windows frontend, Docker, browser security, accessibility and external review gates have passed. This milestone does not imply full scientific suite coverage or public multi-user readiness.
