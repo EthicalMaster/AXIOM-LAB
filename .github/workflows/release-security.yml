@@ -1,4 +1,4 @@
-name: release-security
+﻿name: release-security
 on:
   push:
   pull_request:
@@ -21,6 +21,7 @@ jobs:
           set -euo pipefail
           python -m venv "$RUNNER_TEMP/axiom-audit-venv"
           py="$RUNNER_TEMP/axiom-audit-venv/bin/python"
+          "$py" -m pip install --upgrade pip==26.3
           "$py" -m pip install './backend[dev]' pip-audit
           "$py" -m pip check
           # Exclude only the unpublished first-party project, not its dependencies.
@@ -40,3 +41,4 @@ jobs:
         working-directory: frontend
       - run: npm audit --audit-level=high
         working-directory: frontend
+
