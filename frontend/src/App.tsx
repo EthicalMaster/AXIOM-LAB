@@ -1,3 +1,5 @@
+import { HistoryPanel } from './HistoryPanel';
+import { ClusterPanel } from './ClusterPanel';
 import { MLStudioPanel } from './MLStudioPanel';
 import { NumericalPanel } from './NumericalPanel';
 import { MatrixPanel } from './MatrixPanel';
@@ -104,7 +106,7 @@ export default function App() {
         <h1 id="project-title">Begin with <em>evidence.</em></h1>
         <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
         <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 02B · Distribution analysis available</span>
+          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 05A · Bounded scientific modules available</span>
           <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
         </div>
       </section>
@@ -175,10 +177,12 @@ export default function App() {
       <MatrixPanel />
       <NumericalPanel />
       {result && profile && <MLStudioPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} targetColumns={profile.columns.filter(c=>c.inferred_type === 'categorical' || c.inferred_type === 'boolean').map(c=>c.name)} />}
+      {result && profile && <ClusterPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
+      <HistoryPanel />
       <section className="module-section" aria-label="Module roadmap">
         <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
         <div className="module-list">{plannedModules.map((module, index) => (
-          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index === 0 ? 'module-active' : ''}`}>{index === 0 ? 'Import + chart experiments active' : 'Planned'}</span></div>
+          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index < 6 ? 'module-active' : ''}`}>{index < 6 ? 'Bounded preview' : 'Planned'}</span></div>
         ))}</div>
       </section>
       <footer>AXIOM LAB <span>—</span> Computation must be understandable, inspectable, and reproducible. <span className="footer-phase">PHASE {phase}</span></footer>

@@ -2,48 +2,41 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> Status: **Phase 02B — Distribution Analysis (implementation candidate).** CSV/XLSX/XLS validation, immutable file storage, conservative column inspection, descriptive statistics, observation charts with saved runs, quality auditing, and empirical histograms are implemented as **local candidates**. Automated backend tests passed; browser acceptance remains yours to verify. No inference suite, cleaning, machine learning, authentication or AI is implemented. See `docs/PHASE_02B_REVIEW.md`.
+> **Current build candidate: Phase 05A.** The local-first prototype includes validated dataset import, profiling, descriptive statistics, one-sample inference, normality diagnostics, bounded mathematical operations, small supervised/unsupervised ML experiments, and saved chart-run history. **These are bounded prototypes, not a finished scientific suite or a public multi-user service.** The user must run the Windows/frontend/browser checks in each phase's review file before accepting and pushing it.
 
-AXIOM LAB is a planned, local-first scientific environment for data exploration, mathematical computation, hypothesis testing, predictive modelling, interactive visualization, persistent experiments, and reproducible reporting.
+## Design principles
 
-## Non-negotiable rules
+1. Numerical results come from tested algorithms, not LLM calculations.
+2. Original uploaded bytes remain unchanged; dataset IDs and SHA-256 fingerprints preserve provenance.
+3. Explain every selected method, assumption, limitation, alternative and failure case.
+4. Develop one verified vertical slice at a time, with Git checkpoints and learning reviews.
+5. Do not advertise planned or untested functionality as complete.
 
-1. Computation comes from verified scientific code, never invented LLM numerical outputs.
-2. Original datasets are preserved; transformations create versioned derivatives.
-3. Every scientific execution eventually creates a traceable run record.
-4. Explain the concepts, run the feature, test it, document it, then commit.
-5. Do not advertise features as implemented until evidence supports them.
+## Setup (Windows / PowerShell)
 
-## Quick start (Windows PowerShell; Phase 02B)
-
-**Prerequisites:** Git; Python 3.11+ (3.12 recommended); Node.js 22.12+ or 24+; npm. You need internet access for the first dependency installation. The original Phase 00 ZIP did not contain `package-lock.json`. Your Phase 00 Git commit should already contain this file after `npm install`; keep it tracked.
-
-### 1. Start the backend (PowerShell terminal A)
+Requires Python 3.11+, Node 22+, Git, and network access for initial dependencies. From the project root:
 
 ```powershell
-cd "$HOME\Downloads\axiom-lab"
-py -3 -m venv .venv  # skip if created in Phase 00
+py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".\backend[dev]"
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8898
 ```
 
-**Expected:** API is running. Open <http://127.0.0.1:8898/api/v1/health> and expect `status: "ok"`, `phase: "02B"`, `scientific_engine: "descriptive_statistics"`.
-
-### 2. Start the frontend (PowerShell terminal B)
+In a separate terminal:
 
 ```powershell
-cd "$HOME\Downloads\axiom-lab\frontend"
-npm install
-# This creates package-lock.json. Keep and commit it in the first verified Git commit.
+cd frontend
+npm ci
 npm run dev
 ```
 
-**Expected:** Browser opens <http://127.0.0.1:5173> and shows **AXIOM LAB**, **Phase 02B**, and **API connected** when the backend is running.
+Open <http://127.0.0.1:5173>; the backend health URL is <http://127.0.0.1:8898/api/v1/health>. The frontend Vite development proxy forwards `/api` traffic to port 8898.
 
-### 3. Run the tests (PowerShell terminal C)
+## Verification
+
+From the root:
 
 ```powershell
-cd "$HOME\Downloads\axiom-lab"
 .\.venv\Scripts\python.exe -m pytest backend/tests -q
 .\.venv\Scripts\python.exe -m compileall -q backend/app
 cd frontend
@@ -52,70 +45,42 @@ npm run typecheck
 npm run build
 ```
 
-**Expected:** Commands return exit code 0; backend and frontend tests pass; TypeScript typecheck and production build finish without errors. Record actual test output in `docs/testing/TEST_LOG.md`. No run has been claimed until you perform it.
+**Builder evidence:** After applying all 12 candidate bundles to the matching Phase 02B starter and running the Python regression suite, 95 backend tests passed. The builder cannot certify the user's browser or a production frontend build; **those checks must run on the developer's actual machine**. The method-specific user checks are in `docs/PHASE_XX_REVIEW.md`.
 
-### 4. Commit each bundle individually after verification
+## Current bounded capabilities
 
-Apply and verify bundles 01C, 01D, 02A and 02B **sequentially**, using each ZIP’s `APPLY.md`. Start from a clean verified 01B `main` and do not re-initialize Git or overwrite the existing remote. Example commit for final bundle:
+| Phase | Implemented candidate | Limitations |
+|---|---|---|
+| 01A–02B | CSV/Excel import, column profiling, statistics, charts, persisted runs, quality audits, histograms | Original files immutable; no cleaning or user access control |
+| 02C | Two-sided one-sample Student t-test, confidence interval and effect size | Independence and sampling design cannot be verified automatically |
+| 02D | Shapiro–Wilk diagnostic | Only sample sizes 3–5000; p-value not proof of normality |
+| 03A | Whitelisted arithmetic expression evaluator | No arbitrary Python execution or comprehensive CAS |
+| 03B | Polynomial differentiation, integration, approximate roots | Degree ≤6; numerical root approximation limits |
+| 03C | Matrix determinant, eigenvalues, rank, inverse, solve | Real square matrices 1–8; ill-conditioned operations withheld |
+| 03D | Bracketed roots and polynomial quadrature | Limited intervals; estimated numerical error |
+| 04A | Train-only fitted preprocessing with deterministic split | 16–2000 labelled rows; numeric features; no time series |
+| 04B | Linear regression holdout evaluation | Baseline only; does not imply causation |
+| 04C | Stratified logistic classification | Categorical targets, bounded classes, classification assumptions |
+| 04D | K-means clustering | Internal metrics, no ground-truth labels |
+| 04E | 3-fold training-only CV comparison | Two models per task, one holdout, not automated model discovery |
+| 05A | Read-only paginated experiment history and stored runs | Local single-user; new multi-run execution comes later |
 
-```powershell
-git status
-git diff --check
-git add .
-git commit -m "feat(phase-02b): empirical distribution analysis"
-git push -u origin phase/02b-distributions
-```
+**Planned, not implemented:** Experiment revisions/comparison/reproducibility packages (05B–05D), AI provider and grounded explanations (06A–06C), scientific PDF reporting, load testing, production authentication, public deployment and scaling (07A–07D).
 
-Merge into `main` **only after** the local checks pass and the learning review is completed.
+## Architecture map
 
-## First dataset import
+- `frontend/src/`: React panels and typed API helpers, driven by real backend results.
+- `backend/app/api/`: FastAPI routes and input validation.
+- `backend/app/services/`: independently testable statistical, mathematical and ML methods.
+- `backend/app/persistence/`: SQLite experiment/dataset metadata plus local original-file storage.
+- `backend/tests/`: reference tests, negative cases and API integration checks.
+- `docs/`: requirements, ADRs, known limits, scientific theory, review checklists and test evidence.
+- `runtime/`: Git-ignored local working data. Never commit real uploads or credentials.
 
-The React Data Lab now accepts a comma-delimited UTF-8 CSV or Excel XLSX/XLS up to 5 MiB. A successful import stores untouched raw bytes under `runtime/datasets/<id>/original.<extension>`, records metadata in `runtime/axiom.sqlite3`, returns a SHA-256 fingerprint and previews up to 8 data rows. Metadata can be reloaded at `GET /api/v1/datasets/{dataset_id}`. New endpoint `GET /api/v1/datasets/{dataset_id}/profile` checks the stored file fingerprint and computes provisional column types, present/missing counts, memory-bounded distinct counts and examples. Runtime data is ignored by Git. **No cleaning or type coercion modifies the original file.**
+## Development protocol
 
-## Repository map
+Apply **one patch per phase**, from a clean, committed parent state, with `git apply --check` before `git apply`. Install updated Python dependencies, run all automated checks, complete the matching review checklist, document errors, and **only then** commit/push. Never force a conflicting patch or silently drop failing tests. See `docs/BUNDLE_PROTOCOL.md`.
 
-- `frontend/`: React + TypeScript + Vite; Data Lab upload, inspection, charts, saved runs, quality audit and distributions.
-- `backend/`: FastAPI with import, numerical summaries, experiment and run storage, quality and distribution endpoints; no model training or inference tests yet.
-- `docs/`: Phase 0 architecture, scientific safeguards, learning and decisions.
-- `docs/reference/`: original master specification (source of truth for product intent).
-- `examples/`: contains small, redistributable validation examples.
+**Public-release warning:** The application lacks accounts/authorization, rate limits, isolated compute workers, shared storage, formal threat modeling and multi-user load testing. **Do not expose it as a public scientific service yet.**
 
-## Working process
-
-Future bundles are applied with Git on a clean repository (see `docs/BUNDLE_PROTOCOL.md`). For every bundle: inspect scope, `git apply --check`, apply, install any new requirements, run tests, inspect behavior, explain the concepts, then commit and push. Report failures **before** committing.
-
-## Quality and scientific status
-
-| Capability | Status |
-|---|---|
-| Frontend + backend foundation | Implemented; verify locally |
-| Backend health check | Implemented; verify locally |
-| Dataset structure validation/import | Implemented in Phase 01A; user verified CSV flow |
-| First scientific experiment | Implemented in Phase 01D, pending local acceptance |
-| Column profiling | Implemented in Phase 01B; requires local acceptance |
-| Descriptive statistics, quality and histograms | Implemented in 01C/02A/02B, pending local acceptance |
-| Mathematical workbench | Planned (Phase 3) |
-| Machine learning | Planned (Phase 4) |
-| Advanced experiment engine | Planned (Phase 5) |
-| Optional AI explanations | Planned (Phase 6) |
-| Scientific reporting and release | Planned (Phase 7) |
-
-See `docs/PHASE_02B_REVIEW.md` for current acceptance criteria (Phase 00 review remains in `docs/PHASE_00_REVIEW.md`) and learning questions, and `docs/ROADMAP.md` for milestones.
-
-**License:** Not selected. This repository should remain private until its license is explicitly decided. No license rights are granted by this README.
-
-### Phase 01C candidate
-
-`GET /api/v1/datasets/{dataset_id}/statistics` computes descriptive results only for consistently numeric columns. See `docs/PHASE_01C_REVIEW.md`. No inferential analysis is implemented.
-
-### Phase 01D candidate
-
-`POST /api/v1/experiments` and `GET /api/v1/experiments/{id}` save and reload an immutable observation chart and run. The chart is not a time series. Single-user and local-only; see `docs/PHASE_01D_REVIEW.md`.
-
-### Phase 02A candidate
-
-`GET /api/v1/datasets/{dataset_id}/quality` audits missing cells, completeness and duplicate source rows with an explicit memory cap. It does not clean datasets. See `docs/PHASE_02A_REVIEW.md`.
-
-### Phase 02B candidate
-
-`GET /api/v1/datasets/{dataset_id}/distribution?column=...` returns an empirical histogram and cautious Tukey-fence outlier indicators, with full interval-frequency table. No probability density or hypothesis testing is claimed. See `docs/PHASE_02B_REVIEW.md`.
+**License:** Undecided. Keep private until license and data-handling policies are approved.

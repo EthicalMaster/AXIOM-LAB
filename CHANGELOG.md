@@ -49,3 +49,15 @@
 
 ## Phase 04B (candidate)
 - Linear regression with training-only preprocessing and explicit held-out MAE/RMSE/R².
+
+## Phase 04C (candidate)
+- Stratified logistic classification with class-aware metrics and warnings.
+
+## Phase 04D (candidate)
+- Bounded K-means clustering with scaled-space centroids, inertia, silhouette and safeguards.
+
+## Phase 04E (candidate)
+- Same-split, training-only three-fold CV model comparison with guarded held-out final metrics.
+
+## Phase 05A (candidate)
+- Paginated local experiment/run history and updated truthful architecture, documentation, security review and capability manifest.

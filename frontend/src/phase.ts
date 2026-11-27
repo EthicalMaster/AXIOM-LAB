@@ -1,5 +1,5 @@
-/** Capability manifest. Phase 01B adds structural column profiling, not statistics. */
-export const phase = '04B' as const;
+/** Current candidate capabilities; future phases remain in plannedModules. */
+export const phase = '05A' as const;
 export const plannedModules = [
   'Data Lab',
   'Statistics Lab',
@@ -9,4 +9,4 @@ export const plannedModules = [
   'Experiment Engine',
   'Scientific Reporting',
 ] as const;
-export const implementedCapability = 'Dataset import, statistics, quality profiling, histogram distributions and saved chart runs' as const;
+export const implementedCapability = 'Dataset analysis, guarded inference, bounded mathematics, ML baselines, and experiment history' as const;

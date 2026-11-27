@@ -24,3 +24,11 @@ Never expose the backend beyond loopback or deploy publicly without an explicit 
 ## Phase 01B storage integrity and output limits
 
 Column inspection reads a server-constructed path using a validated opaque dataset ID, verifies its size and SHA-256 against SQLite metadata, and refuses to profile a changed or missing original (HTTP 409). The endpoint returns small per-column examples (up to three truncated values), not full datasets. Exact distinct-value tracking stops at 1,000 entries per column. Real multi-user service **requires authorization for dataset IDs** and rate/CPU limits before deployment; random IDs are not authorization.
+
+## Phase 02C–05A security and resource review
+
+- `services/safe_math.py` accepts only whitelisted AST operators and math functions, with expression/depth/numeric magnitude bounds; arbitrary Python, attributes, imports and shells are forbidden. **This is not OS sandboxing**; users must not have untrusted unlimited access to synchronous compute endpoints.
+- Polynomial degrees (≤6), square matrices (≤8), numerical intervals (−100..100), ML rows (≤2,000), features (≤8), clusters (2–8) and 3-fold CV constrain local workload. These caps do not guarantee concurrency safety or eliminate all denial-of-service paths.
+- No user accounts or authorization checks protect imported dataset, model result or experiment IDs. Opaque random IDs are **not access control**. Do not deploy on a publicly accessible server until authorization, rate limiting, job isolation, storage policy and operational load testing are implemented.
+- Model training and CV currently execute synchronously; under public load use dedicated CPU-limited worker processes with cancellation and request quotas.
+- Treat Excel and CSV as untrusted. Actual reports/exports must mitigate spreadsheet formula injection and avoid leaking source records through logs and AI providers.

@@ -70,3 +70,39 @@ def read_experiment(experiment_id: str) -> dict | None:
                     'method': run['method'], 'configuration': json.loads(run['configuration_json']),
                     'result': json.loads(run['result_json']), 'environment': json.loads(run['environment_json'])},
         }
+
+
+def list_experiments(limit: int = 20, offset: int = 0) -> dict:
+    """Paginated history in local single-user mode; no user accounts yet."""
+    root = _data_root()
+    if not (root / 'axiom.sqlite3').exists():
+        return {'total': 0, 'items': [], 'limit': limit, 'offset': offset}
+    with closing(_database(root)) as connection:
+        connection.row_factory = sqlite3.Row
+        _ensure_tables(connection)
+        total = connection.execute('SELECT COUNT(*) FROM experiments').fetchone()[0]
+        rows = connection.execute('''SELECT e.id, e.name, e.dataset_id, e.dataset_sha256,
+            e.created_at, (SELECT COUNT(*) FROM runs AS r WHERE r.experiment_id = e.id) AS run_count
+            FROM experiments AS e ORDER BY e.created_at DESC, e.id DESC LIMIT ? OFFSET ?''',
+            (limit, offset)).fetchall()
+        return {'total': total, 'items': [dict(row) for row in rows], 'limit': limit, 'offset': offset}
+
+
+def list_experiment_runs(experiment_id: str, limit: int = 20, offset: int = 0) -> dict | None:
+    root = _data_root()
+    if not (root / 'axiom.sqlite3').exists():
+        return None
+    with closing(_database(root)) as connection:
+        connection.row_factory = sqlite3.Row
+        _ensure_tables(connection)
+        exists = connection.execute('SELECT id FROM experiments WHERE id = ?', (experiment_id,)).fetchone()
+        if exists is None:
+            return None
+        total = connection.execute('SELECT COUNT(*) FROM runs WHERE experiment_id = ?', (experiment_id,)).fetchone()[0]
+        rows = connection.execute('''SELECT * FROM runs WHERE experiment_id = ?
+            ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?''', (experiment_id, limit, offset)).fetchall()
+        return {'experiment_id': experiment_id, 'total': total, 'limit': limit, 'offset': offset,
+                'items': [{'id': r['id'], 'created_at': r['created_at'], 'status': r['status'],
+                           'method': r['method'], 'configuration': json.loads(r['configuration_json']),
+                           'result': json.loads(r['result_json']), 'environment': json.loads(r['environment_json'])}
+                          for r in rows]}

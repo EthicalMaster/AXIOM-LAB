@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import math
-import statistics
 from scipy.stats import shapiro
 from app.services.descriptive_statistics import numeric_series
 from app.services.dataset_validation import DatasetValidationError

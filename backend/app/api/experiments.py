@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import re
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.persistence.dataset_store import DatasetStorageError, find_dataset, read_original_dataset
-from app.persistence.experiment_store import create_experiment, read_experiment
+from app.persistence.experiment_store import create_experiment, read_experiment, list_experiments, list_experiment_runs
 from app.services.dataset_validation import DatasetValidationError
 from app.services.experiment_visualization import sequence_chart
 
@@ -85,3 +85,17 @@ def get_experiment(experiment_id: str) -> ExperimentRecord:
     if result is None:
         raise HTTPException(404, detail='Experiment not found')
     return ExperimentRecord(**result)
+
+
+@router.get('')
+def experiment_history(limit: int = Query(default=20,ge=1,le=50), offset:int=Query(default=0,ge=0,le=100000)) -> dict:
+    return list_experiments(limit, offset)
+
+@router.get('/{experiment_id}/runs')
+def experiment_runs(experiment_id: str, limit:int=Query(default=20,ge=1,le=50), offset:int=Query(default=0,ge=0,le=100000)) -> dict:
+    if not re.fullmatch(r'[0-9a-f]{32}', experiment_id):
+        raise HTTPException(404,detail='Experiment not found')
+    result=list_experiment_runs(experiment_id,limit,offset)
+    if result is None:
+        raise HTTPException(404,detail='Experiment not found')
+    return result

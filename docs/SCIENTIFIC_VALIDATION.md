@@ -21,3 +21,9 @@ Phase 01C–02B now includes descriptive numerical methods, empirical histogram 
 - Require time-aware splits for time-ordered data.
 - Mark non-convergent, non-finite, or unsupported calculations explicitly.
 - When numerical exact replay is impossible, document expected differences.
+
+## Phase 02C–05A methods under review
+
+One-sample Student t and Shapiro–Wilk are limited inferential helpers, not universal selection or proof of assumptions. Mathematical operations enforce documented domains and report approximate numerical solutions where appropriate. ML uses numeric predictors only, a fixed seed for local reproducibility, training-only imputation and scaling, task-appropriate holdouts and training-only CV. Never use test-set results to repeatedly tune a model without obtaining a new independent validation set.
+
+Required future checks: platform-dependent floating-point variability, meaningful units and effect-size interpretation, grouped/time-series splits, fairness and class imbalance, persisted train/run provenance, numerical denial-of-service stress, repeated run comparison and independent scientific review.
