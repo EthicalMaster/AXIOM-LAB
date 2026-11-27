@@ -12,7 +12,7 @@ export function DiagnosticsPanel({datasetId,numericColumns}:{datasetId:string;nu
     if(!selected) return;
     const controller=new AbortController();setResult(null);setError('');
     void apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/diagnostics?column=${encodeURIComponent(selected)}`,{signal:controller.signal})
-      .then(async r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return await r.json() as Diagnostic;})
+      .then(async r=>{return await r.json() as Diagnostic;})
       .then(setResult).catch(e=>{if((e as Error).name!=='AbortError')setError('Diagnostics unavailable: '+String(e));});
     return ()=>controller.abort();
   },[datasetId,selected]);

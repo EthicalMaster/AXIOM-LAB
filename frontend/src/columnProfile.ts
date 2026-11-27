@@ -33,13 +33,5 @@ export async function fetchColumnProfile(datasetId: string): Promise<DatasetColu
   if (!/^[0-9a-f]{32}$/.test(datasetId)) throw new Error('Invalid dataset ID.');
   const response = await apiFetch(`/api/v1/datasets/${datasetId}/profile`);
   const payload: unknown = await response.json();
-  if (!response.ok) {
-    const detail = typeof payload === 'object' && payload !== null && 'detail' in payload
-      ? (payload as { detail?: unknown }).detail : undefined;
-    if (typeof detail === 'object' && detail !== null && 'message' in detail && typeof detail.message === 'string') {
-      throw new Error(detail.message);
-    }
-    throw new Error(`Column profiling failed (HTTP ${response.status}).`);
-  }
   return payload as DatasetColumnProfile;
 }

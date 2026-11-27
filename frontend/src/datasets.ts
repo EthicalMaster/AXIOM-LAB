@@ -33,13 +33,5 @@ export async function importDataset(file: File): Promise<ImportedDataset> {
   form.append('file', file);
   const response = await apiFetch('/api/v1/datasets/import', { method: 'POST', body: form });
   const payload: unknown = await response.json();
-  if (!response.ok) {
-    const detail = typeof payload === 'object' && payload !== null && 'detail' in payload
-      ? (payload as { detail?: unknown }).detail : undefined;
-    if (typeof detail === 'object' && detail !== null && 'message' in detail && typeof detail.message === 'string') {
-      throw new Error(detail.message);
-    }
-    throw new Error(`Upload failed (HTTP ${response.status}).`);
-  }
   return payload as ImportedDataset;
 }

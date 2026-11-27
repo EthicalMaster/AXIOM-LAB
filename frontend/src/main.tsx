@@ -6,6 +6,7 @@ import {AccessGate} from './AccessGate';
 import './styles.css';
 import './studio.css';
 import './math-studio.css';
+import './release-motion.css';
 import {applyTheme,initialTheme} from './Theme';
 
 applyTheme(initialTheme());

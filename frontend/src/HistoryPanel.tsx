@@ -12,11 +12,11 @@ export function HistoryPanel(){
   const [comparison,setComparison]=useState<Record<string,unknown>|null>(null);
   const [explanation,setExplanation]=useState<Record<string,unknown>|null>(null);
   async function refresh(){setBusy(true);setError('');setRuns(null);setChosen('');setComparison(null);setExplanation(null);
-    try{const r=await apiFetch('/api/v1/experiments?limit=20&offset=0');if(!r.ok)throw Error(`HTTP ${r.status}`);setPage(await r.json() as Page);}
+    try{const r=await apiFetch('/api/v1/experiments?limit=20&offset=0');setPage(await r.json() as Page);}
     catch(e){setError(e instanceof Error?e.message:'History unavailable');}finally{setBusy(false);}
   }
   async function inspect(id:string){setBusy(true);setChosen(id);setRuns(null);setError('');setComparison(null);setExplanation(null);
-    try{const r=await apiFetch(`/api/v1/experiments/${encodeURIComponent(id)}/runs`);if(!r.ok)throw Error(`HTTP ${r.status}`);setRuns(await r.json() as Runs);}
+    try{const r=await apiFetch(`/api/v1/experiments/${encodeURIComponent(id)}/runs`);setRuns(await r.json() as Runs);}
     catch(e){setError(e instanceof Error?e.message:'Runs unavailable');}finally{setBusy(false);}
   }
   async function rerun(){
@@ -24,10 +24,9 @@ export function HistoryPanel(){
     if(!column || !chosen)return;
     setBusy(true);setError('');
     try{
-      const response=await apiFetch(`/api/v1/experiments/${encodeURIComponent(chosen)}/runs`,{
+      await apiFetch(`/api/v1/experiments/${encodeURIComponent(chosen)}/runs`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({column})
       });
-      if(!response.ok)throw Error(`Run could not be saved (HTTP ${response.status})`);
       await inspect(chosen);
     }catch(e){setError(e instanceof Error?e.message:'Run not saved');}finally{setBusy(false);}
   }
@@ -37,7 +36,6 @@ export function HistoryPanel(){
     const [a,b]=runs.items;
     try{
       const response=await apiFetch(`/api/v1/experiments/${encodeURIComponent(chosen)}/compare?left=${encodeURIComponent(a.id)}&right=${encodeURIComponent(b.id)}`);
-      if(!response.ok)throw Error(`Comparison failed (HTTP ${response.status})`);
       setComparison(await response.json() as Record<string,unknown>);
     }catch(e){setError(e instanceof Error?e.message:'Comparison unavailable');}finally{setBusy(false);}
   }
@@ -47,7 +45,6 @@ export function HistoryPanel(){
     setBusy(true);setError('');
     try{
       const response=await apiFetch(`/api/v1/experiments/${encodeURIComponent(chosen)}/runs/${encodeURIComponent(latest.id)}/reproduce`,{method:'POST'});
-      if(!response.ok)throw Error(`Reproduction failed (HTTP ${response.status})`);
       const report=await response.json() as {exact_result_match:boolean};
       await inspect(chosen);
       if(!report.exact_result_match)setError('Warning: the reproduced numerical result differs from the saved result.');
@@ -60,7 +57,6 @@ export function HistoryPanel(){
     try{
       const response=await apiFetch('/api/v1/ai/explain',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({experiment_id:chosen,run_id:latest.id})});
-      if(!response.ok)throw Error(`Explanation failed (HTTP ${response.status})`);
       setExplanation(await response.json() as Record<string,unknown>);
     }catch(e){setError(e instanceof Error?e.message:'Explanation unavailable');}finally{setBusy(false);}
   }

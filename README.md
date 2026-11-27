@@ -2,7 +2,7 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> **Current build candidate: Phase 07D + visual intelligence and operational safeguards.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
+> **Current build candidate: Phase 07D + research studio, interaction and release refinement.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
 
 See [Production readiness](docs/PRODUCTION_READINESS.md) for request budgets, contextual guidance, capacity checks, and deployment acceptance gates.
 
@@ -21,8 +21,10 @@ Requires Python 3.11+, Node 22+, Git, and network access for initial dependencie
 ```powershell
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".\backend[dev]"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --host 127.0.0.1 --port 8898
+.\.venv\Scripts\python.exe scripts/start_backend.py
 ```
+
+For optional persistent AI settings, see [AI setup](docs/AI_SETUP.md). The launcher reads a private `.env` before starting FastAPI.
 
 In a separate terminal:
 

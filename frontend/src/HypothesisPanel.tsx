@@ -17,7 +17,6 @@ export function HypothesisPanel({ datasetId, numericColumns }: {datasetId: strin
       const response=await apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/hypothesis`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({column:selected,null_mean:Number(mu),alpha:0.05})
       });
-      if(!response.ok) throw Error(`Test unavailable (HTTP ${response.status}).`);
       setResult(await response.json() as TestResult);
     } catch(e) {setError(e instanceof Error?e.message:'Test failed');}
     finally {setBusy(false);}

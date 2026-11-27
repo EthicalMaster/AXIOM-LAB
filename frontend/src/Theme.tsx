@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 export type Theme = 'dark' | 'light';
 const key = 'axiom-theme-v1';
 export function initialTheme(): Theme {
@@ -11,7 +11,16 @@ export function applyTheme(theme: Theme) {
 }
 export function ThemeSwitch(){
   const [theme,setTheme]=useState(initialTheme);
-  function toggle(){const next=theme==='dark'?'light':'dark';applyTheme(next);setTheme(next);try{localStorage.setItem(key,next)}catch{/* Theme still works for this tab. */}}
+  const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current);document.documentElement.classList.remove('theme-changing')},[]);
+  function toggle(){
+    const next=theme==='dark'?'light':'dark';
+    if(timer.current!==null)clearTimeout(timer.current);
+    document.documentElement.classList.add('theme-changing');
+    applyTheme(next);setTheme(next);
+    timer.current=setTimeout(()=>document.documentElement.classList.remove('theme-changing'),280);
+    try{localStorage.setItem(key,next)}catch{/* Theme still works for this tab. */}
+  }
   return <button type="button" className="theme-switch" onClick={toggle} aria-label={`Switch to ${theme==='dark'?'light':'dark'} theme`} title={`Switch to ${theme==='dark'?'light':'dark'} theme`}>
     <span className={theme==='light'?'selected':''}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg></span>
     <span className={theme==='dark'?'selected':''}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg></span>

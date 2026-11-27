@@ -9,6 +9,5 @@ export type QualityReport = {
 export function percent(value:number):string {return `${value.toFixed(1)}%`;}
 export async function fetchQuality(datasetId:string): Promise<QualityReport> {
   const response=await apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/quality`);
-  if(!response.ok) throw new Error(`Data quality check failed (HTTP ${response.status}).`);
   return await response.json() as QualityReport;
 }

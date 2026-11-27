@@ -10,9 +10,5 @@ export async function fetchDistribution(datasetId:string,column:string):Promise<
   const request=`/api/v1/datasets/${encodeURIComponent(datasetId)}/distribution?column=${encodeURIComponent(column)}`;
   const response=await apiFetch(request);
   const payload:unknown=await response.json();
-  if(!response.ok) throw new Error(`Distribution unavailable (HTTP ${response.status}).`);
   return payload as DistributionReport;
-}
-export function histogramHeight(count:number,maxCount:number):number {
-  return maxCount>0?Math.round(100*count/maxCount):0;
 }

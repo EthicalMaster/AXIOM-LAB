@@ -9,7 +9,7 @@ export function ClusterPanel({datasetId,numericColumns}:{datasetId:string;numeri
   const selected=numericColumns.includes(feature)?feature:(numericColumns[0]??'');
   async function run(){if(busy)return;setBusy(true);setError('');setReport(null);
     try{const r=await apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/ml/clustering`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features:[selected],n_clusters:Number(count)})});
-      if(!r.ok)throw Error(`Clustering rejected (HTTP ${r.status})`);setReport(await r.json() as ClusterReport);
+      setReport(await r.json() as ClusterReport);
     }catch(e){setError(e instanceof Error?e.message:'Clustering failed');}finally{setBusy(false);}
   }
   return <section className="science-panel" aria-labelledby="cluster-title"><div className="preview-heading"><h3 id="cluster-title">Clustering</h3><span>PHASE 04D · K-MEANS</span></div>

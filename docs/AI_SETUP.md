@@ -1,29 +1,41 @@
-# Configure AXIOM Guide
+# Persistent AXIOM Guide configuration
 
-The engine reads provider settings from the **backend process environment**. It does not read `.env` automatically when launched directly with Uvicorn. Docker Compose reads `.env` through its own environment configuration. No provider key belongs in Vite, a VITE_ variable, source control, browser storage or screenshots.
+AI is optional. Scientific computation is independent of any provider.
 
-## Direct local development (Windows PowerShell)
+## Local development (PowerShell)
 
-1. Open the provider console using an account you are authorized to use. For Groq, use https://console.groq.com/keys and confirm the model in https://console.groq.com/docs/models. The provider's free allowance varies by account, model and date.
-2. From the repository root in a NEW backend terminal, set the following session environment variables. Enter the key when prompted (masked). Replace the model ID if your provider lists a different compatible model.
+1. Stop the existing Uvicorn process. From the repository root install the backend dependencies (`.\.venv\Scripts\python.exe -m pip install -e ".\backend[dev]"`).
+2. Create the private file only if it is absent:
 
 ```powershell
-$env:AXIOM_AI_BASE_URL = 'https://api.groq.com/openai/v1'
-$env:AXIOM_AI_MODEL = 'openai/gpt-oss-20b'
-$env:AXIOM_AI_API_KEY = [System.Net.NetworkCredential]::new('', (Read-Host 'Provider key' -AsSecureString)).Password
-$env:AXIOM_AI_RPM = '10'
-$env:AXIOM_AI_RPD = '100'
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --reload --port 8898
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+notepad .env
 ```
 
-Stop an existing backend before starting this one. In a separate terminal run `Invoke-RestMethod http://127.0.0.1:8898/api/v1/ai/status` (local unprotected mode). `enabled: true` means the configuration is present and URL accepted, not that the key is valid. Open Ask AXIOM, opt in to external commentary and ask a question. A successful response must show the optional AI advisory source. Built-in fallback means the remote call was not used or failed. Reasoning models may exhaust the current 250-token output allowance before producing text; choose another supported chat model if this happens.
+3. Set the three values below in `.env`, preserving any other settings. Replace the example model with a model your provider actually offers. Example Groq configuration (availability and quota depend on your authorized account):
 
-The session variables disappear when the terminal closes; repeat the setup for a new terminal. To remove the key in the current terminal after stopping the server, use `Remove-Item Env:AXIOM_AI_API_KEY`.
+```dotenv
+AXIOM_AI_BASE_URL=https://api.groq.com/openai/v1
+AXIOM_AI_MODEL=openai/gpt-oss-20b
+AXIOM_AI_API_KEY=REPLACE_WITH_YOUR_PRIVATE_KEY
+AXIOM_AI_RPM=10
+AXIOM_AI_RPD=100
+```
 
-## Docker / deployed backend
+4. Save the file. Use a fresh terminal to avoid previously exported environment variables taking precedence. Start the server with:
 
-Use the existing `.env.example` as a template for local Docker Compose; place the key in an ignored `.env` file or the hosting provider's secret manager, never in a committed file. The backend service must receive `AXIOM_AI_BASE_URL`, `AXIOM_AI_MODEL` and `AXIOM_AI_API_KEY`. Restart after changes. Keep HTTPS and authentication for remote use.
+```powershell
+.\.venv\Scripts\python.exe scripts/start_backend.py
+```
 
-## Quotas, privacy and failure
+The launcher loads `.env` before any application imports, including import-time quota construction. Existing environment variables win. It binds to `127.0.0.1:8898`, reloads Python changes, and never prints credentials. Use `--no-reload` if needed. Restart completely after editing `.env`. Direct Uvicorn without `--env-file` still does not load the file; use the launcher. `--port` changes the backend port; update Vite's proxy to match if necessary.
 
-The application has local defaults of 10 remote requests/minute and 100/day; provider quotas are separate. Keys are used on the server only. Opt-in sends a question and limited summary, not raw dataset rows, but names/aggregates can still be confidential. For unknown inputs, provider outages, and quota exhaustion, the built-in guide remains available. Scientific computation never depends on AI. No live provider call was tested during this patch build.
+Verify in a separate terminal: `Invoke-RestMethod http://127.0.0.1:8898/api/v1/ai/status` (local unprotected mode). The Method guide workspace also has a Check provider button. `enabled: true` confirms settings are present and the URL accepted, **not** that the remote key works. Open Ask AXIOM, opt in to external commentary, and ask a question. The optional AI advisory source confirms a successful external response. If built-in guidance appears, check the model ID, key and quotas. Reasoning models may exhaust the 250-token response budget; use a supported concise chat model if needed.
+
+## Secret handling and deployment
+
+`.env` is ignored by Git but remains plaintext on disk: protect it with your OS account permissions, never share it or upload it. `git check-ignore .env` should print `.env`. Never put secrets in `VITE_` variables, frontend code, localStorage, screenshots, or committed files. Docker Compose already reads `.env`; deployment platforms should inject values with their secret manager. Do not use the local launcher for public hosting. Keep HTTPS and authentication on the remote deployment.
+
+## Quotas and privacy
+
+Default local external allowance: 10 requests/minute and 100/day, distinct from provider limits. Provider calls send only the opted-in question and bounded context, not original file bytes; aggregates may still be sensitive. No live provider call was tested for this release. Local deterministic guidance remains available when a provider is disabled, fails, or reaches a quota.
