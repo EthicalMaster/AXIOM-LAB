@@ -62,7 +62,7 @@ def list_experiments(limit: int = 20, offset: int = 0) -> dict:
 
 def list_experiment_runs(experiment_id: str, limit: int = 20, offset: int = 0) -> dict | None:
     with cloud.database() as connection:
-        exists = connection.execute('SELECT id FROM experiments WHERE id = %s FOR UPDATE', (experiment_id,)).fetchone()
+        exists = connection.execute('SELECT id FROM experiments WHERE id = %s', (experiment_id,)).fetchone()
         if exists is None:
             return None
         total = connection.execute('SELECT COUNT(*) AS total FROM runs WHERE experiment_id = %s', (experiment_id,)).fetchone()["total"]
@@ -83,7 +83,8 @@ def append_experiment_run(experiment_id: str, configuration: dict, result: dict,
     run_id = uuid.uuid4().hex
     environment = {'python': '.'.join(map(str, sys.version_info[:3])), 'algorithm': result['method']}
     with cloud.database() as connection:
-        # Lock the experiment row before allocating its next revision.
+        # Serialize revision allocation without granting UPDATE on immutable experiments.
+        connection.execute('SELECT pg_advisory_xact_lock(hashtextextended(%s, 7311002))', (experiment_id,))
         exists = connection.execute('SELECT id FROM experiments WHERE id = %s', (experiment_id,)).fetchone()
         if exists is None:
             return None
