@@ -15,12 +15,13 @@ export type DatasetMetadata = {
 };
 export type ImportedDataset = DatasetMetadata & { preview: (string | null)[][] };
 
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
+export const MAX_UPLOAD_MIB = import.meta.env.VITE_AXIOM_CLOUD === '1' ? 4 : 5;
+const MAX_FILE_BYTES = MAX_UPLOAD_MIB * 1024 * 1024;
 
 export function clientFileError(filename: string, size: number): string | null {
   if (!/\.(csv|xlsx|xls)$/i.test(filename)) return 'Choose a CSV, XLSX or XLS file.';
   if (size === 0) return 'The selected file is empty.';
-  if (size > MAX_FILE_BYTES) return 'This file exceeds the 5 MiB upload limit.';
+  if (size > MAX_FILE_BYTES) return `This file exceeds the ${MAX_UPLOAD_MIB} MiB upload limit.`;
   return null;
 }
 
