@@ -26,3 +26,14 @@ def preview_ml(dataset_id:str,request:SupervisedRequest)->dict:
     try:return preview(raw,suffix,request.features,request.target,request.task)
     except DatasetValidationError as exc:
         raise HTTPException(exc.status_code,detail={'code':exc.code,'message':exc.message}) from exc
+
+from app.services.ml_regression import regression
+
+@router.post('/{dataset_id}/ml/regression')
+def fit_regression(dataset_id:str,request:SupervisedRequest)->dict:
+    if request.task!='regression':
+        raise HTTPException(422,detail='Choose task=regression.')
+    raw,suffix,_=source(dataset_id,request)
+    try:return regression(raw,suffix,request.features,request.target)
+    except DatasetValidationError as exc:
+        raise HTTPException(exc.status_code,detail={'code':exc.code,'message':exc.message}) from exc

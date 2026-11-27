@@ -92,8 +92,11 @@ def holdout(data: MLData):
                             stratify=data.y if data.task=='classification' else None)
 
 
-def preprocessing():
-    return make_pipeline(SimpleImputer(strategy='median'),StandardScaler())
+def preprocessing(estimator=None):
+    steps = [SimpleImputer(strategy='median'), StandardScaler()]
+    if estimator is not None:
+        steps.append(estimator)
+    return make_pipeline(*steps)
 
 
 def preview(raw:bytes,suffix:str,features:list[str],target:str,task:str)->dict:

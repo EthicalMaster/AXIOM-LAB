@@ -46,3 +46,6 @@
 
 ## Phase 04A (candidate)
 - Deterministic supervised holdout and fitted preprocessing restricted to training rows.
+
+## Phase 04B (candidate)
+- Linear regression with training-only preprocessing and explicit held-out MAE/RMSE/R².

@@ -25,6 +25,7 @@ export function MLStudioPanel({datasetId,numericColumns,targetColumns}:{datasetI
       <label>Numeric predictor <select value={actualFeature} onChange={e=>setFeature(e.target.value)}>{numericColumns.filter(c=>c!==actualTarget).map(c=><option key={c}>{c}</option>)}</select></label>
       <label>Target <select value={actualTarget} onChange={e=>setTarget(e.target.value)}>{candidateTargets.map(c=><option key={c}>{c}</option>)}</select></label>
       <button className="primary-button" disabled={busy||!actualFeature||!actualTarget} onClick={()=>void run('preview')}>Preview training split</button>
+      {task==='regression'&&<button className="primary-button" disabled={busy||!actualFeature||!actualTarget} onClick={()=>void run('regression')}>Train linear regression</button>}
     </div>
     {error&&<p role="alert" className="inline-alert error">{error}</p>}
     {report&&<div className="table-scroll" tabIndex={0} aria-label="Structured machine-learning result"><pre>{JSON.stringify(report,null,2)}</pre></div>}
