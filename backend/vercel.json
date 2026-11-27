@@ -1,0 +1,11 @@
+{
+  "framework": "fastapi",
+  "regions": [
+    "bom1"
+  ],
+  "functions": {
+    "index.py": {
+      "maxDuration": 60
+    }
+  }
+}

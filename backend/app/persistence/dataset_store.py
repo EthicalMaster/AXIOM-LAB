@@ -37,6 +37,10 @@ class DatasetStorageQuotaError(Exception):
 
 
 def save_dataset(raw: bytes, original_name: str, extension: str, profile: DatasetProfile) -> dict:
+    from app.persistence.cloud import enabled
+    if enabled():
+        from app.persistence.cloud_dataset import save_dataset as cloud_operation
+        return cloud_operation(raw, original_name, extension, profile)
     root = _data_root()
     dataset_id = uuid.uuid4().hex
     sha256 = hashlib.sha256(raw).hexdigest()
@@ -79,6 +83,10 @@ def save_dataset(raw: bytes, original_name: str, extension: str, profile: Datase
 
 
 def find_dataset(dataset_id: str) -> dict | None:
+    from app.persistence.cloud import enabled
+    if enabled():
+        from app.persistence.cloud_dataset import find_dataset as cloud_operation
+        return cloud_operation(dataset_id)
     root = _data_root()
     if not (root / "axiom.sqlite3").exists():
         return None
@@ -105,6 +113,10 @@ class DatasetStorageError(Exception):
 
 
 def read_original_dataset(dataset_id: str, metadata: dict) -> bytes:
+    from app.persistence.cloud import enabled
+    if enabled():
+        from app.persistence.cloud_dataset import read_original_dataset as cloud_operation
+        return cloud_operation(dataset_id, metadata)
     """Read only the opaque ID-derived path, never a client-provided file path."""
     if not re.fullmatch(r'[0-9a-f]{32}', dataset_id):
         raise DatasetStorageError('Invalid stored dataset identifier.')

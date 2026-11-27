@@ -10,16 +10,21 @@ import asyncio
 import os
 from starlette.responses import JSONResponse
 from app.core.access import public_mode
+from app.persistence import cloud
+from starlette.concurrency import run_in_threadpool
 
 log = logging.getLogger(__name__)
 
 class WindowBudget:
-    def __init__(self, limit: int, seconds: float):
+    def __init__(self, limit: int, seconds: float, name: str | None = None):
+        self.name = name
         self.limit, self.seconds = limit, seconds
         self.events = deque()
         self.lock = Lock()
 
     def take(self) -> bool:
+        if cloud.enabled():
+            return cloud.take_budget(self.name, self.limit, int(self.seconds))
         now = monotonic()
         with self.lock:
             while self.events and self.events[0] <= now - self.seconds:
@@ -47,11 +52,11 @@ class RequestGuard:
         self.active = 0
         self.lock = Lock()
         # Fixed, bounded process-wide buckets: no untrusted identity/IP keys.
-        self.login_budget = WindowBudget(setting('AXIOM_LOGIN_RPM', 12, 120), 60)
-        self.api_budget = WindowBudget(setting('AXIOM_API_RPM', 120, 1200), 60)
-        self.upload_budget = WindowBudget(setting('AXIOM_UPLOAD_RPM', 6, 60), 60)
-        self.compute_budget = WindowBudget(setting('AXIOM_COMPUTE_RPM', 30, 300), 60)
-        self.guide_budget = WindowBudget(setting('AXIOM_GUIDE_RPM', 20, 120), 60)
+        self.login_budget = WindowBudget(setting('AXIOM_LOGIN_RPM', 12, 120), 60, 'login')
+        self.api_budget = WindowBudget(setting('AXIOM_API_RPM', 120, 1200), 60, 'api')
+        self.upload_budget = WindowBudget(setting('AXIOM_UPLOAD_RPM', 6, 60), 60, 'upload')
+        self.compute_budget = WindowBudget(setting('AXIOM_COMPUTE_RPM', 30, 300), 60, 'compute')
+        self.guide_budget = WindowBudget(setting('AXIOM_GUIDE_RPM', 20, 120), 60, 'guide')
 
     async def __call__(self, scope, receive, send):
         if scope['type'] != 'http':
@@ -99,10 +104,13 @@ class RequestGuard:
                 budget = self.guide_budget
             elif '/ml/' in path or path.startswith('/api/v1/math'):
                 budget = self.compute_budget
-            if budget is not None and not budget.take():
-                return await reject(429, 'This operation has reached its request allowance.', 60)
-            if path not in ('/api/v1/health', '/api/v1/auth/status') and not self.api_budget.take():
-                return await reject(429, 'API request allowance reached. Retry later.', 60)
+            try:
+                if budget is not None and not await run_in_threadpool(budget.take):
+                    return await reject(429, 'This operation has reached its request allowance.', 60)
+                if path not in ('/api/v1/health', '/api/v1/auth/status') and not await run_in_threadpool(self.api_budget.take):
+                    return await reject(429, 'API request allowance reached. Retry later.', 60)
+            except Exception:
+                return await reject(503, 'Request admission temporarily unavailable.', 5)
         # Leave health/status responsive, even when computation is full.
         admitted = path not in ('/api/v1/health', '/api/v1/auth/status')
         if admitted:
@@ -114,7 +122,7 @@ class RequestGuard:
                 return await reject(503, 'Computational capacity reached; retry later.', 3)
         try:
             if method in ('POST','PUT','PATCH','DELETE'):
-                limit = 6 * 1024 * 1024 if path == '/api/v1/datasets/import' else 64 * 1024
+                limit = (4 * 1024 * 1024 + 65536 if cloud.enabled() else 6 * 1024 * 1024) if path == '/api/v1/datasets/import' else 64 * 1024
                 length = dict(scope['headers']).get(b'content-length')
                 if length is not None:
                     try:

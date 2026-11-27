@@ -11,8 +11,8 @@ from threading import BoundedSemaphore
 from app.core.request_guard import WindowBudget, setting
 
 _provider_slots = BoundedSemaphore(2)
-_provider_minute = WindowBudget(setting("AXIOM_AI_RPM", 10, 120), 60)
-_provider_day = WindowBudget(setting("AXIOM_AI_RPD", 100, 10000), 86400)
+_provider_minute = WindowBudget(setting("AXIOM_AI_RPM", 10, 120), 60, "ai_minute")
+_provider_day = WindowBudget(setting("AXIOM_AI_RPD", 100, 10000), 86400, "ai_day")
 
 MAX_EVIDENCE_CHARS = 3500
 MAX_RESPONSE_CHARS = 1800

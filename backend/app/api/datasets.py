@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import re
+from app.persistence import cloud
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
@@ -43,6 +44,8 @@ async def import_dataset(file: UploadFile = File(...)) -> ImportedDataset:
         filename, suffix = safe_filename(file.filename)
         # Read only one byte beyond the configured upper bound.
         raw = await file.read(MAX_FILE_BYTES + 1)
+        if cloud.enabled() and len(raw) > cloud.MAX_FILE_BYTES:
+            raise HTTPException(413, detail={'code':'file_too_large','message':'Cloud uploads are limited to 4 MiB.'})
         profile = await run_in_threadpool(validate_dataset, raw, suffix)
     except DatasetValidationError as exc:
         raise HTTPException(exc.status_code, detail={"code": exc.code, "message": exc.message}) from exc
@@ -52,6 +55,8 @@ async def import_dataset(file: UploadFile = File(...)) -> ImportedDataset:
         metadata = await run_in_threadpool(save_dataset, raw, filename, suffix, profile)
     except DatasetStorageQuotaError as exc:
         raise HTTPException(507, detail={'code':'storage_quota','message':str(exc)}) from exc
+    except DatasetStorageError as exc:
+        raise HTTPException(503, detail={'code':'storage_unavailable','message':str(exc)}) from exc
     logger.info("dataset_imported id=%s format=%s rows=%s", metadata["id"], profile.file_format, profile.row_count)
     return ImportedDataset(**metadata, preview=profile.preview)
 

@@ -21,6 +21,7 @@ dependencies = [
     "numpy>=1.26,<3.0",
     "sympy>=1.13,<2.0",
     "scikit-learn>=1.5,<2.0",
+    "psycopg[binary]==3.3.9",
 ]
 
 [project.optional-dependencies]
