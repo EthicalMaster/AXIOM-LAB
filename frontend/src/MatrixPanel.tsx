@@ -1,25 +1,14 @@
-import {Loading} from './WorkspaceTools';
-import {MatrixView,Metrics} from './Visuals';
-import {apiFetch} from './apiClient';
 import {useState,type FormEvent} from 'react';
-type Result={determinant:number;rank:number;condition_number:number|null;inverse:number[][]|null;solution:number[]|null;warnings:string[]};
+import {MatrixView,Metrics,nfmt,Details} from './Visuals';
+import {MathShell,MathAction,useMathRequest,Warnings} from './MathControls';
+type Result={determinant:number;rank:number;condition_number:number|null;inverse:number[][]|null;solution:number[]|null;eigenvalues:{real:number;imag:number}[];warnings:string[];note:string};
+const identity=(n:number)=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?'1':'0'));
 export function MatrixPanel(){
-  const [matrix,setMatrix]=useState('[[2,0],[0,4]]');const [vector,setVector]=useState('[2,8]');
-  const [result,setResult]=useState<Result|null>(null);const [busy,setBusy]=useState(false);
-  const [error,setError]=useState('');
-  async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;setError('');setResult(null);
-    setBusy(true);try{
-      const payload={matrix:JSON.parse(matrix) as unknown,vector:vector.trim()?JSON.parse(vector) as unknown:null};
-      const r=await apiFetch('/api/v1/math/matrix',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      if(!r.ok)throw Error(`Matrix calculation rejected (HTTP ${r.status})`);setResult(await r.json() as Result);
-    }catch(e){setError(e instanceof Error?e.message:'Invalid matrix');}finally{setBusy(false);}
-  }
-  return <section className="science-panel" aria-labelledby="matrix-title"><div className="preview-heading"><h3 id="matrix-title">Linear algebra</h3><span>PHASE 03C · 1–8 ROWS</span></div>
-    <form className="experiment-controls" onSubmit={submit}><label>Square matrix (JSON) <input value={matrix} onChange={e=>setMatrix(e.target.value)}/></label>
-      <label>Optional right-hand-side vector <input value={vector} onChange={e=>setVector(e.target.value)}/></label><button className="primary-button" disabled={busy}>Analyse matrix</button></form>
-    {busy&&<Loading label="Computing result"/>}{error&&<p role="alert" className="inline-alert error">{error}</p>}
-    {result&&<div><Metrics items={[{label:"Determinant",value:result.determinant},{label:"Rank",value:result.rank},{label:"Condition number",value:result.condition_number}]}/>{result.inverse&&<MatrixView matrix={result.inverse} label="Inverse matrix · signed magnitude"/>}<p>Determinant: {result.determinant.toPrecision(6)} · Rank: {result.rank} · Condition: {result.condition_number?.toPrecision(4)??'unbounded'}</p>
-      <p>Inverse: <code>{result.inverse?JSON.stringify(result.inverse):'withheld'}</code></p><p>Solution: <code>{result.solution?JSON.stringify(result.solution):'withheld / not requested'}</code></p>
-      {result.warnings.map((w,i)=><p key={i}>{w}</p>)}</div>}
-  </section>;
+ const [matrix,setMatrix]=useState([['2','0'],['0','4']]),[vector,setVector]=useState(['2','8']),[solve,setSolve]=useState(true),[submitted,setSubmitted]=useState<number[][]>([]);const req=useMathRequest<Result>();const n=matrix.length;
+ function resize(size:number){setMatrix(old=>Array.from({length:size},(_,i)=>Array.from({length:size},(_,j)=>old[i]?.[j]??(i===j?'1':'0'))));setVector(old=>Array.from({length:size},(_,i)=>old[i]??'0'))}
+ function edit(i:number,j:number,value:string){setMatrix(old=>old.map((row,r)=>r===i?row.map((v,c)=>c===j?value:v):row))}
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const cells=[...matrix.flat(),...(solve?vector:[])];if(cells.some(v=>!v.trim()||!Number.isFinite(Number(v)))){req.setError('Fill every required cell with a finite number.');return;}const a=matrix.map(r=>r.map(Number));if(await req.run('matrix',{matrix:a,vector:solve?vector.map(Number):null}))setSubmitted(a)}
+ const result=req.result;
+ return <MathShell title="Matrix laboratory" subtitle="Analyse square matrices and optionally solve Ax = b. Conditioning determines whether an inverse is reliable." busy={req.busy} error={req.error} onSubmit={submit} result={result&&<div className="math-result"><Metrics items={[{label:'Determinant',value:result.determinant},{label:'Rank',value:result.rank},{label:'Condition number',value:result.condition_number??'Unbounded'}]}/>{submitted.length>0&&<MatrixView matrix={submitted} label="Submitted matrix A"/>}{result.inverse&&<MatrixView matrix={result.inverse} label="Inverse A⁻¹ · signed magnitude"/>}{result.solution&&<div className="math-roots">{result.solution.map((v,i)=><div key={i}><small>x{i+1}</small><b>{nfmt(v)}</b></div>)}</div>}<Details title="Eigenvalues & numerical method"><p>{result.eigenvalues.map(z=>`${nfmt(z.real)}${z.imag===0?'':` ${z.imag<0?'−':'+'} ${nfmt(Math.abs(z.imag))}i`}`).join(' · ')}</p><p>{result.note}</p></Details><Warnings items={result.warnings}/></div>}>
+ <div className="math-plot-options"><label>Matrix size<select value={n} onChange={e=>resize(Number(e.target.value))}>{Array.from({length:8},(_,i)=><option key={i} value={i+1}>{i+1} × {i+1}</option>)}</select></label><label><input type="checkbox" checked={solve} onChange={e=>setSolve(e.target.checked)}/> Solve Ax = b</label></div><div className="matrix-editor-scroll"><div className="matrix-edit-wrap"><div className="matrix-editor" style={{gridTemplateColumns:`repeat(${n}, minmax(54px,1fr))`}}>{matrix.map((row,i)=>row.map((v,j)=><input key={`${i}-${j}`} type="number" step="any" aria-label={`Matrix row ${i+1} column ${j+1}`} value={v} onChange={e=>edit(i,j,e.target.value)} required/>))}</div>{solve&&<div className="matrix-editor matrix-vector">{vector.map((v,i)=><input key={i} type="number" step="any" value={v} aria-label={`Vector row ${i+1}`} onChange={e=>setVector(old=>old.map((x,j)=>i===j?e.target.value:x))} required/>)}</div>}</div></div><div className="math-presets"><button type="button" onClick={()=>setMatrix(identity(n))}>Identity</button><button type="button" onClick={()=>{setMatrix([['1','2'],['2','4']]);setVector(['1','2'])}}>Singular example</button><button type="button" onClick={()=>{setMatrix([['2','0'],['0','4']]);setVector(['2','8'])}}>Diagonal example</button></div><MathAction busy={req.busy}>Analyse matrix</MathAction></MathShell>;
 }

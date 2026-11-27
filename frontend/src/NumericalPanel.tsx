@@ -1,26 +1,11 @@
-import {Loading} from './WorkspaceTools';
-import {XYPlot,Metrics,polynomialPoints} from './Visuals';
-import {apiFetch} from './apiClient';
 import {useState,type FormEvent} from 'react';
-type Result={root:number|null;root_residual:number|null;integral:number;estimated_absolute_error:number;warnings:string[];note:string};
+import {XYPlot,Metrics,polynomialPoints} from './Visuals';
+import {MathShell,MathAction,useMathRequest,readNumbers,Warnings} from './MathControls';
+type Result={root:number|null;root_residual:number|null;integral:number;estimated_absolute_error:number;warnings:string[];note:string;bounds:[number,number]};
 export function NumericalPanel(){
-  const [plot,setPlot]=useState<{x:number;y:number}[]>([]);
-  const [coeff,setCoeff]=useState('1,0,-4');const [a,setA]=useState('0');const [b,setB]=useState('3');
-  const [result,setResult]=useState<Result|null>(null);const [busy,setBusy]=useState(false);
-  const [error,setError]=useState('');
-  async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;setError('');setResult(null);
-    const items=coeff.split(',').map(v=>v.trim());
-    if(items.some(v=>!v||!Number.isFinite(Number(v)))||a.trim()===''||b.trim()===''){setError('Use finite coefficients and bounds.');return;}
-    setBusy(true);try{const r=await apiFetch('/api/v1/math/numerical',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coefficients:items.map(Number),lower:Number(a),upper:Number(b)})});
-      if(!r.ok)throw Error(`Interval calculation rejected (HTTP ${r.status})`);setResult(await r.json() as Result);setPlot(polynomialPoints(items.map(Number),Number(a),Number(b)));
-    }catch(e){setError(e instanceof Error?e.message:'Numerical calculation failed');}finally{setBusy(false);}
-  }
-  return <section className="science-panel" aria-labelledby="numeric-title"><div className="preview-heading"><h3 id="numeric-title">Numerical methods</h3><span>PHASE 03D · 1D POLYNOMIAL</span></div>
-    <form className="experiment-controls" onSubmit={submit}><label>Coefficients <input value={coeff} onChange={e=>setCoeff(e.target.value)}/></label>
-      <label>Lower bound <input type="number" step="any" value={a} onChange={e=>setA(e.target.value)}/></label>
-      <label>Upper bound <input type="number" step="any" value={b} onChange={e=>setB(e.target.value)}/></label><button className="primary-button" disabled={busy}>Calculate interval</button></form>
-    {busy&&<Loading label="Computing result"/>}{error&&<p role="alert" className="inline-alert error">{error}</p>}
-    {result&&<div><Metrics items={[{label:"Bracketed root",value:result.root},{label:"Integral",value:result.integral},{label:"Estimated error",value:result.estimated_absolute_error}]}/><XYPlot points={plot} label="Function over requested integration interval" connected xLabel="x" yLabel="f(x)"/><p>Bracketed root: {result.root??'Not established'} · Integral: {result.integral.toPrecision(8)} ± {result.estimated_absolute_error.toPrecision(3)} estimated numerical error</p>
-      <p className="preview-note">{result.note}</p>{result.warnings.map((w,i)=><p key={i}>{w}</p>)}</div>}
-  </section>;
+ const [coeff,setCoeff]=useState('1,0,-4'),[a,setA]=useState('0'),[b,setB]=useState('3'),[plot,setPlot]=useState<{x:number;y:number}[]>([]);const req=useMathRequest<Result>();
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const coefficients=readNumbers(coeff,2,7),lower=Number(a),upper=Number(b);if(!coefficients||!coefficients[0]||!a.trim()||!b.trim()||!Number.isFinite(lower)||!Number.isFinite(upper)||lower<-100||upper>100||lower>=upper){req.setError('Enter a nonzero leading coefficient and increasing bounds within −100 to 100.');return;}if(await req.run('numerical',{coefficients,lower,upper}))setPlot(polynomialPoints(coefficients,lower,upper,401))}
+ const result=req.result;
+ return <MathShell title="Numerical integration & roots" subtitle="Find a bracketed real root and estimate the signed integral over a bounded polynomial interval." busy={req.busy} error={req.error} onSubmit={submit} result={result&&<div className="math-result"><Metrics items={[{label:'Bracketed root',value:result.root??'Not established'},{label:'Signed integral',value:result.integral},{label:'Estimated error',value:result.estimated_absolute_error},{label:'Root residual',value:result.root_residual}]}/><XYPlot points={plot} markers={result.root===null?[]:[{x:result.root,y:0}]} shade label="Integration interval · shaded signed area" connected xLabel="x" yLabel="f(x)"/><p>{result.note} Shading illustrates the sampled integrand relative to zero, not the quadrature algorithm itself.</p><Warnings items={result.warnings}/></div>}>
+ <label className="math-field">Polynomial coefficients<input value={coeff} onChange={e=>setCoeff(e.target.value)} required/></label><div className="math-bounds"><label className="math-field">Lower bound<input type="number" min="-100" max="100" step="any" value={a} onChange={e=>setA(e.target.value)} required/></label><label className="math-field">Upper bound<input type="number" min="-100" max="100" step="any" value={b} onChange={e=>setB(e.target.value)} required/></label></div><div className="math-presets"><button type="button" onClick={()=>{setCoeff('1,0,-4');setA('0');setB('3')}}>Root and integral</button><button type="button" onClick={()=>{setCoeff('1,0,1');setA('-1');setB('1')}}>No real root</button></div><MathAction busy={req.busy}>Compute interval</MathAction></MathShell>;
 }

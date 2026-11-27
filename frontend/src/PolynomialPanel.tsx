@@ -1,27 +1,12 @@
-import {Loading} from './WorkspaceTools';
-import {XYPlot,polynomialPoints} from './Visuals';
-import {apiFetch} from './apiClient';
-import { useState, type FormEvent } from 'react';
-type Result = {polynomial:string; derivative:string; antiderivative_c0:string; roots_approx:{real:number;imag:number}[]; warnings:string[]};
+import {useState,type FormEvent} from 'react';
+import {XYPlot,polynomialPoints,Details,nfmt} from './Visuals';
+import {MathShell,MathAction,useMathRequest,readNumbers,Warnings} from './MathControls';
+type Result={polynomial:string;derivative:string;derivative_coefficients:number[];antiderivative_c0:string;roots_approx:{real:number;imag:number}[];warnings:string[]};
 export function PolynomialPanel(){
-  const [plotted,setPlotted]=useState<number[]>([]);
-  const [source,setSource]=useState('1, 0, -4');
-  const [report,setReport]=useState<Result|null>(null);
-  const [busy,setBusy]=useState(false);
-  const [error,setError]=useState('');
-  async function submit(e:FormEvent<HTMLFormElement>){
-    e.preventDefault();if(busy)return;setError('');setReport(null);
-    const parts=source.split(',').map(v=>v.trim());const coefficients=parts.map(Number);
-    if(parts.some(v=>!v)||coefficients.some(v=>!Number.isFinite(v))){setError('Enter finite numeric coefficients separated by commas.');return;}
-    setBusy(true);try{const r=await apiFetch('/api/v1/math/polynomial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({coefficients})});
-      if(!r.ok)throw Error(`Polynomial rejected (HTTP ${r.status})`);
-      setReport(await r.json() as Result);setPlotted(coefficients);
-    }catch(e){setError(e instanceof Error?e.message:'Unable to compute polynomial');}finally{setBusy(false);}
-  }
-  return <section className="science-panel" aria-labelledby="poly-title"><div className="preview-heading"><h3 id="poly-title">Polynomial calculus</h3><span>PHASE 03B · DEGREE ≤ 6</span></div>
-    <p className="profile-description">Coefficients highest degree first. Example 1, 0, -4 represents x²−4; integrals use C=0.</p>
-    <form className="experiment-controls" onSubmit={submit}><label>Coefficients <input value={source} onChange={e=>setSource(e.target.value)}/></label><button className="primary-button" disabled={busy}>Compute polynomial</button></form>
-    {busy&&<Loading label="Computing result"/>}{error&&<p role="alert" className="inline-alert error">{error}</p>}
-    {report&&<div>{plotted.length>0&&<XYPlot points={polynomialPoints(plotted,-5,5)} label="Polynomial on illustrative interval [−5, 5]" connected xLabel="x" yLabel="f(x)"/>}<p>f(x) = {report.polynomial}</p><p>f′(x) = {report.derivative}</p><p>∫f(x)dx (C=0) = {report.antiderivative_c0}</p><p>Approximate roots: {report.roots_approx.map(r=>`${r.real.toPrecision(5)} ${r.imag<0?'-':'+'} ${Math.abs(r.imag).toPrecision(3)}i`).join('; ')}</p><ul>{report.warnings.map((w,i)=><li key={i}>{w}</li>)}</ul></div>}
-  </section>;
+ const [source,setSource]=useState('1, 0, -4'),[plotted,setPlotted]=useState<number[]>([]),[showDerivative,setShowDerivative]=useState(true),[extent,setExtent]=useState(5);const req=useMathRequest<Result>();
+ async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const coefficients=readNumbers(source,2,7);if(!coefficients||coefficients[0]===0){req.setError('Enter 2–7 finite coefficients with a nonzero leading coefficient.');return;}if(await req.run('polynomial',{coefficients}))setPlotted(coefficients);}
+ const report=req.result,derivative=report?.derivative_coefficients??[];
+ const realRoots=report?.roots_approx.filter(r=>r.imag===0&&Math.abs(r.real)<=extent).map(r=>({x:r.real,y:0}))??[];
+ return <MathShell title="Polynomial calculus" subtitle="Explore f(x), its derivative, antiderivative and approximate roots." onSubmit={submit} busy={req.busy} error={req.error} result={report&&<div className="math-result"><div className="math-formulas"><div><small>FUNCTION</small><b>f(x) = {report.polynomial}</b></div><div><small>DERIVATIVE</small><b>f′(x) = {report.derivative}</b></div><div><small>ANTIDERIVATIVE (C = 0)</small><b>∫ f(x) dx = {report.antiderivative_c0}</b></div></div><div className="math-plot-options"><label><input type="checkbox" checked={showDerivative} onChange={e=>setShowDerivative(e.target.checked)}/> Overlay derivative</label><label>Plot extent ±<select value={extent} onChange={e=>setExtent(Number(e.target.value))}>{[2,5,10,25,50].map(n=><option key={n}>{n}</option>)}</select></label></div>{plotted.length>0&&<XYPlot points={polynomialPoints(plotted,-extent,extent,401)} series={showDerivative?[{label:"f′(x)",points:polynomialPoints(derivative,-extent,extent,401)}]:[]} markers={realRoots} label="Function & derivative" connected xLabel="x" yLabel="f(x)"/>}<div className="math-roots">{report.roots_approx.map((r,i)=><div key={i}><small>ROOT {i+1}</small><b>{nfmt(r.real)}{r.imag!==0?` ${r.imag<0?'−':'+'} ${nfmt(Math.abs(r.imag))}i`:''}</b></div>)}</div><Warnings items={report.warnings}/><Details title="Plot interpretation">Curves are sampled from the submitted coefficients. Root markers show returned real roots inside the selected plot range; complex roots appear above.</Details></div>}>
+ <label className="math-field">Coefficients (highest degree first)<input value={source} onChange={e=>setSource(e.target.value)} placeholder="1, 0, -4" required/></label><div className="math-input-example"><span>Example</span><b>x² − 4 → 1, 0, −4</b></div><div className="math-presets"><button type="button" onClick={()=>setSource('1, 0, -4')}>Quadratic</button><button type="button" onClick={()=>setSource('1, 0, -3, 0')}>Cubic</button><button type="button" onClick={()=>setSource('1, 0, 1')}>Complex roots</button></div><MathAction busy={req.busy}>Analyse polynomial</MathAction></MathShell>;
 }

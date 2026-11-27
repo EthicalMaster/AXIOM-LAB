@@ -5,6 +5,7 @@ import {WorkspaceBoundary} from './WorkspaceTools';
 import {AccessGate} from './AccessGate';
 import './styles.css';
 import './studio.css';
+import './math-studio.css';
 import {applyTheme,initialTheme} from './Theme';
 
 applyTheme(initialTheme());
