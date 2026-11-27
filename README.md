@@ -2,7 +2,9 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> **Current build candidate: Phase 07D.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
+> **Current build candidate: Phase 07D + visual intelligence and operational safeguards.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
+
+See [Production readiness](docs/PRODUCTION_READINESS.md) for request budgets, contextual guidance, capacity checks, and deployment acceptance gates.
 
 ## Design principles
 

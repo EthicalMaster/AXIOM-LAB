@@ -1,3 +1,4 @@
+import {apiFetch} from './apiClient';
 export type HistogramBin = {lower:number;upper:number;count:number;percent:number};
 export type DistributionReport = {
   dataset_id:string;column:string;method:string;count:number;missing_count:number;
@@ -7,7 +8,7 @@ export type DistributionReport = {
 };
 export async function fetchDistribution(datasetId:string,column:string):Promise<DistributionReport> {
   const request=`/api/v1/datasets/${encodeURIComponent(datasetId)}/distribution?column=${encodeURIComponent(column)}`;
-  const response=await fetch(request);
+  const response=await apiFetch(request);
   const payload:unknown=await response.json();
   if(!response.ok) throw new Error(`Distribution unavailable (HTTP ${response.status}).`);
   return payload as DistributionReport;

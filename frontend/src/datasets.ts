@@ -1,3 +1,4 @@
+import {apiFetch} from './apiClient';
 export type DatasetMetadata = {
   id: string;
   original_name: string;
@@ -30,7 +31,7 @@ export function fileSizeLabel(bytes: number): string {
 export async function importDataset(file: File): Promise<ImportedDataset> {
   const form = new FormData();
   form.append('file', file);
-  const response = await fetch('/api/v1/datasets/import', { method: 'POST', body: form });
+  const response = await apiFetch('/api/v1/datasets/import', { method: 'POST', body: form });
   const payload: unknown = await response.json();
   if (!response.ok) {
     const detail = typeof payload === 'object' && payload !== null && 'detail' in payload

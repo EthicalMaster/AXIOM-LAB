@@ -1,3 +1,6 @@
+import {MLResult} from './MLResult';
+import {Loading} from './WorkspaceTools';
+import {apiFetch} from './apiClient';
 import {useState} from 'react';
 type Task = 'regression'|'classification';
 type Output = Record<string,unknown>;
@@ -7,11 +10,11 @@ export function MLStudioPanel({datasetId,numericColumns,targetColumns}:{datasetI
   const [report,setReport]=useState<Output|null>(null);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
   const candidateTargets=task==='regression'?numericColumns:targetColumns;
   const actualTarget=candidateTargets.includes(target)?target:(candidateTargets[0]??'');
-  const actualFeature=numericColumns.includes(feature)?feature:(numericColumns.find(f=>f!==actualTarget)??'');
+  const actualFeature=numericColumns.includes(feature)&&feature!==actualTarget?feature:(numericColumns.find(f=>f!==actualTarget)??'');
   async function run(operation:string){
     setError('');setReport(null);setBusy(true);
     try{
-      const r=await fetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/ml/${operation}`,{
+      const r=await apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/ml/${operation}`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task,features:[actualFeature],target:actualTarget,time_dependent:false})
       });
       if(!r.ok)throw Error(`ML request rejected (HTTP ${r.status}).`);
@@ -30,6 +33,6 @@ export function MLStudioPanel({datasetId,numericColumns,targetColumns}:{datasetI
       <button className="primary-button" disabled={busy||!actualFeature||!actualTarget} onClick={()=>void run('compare')}>Compare two baselines</button>
     </div>
     {error&&<p role="alert" className="inline-alert error">{error}</p>}
-    {report&&<div className="table-scroll" tabIndex={0} aria-label="Structured machine-learning result"><pre>{JSON.stringify(report,null,2)}</pre></div>}
+    {busy&&<Loading label="Fitting and evaluating model"/>}{report&&<MLResult report={report}/>}
   </section>;
 }

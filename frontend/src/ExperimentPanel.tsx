@@ -1,5 +1,7 @@
+import {XYPlot} from './Visuals';
+import {Loading} from './WorkspaceTools';
 import { useState, type FormEvent } from 'react';
-import { coordinates, reopenExperiment, saveExperiment, type SavedExperiment } from './experiments';
+import { reopenExperiment, saveExperiment, type SavedExperiment } from './experiments';
 
 export function ExperimentPanel({ datasetId, numericColumns }: {datasetId:string; numericColumns:string[]}) {
   const [name,setName] = useState('Observation study');
@@ -32,13 +34,9 @@ export function ExperimentPanel({ datasetId, numericColumns }: {datasetId:string
       <button type="submit" className="primary-button" disabled={working || !name.trim()}>{working?'Working…':'Compute & save run'} <span aria-hidden="true">↗</span></button>
     </form> : <p className="preview-note">No numeric column available for charting.</p>}
     {error && <p className="inline-alert error" role="alert">{error}</p>}
-    {chart && <div className="chart-card">
+    {working&&<Loading label="Recording experiment"/>}{chart && <div className="chart-card">
       <div className="chart-meta"><strong>{saved?.name}</strong><span>{chart.original_point_count} observations · {chart.sampled?'250 selected data points':'All points shown'}</span></div>
-      <svg role="img" aria-label={`${chart.column} against valid observation index, ${chart.shown_point_count} points`} viewBox="0 0 720 230" preserveAspectRatio="xMidYMid meet">
-        <path d="M36 12V202H700" stroke="#6c7779" fill="none" strokeWidth="1"/>
-        <polyline points={coordinates(chart.points)} fill="none" stroke="#d5bf9a" strokeWidth="2" vectorEffect="non-scaling-stroke"/>
-        {chart.points.length<=80 && chart.points.map(p=><circle key={p.x} cx={36+(p.x-chart.points[0].x)/(chart.points[chart.points.length-1].x-chart.points[0].x||1)*664} cy={202-(p.y-Math.min(...chart.points.map(q=>q.y)))/(Math.max(...chart.points.map(q=>q.y))-Math.min(...chart.points.map(q=>q.y))||1)*180} r="3" fill="#e6d6ba"/>)}
-      </svg>
+      <XYPlot points={chart.points} label="Recorded observation sequence" connected xLabel="Valid observation index" yLabel={chart.column}/>
       <p className="preview-note">{chart.x_label} · {chart.y_label}. {chart.note}</p>
       <p className="preview-note"><strong>Experiment:</strong> <code>{saved?.id}</code> · <strong>Run:</strong> <code>{saved?.run.id}</code></p>
       <button type="button" className="retry-button" onClick={()=>void reload()} disabled={working}>Reload saved run from storage</button>

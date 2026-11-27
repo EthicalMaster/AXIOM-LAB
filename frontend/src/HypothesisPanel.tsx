@@ -1,6 +1,9 @@
+import {Interval,Metrics} from './Visuals';
+import {Loading} from './WorkspaceTools';
+import {apiFetch} from './apiClient';
 import { useState, type FormEvent } from 'react';
 
-type TestResult = { n: number; sample_mean: number; t_statistic: number; degrees_of_freedom: number; p_value: number; alpha: number; confidence_interval: number[]; cohens_d: number; reject_null: boolean; warnings: string[]; note: string };
+type TestResult = { null_mean:number; n: number; sample_mean: number; t_statistic: number; degrees_of_freedom: number; p_value: number; alpha: number; confidence_interval: number[]; cohens_d: number; reject_null: boolean; warnings: string[]; note: string };
 export function HypothesisPanel({ datasetId, numericColumns }: {datasetId: string; numericColumns: string[]}) {
   const [column,setColumn]=useState('');
   const [mu,setMu]=useState('0');
@@ -11,7 +14,7 @@ export function HypothesisPanel({ datasetId, numericColumns }: {datasetId: strin
   async function run(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();setResult(null);setError('');setBusy(true);
     try {
-      const response=await fetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/hypothesis`,{
+      const response=await apiFetch(`/api/v1/datasets/${encodeURIComponent(datasetId)}/hypothesis`,{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({column:selected,null_mean:Number(mu),alpha:0.05})
       });
       if(!response.ok) throw Error(`Test unavailable (HTTP ${response.status}).`);
@@ -28,7 +31,7 @@ export function HypothesisPanel({ datasetId, numericColumns }: {datasetId: strin
       <button className="primary-button" disabled={busy||!selected||mu.trim()===''}>{busy?'Testing…':'Run two-sided t-test'}</button>
     </form>:<p>No numeric columns available.</p>}
     {error&&<p role="alert" className="inline-alert error">{error}</p>}
-    {result&&<><div className="distribution-summary"><span>n <strong>{result.n}</strong></span><span>t <strong>{result.t_statistic.toFixed(4)}</strong></span><span>p <strong>{result.p_value.toPrecision(4)}</strong></span><span>95% CI <strong>{result.confidence_interval.map(v=>v.toFixed(3)).join(' to ')}</strong></span></div>
+    {busy&&<Loading label="Testing reference mean"/>}{result&&<><Metrics items={[{label:"Sample mean",value:result.sample_mean},{label:"p-value",value:result.p_value},{label:"Effect size (d)",value:result.cohens_d}]}/><Interval label="95% confidence interval" low={result.confidence_interval[0]} high={result.confidence_interval[1]} center={result.sample_mean} reference={result.null_mean}/><div className="distribution-summary"><span>n <strong>{result.n}</strong></span><span>t <strong>{result.t_statistic.toFixed(4)}</strong></span><span>p <strong>{result.p_value.toPrecision(4)}</strong></span><span>95% CI <strong>{result.confidence_interval.map(v=>v.toFixed(3)).join(' to ')}</strong></span></div>
       <p className="preview-note">{result.reject_null?'Reject':'Do not reject'} H₀ at α={result.alpha}. {result.note}</p><ul>{result.warnings.map((w,i)=><li key={i}>{w}</li>)}</ul></>}
   </section>;
 }

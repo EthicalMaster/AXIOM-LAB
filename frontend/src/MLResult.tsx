@@ -1,0 +1,10 @@
+import {Bars,Details,MatrixView,Metrics,Split,XYPlot} from './Visuals';
+type Report=Record<string,unknown>;
+export function MLResult({report:r}:{report:Report}){
+ const metrics=['mae','rmse','r2','accuracy','macro_precision','macro_recall','macro_f1','roc_auc','heldout_metric'].filter(k=>k in r).map(k=>({label:k==='heldout_metric'?`Holdout ${String(r.heldout_metric_name)}`:k.replaceAll('_',' ').toUpperCase(),value:r[k]}));
+ const examples=Array.isArray(r.examples)?r.examples as {actual:number;predicted:number}[]:[];
+ const matrix=Array.isArray(r.confusion_matrix)?r.confusion_matrix as number[][]:null;
+ const labels=Array.isArray(r.labels)?r.labels as string[]:undefined;
+ const models=Array.isArray(r.models)?r.models as {name:string;cv_mean:number;cv_std:number}[]:[];
+ return <div className="ml-result"><p className="micro">{String(r.method??'Computed result')}</p>{typeof r.train_rows==='number'&&typeof r.test_rows==='number'&&<Split train={r.train_rows} test={r.test_rows}/>}<Metrics items={metrics}/>{examples.length>0&&<XYPlot points={examples.map(v=>({x:v.actual,y:v.predicted}))} diagonal label={`Held-out actual versus predicted · ${examples.length} returned examples`} xLabel="Actual" yLabel="Predicted"/>}{matrix&&<MatrixView matrix={matrix} labels={labels} label="Confusion matrix · actual rows, predicted columns"/>}{models.length>0&&<><Bars label={`Training cross-validation · ${String(r.cv_metric)} (higher is better; negative MAE is signed)`} items={models.map(m=>({label:m.name,value:m.cv_mean}))}/><p>Selected from training CV: <strong>{String(r.chosen_by_training_cv)}</strong></p></>}{Array.isArray(r.training_medians)&&<Bars label="Training-only imputation medians" items={(r.training_medians as number[]).map((value,i)=>({label:`Feature ${i+1}`,value}))}/>} {Array.isArray(r.warnings)&&<div className="warning-panel"><strong>Interpretation limits</strong><ul>{r.warnings.map((w,i)=><li key={i}>{String(w)}</li>)}</ul></div>}<Details title="Exact response and parameters"><pre>{JSON.stringify(r,null,2)}</pre></Details></div>
+}

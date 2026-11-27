@@ -26,7 +26,7 @@ def access_secret() -> str | None:
 
 def authorized_token(candidate: str) -> bool:
     secret=access_secret()
-    return bool(secret and hmac.compare_digest(secret,candidate))
+    return bool(secret and hmac.compare_digest(secret.encode(),candidate.encode()))
 
 
 def new_session() -> str:
@@ -60,5 +60,8 @@ def same_origin(request) -> bool:
     origin=request.headers.get('origin','')
     if not origin:
         return False
+    configured=os.getenv('AXIOM_PUBLIC_ORIGIN','').strip().rstrip('/')
+    if configured:
+        return configured.startswith('https://') and origin == configured
     url=urlsplit(origin)
     return url.scheme == 'https' and url.netloc.lower()==request.headers.get('host','').lower()

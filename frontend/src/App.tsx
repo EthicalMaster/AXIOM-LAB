@@ -1,3 +1,4 @@
+import {apiFetch} from './apiClient';
 import { AIStudioPanel } from './AIStudioPanel';
 import { HistoryPanel } from './HistoryPanel';
 import { ClusterPanel } from './ClusterPanel';
@@ -9,7 +10,11 @@ import { MathWorkbenchPanel } from './MathWorkbenchPanel';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { HypothesisPanel } from './HypothesisPanel';
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react';
-import { phase, workspaceModules } from './phase';
+import {Overview} from './Overview';
+import {ThemeSwitch} from './Theme';
+import {WorkspaceIcon} from './WorkspaceIcon';
+import {Guide, SystemChecks, Loading, WorkspaceBoundary} from './WorkspaceTools';
+import {Details} from './Visuals';
 import { clientFileError, fileSizeLabel, importDataset, type ImportedDataset } from './datasets';
 import { fetchColumnProfile, type DatasetColumnProfile } from './columnProfile';
 import { ColumnProfilePanel } from './ColumnProfilePanel';
@@ -34,7 +39,7 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/v1/health', { signal: controller.signal })
+    apiFetch('/api/v1/health', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Backend not responding');
         return res.json() as Promise<Health>;
@@ -95,99 +100,27 @@ export default function App() {
     }
   }
 
-  return (
-    <main className="site-shell">
-      <header className="topbar">
-        <div className="wordmark"><span className="glyph" aria-hidden="true">∴</span> AXIOM <span className="thin">LAB</span></div>
-        <span className="top-label">SCIENTIFIC WORKSPACE <span className="divider-label">/</span> {phase}</span>
-      </header>
-
-      <section className="hero" aria-labelledby="project-title">
-        <div className="eyebrow"><span className="tiny-line"/> DATA LAB <span className="subtle">/ FIRST COMPUTATIONAL WORKFLOW</span></div>
-        <h1 id="project-title">Begin with <em>evidence.</em></h1>
-        <p className="lead">A scientific experiment starts with trustworthy input. Import a dataset, check its structure, and preserve the original file before any analysis begins.</p>
-        <div className="statuses">
-          <span className="status"><span className="dot ready" aria-hidden="true"/>Phase 07D · Release-candidate scientific modules</span>
-          <span className="status" role="status" aria-live="polite"><span className={`dot ${connection}`} aria-hidden="true"/>API {connection === 'checking' ? 'checking…' : connection === 'connected' ? 'connected' : 'unavailable'}</span>
-        </div>
-      </section>
-
-      <section className="lab-workspace" aria-labelledby="data-lab-title">
-        <div className="section-topline"><h2 id="data-lab-title">01 / Data Lab</h2><span>ACTIVE CAPABILITIES — COMPUTE + SAVE</span></div>
-        <div className="lab-grid">
-          <div className="upload-panel">
-            <span className="panel-kicker">INPUT / 01</span>
-            <h3>Import a dataset</h3>
-            <p className="panel-text">CSV, XLSX or XLS. Maximum 5 MiB, 50,000 data rows and 150 columns. The server validates your file before storing its original bytes.</p>
-            <form onSubmit={submit} className="upload-form">
-              <label className="input-label" htmlFor="dataset-file">Dataset file</label>
-              <input id="dataset-file" className="file-picker" type="file" accept=".csv,.xlsx,.xls" disabled={uploading} onChange={selectFile} aria-describedby="file-hint" />
-              <p id="file-hint" className="file-hint">{selectedFile ? `${selectedFile.name} · ${fileSizeLabel(selectedFile.size)}` : 'Select a file from your computer. No sample data is fabricated.'}</p>
-              <button className="primary-button" type="submit" disabled={!selectedFile || uploading || connection !== 'connected' || Boolean(error)}>
-                {uploading ? 'Validating dataset…' : 'Validate and import'} <span aria-hidden="true">↗</span>
-              </button>
-            </form>
-            {error && <div className="inline-alert error" role="alert"><strong>Import not completed.</strong><p>{error}</p></div>}
-            {result && <div className="inline-alert success" role="status"><strong>Dataset preserved.</strong><p>Original file saved with a unique dataset ID and SHA-256 fingerprint.</p></div>}
-          </div>
-
-          <aside className="method-panel" aria-label="Import methodology">
-            <span className="panel-kicker">PROTOCOL / DATA INTEGRITY</span>
-            <h3>Check before you compute.</h3>
-            <ol className="protocol-list">
-              <li><span>01</span> Confirm supported file format and bounded size</li>
-              <li><span>02</span> Read headers and verify consistent dataset structure</li>
-              <li><span>03</span> Record file fingerprint and store original bytes</li>
-              <li><span>04</span> Inspect columns without transforming the source</li>
-            </ol>
-            <div className="method-footnote">Types are provisional. Statistics operate only on consistently numeric columns; no cleaning or model training occurs in this phase. Charts and experiment runs can now be saved.</div>
-          </aside>
-        </div>
-      </section>
-
-      {result && <section className="results" aria-labelledby="result-title">
-        <div className="section-topline"><h2 id="result-title">Validated dataset</h2><span>ORIGINAL / IMMUTABLE</span></div>
-        <div className="metadata-grid">
-          <div><span>DATA ROWS</span><strong>{result.row_count.toLocaleString()}</strong></div>
-          <div><span>COLUMNS</span><strong>{result.column_count}</strong></div>
-          <div><span>FORMAT</span><strong>{result.format.toUpperCase()}</strong></div>
-          <div><span>SIZE</span><strong>{fileSizeLabel(result.size_bytes)}</strong></div>
-        </div>
-        <div className="result-identity"><span>Dataset ID</span><code>{result.id}</code><span>SHA-256</span><code className="hash">{result.sha256}</code></div>
-        {result.worksheet && <p className="worksheet-note">Selected worksheet: <strong>{result.worksheet}</strong></p>}
-        {result.warnings.length > 0 && <div className="warning-panel" role="note"><strong>Validation notes</strong><ul>{result.warnings.map((message, i) => <li key={i}>{message}</li>)}</ul></div>}
-        <div className="preview-heading"><h3>Raw preview</h3><span>FIRST {result.preview.length} DATA ROWS · NO INFERRED TYPES</span></div>
-        <div className="table-scroll" tabIndex={0} aria-label="Imported dataset preview, horizontally scrollable">
-          <table className="data-table"><thead><tr>{result.headers.map((head, i) => <th key={i} scope="col">{head}</th>)}</tr></thead>
-            <tbody>{result.preview.map((row, i) => <tr key={i}>{row.map((value, j) => <td key={j}>{value ?? <span className="missing">null</span>}</td>)}</tr>)}</tbody></table>
-        </div>
-        <p className="preview-note">Preview values remain displayed as originally imported. Column inference is advisory; descriptive numerical summaries appear below.</p>
-        {profileLoading && <p role="status" className="profile-status">Inspecting columns…</p>}
-        {profileError && <div className="inline-alert error" role="alert"><strong>Inspection unavailable.</strong><p>{profileError}</p><button type="button" className="retry-button" onClick={() => void loadProfile(result.id)}>Retry column inspection</button></div>}
-        {profile && <ColumnProfilePanel data={profile} />}
-        <QualityPanel key={result.id} datasetId={result.id} />
-        {profile && <DistributionPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type==='numeric').map(c=>c.name)} />}
-        <StatisticsPanel key={result.id} datasetId={result.id} />
-        {profile && <HypothesisPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
-        {profile && <DiagnosticsPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
-        {profile && <ExperimentPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
-      </section>}
-
-      <MathWorkbenchPanel />
-      <PolynomialPanel />
-      <MatrixPanel />
-      <NumericalPanel />
-      {result && profile && <MLStudioPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} targetColumns={profile.columns.filter(c=>c.inferred_type === 'categorical' || c.inferred_type === 'boolean').map(c=>c.name)} />}
-      {result && profile && <ClusterPanel key={result.id} datasetId={result.id} numericColumns={profile.columns.filter(c=>c.inferred_type === 'numeric').map(c=>c.name)} />}
-      <HistoryPanel />
-      <AIStudioPanel datasetId={result?.id} />
-      <section className="module-section" aria-label="Module roadmap">
-        <div className="section-topline"><h2>Scientific workspaces</h2><span>DEVELOPMENT ROADMAP</span></div>
-        <div className="module-list">{workspaceModules.map((module, index) => (
-          <div className="module" key={module}><span className="module-index">{String(index + 1).padStart(2, '0')}</span><span>{module}</span><span className={`module-status ${index < 7 ? 'module-active' : ''}`}>{index < 7 ? 'Bounded preview' : 'Planned'}</span></div>
-        ))}</div>
-      </section>
-      <footer>AXIOM LAB <span>—</span> Computation must be understandable, inspectable, and reproducible. <span className="footer-phase">PHASE {phase}</span></footer>
-    </main>
-  );
+  const pages = ['Overview','Data Lab','Statistics','Mathematics','Machine Learning','Experiments','Method guide','System checks'] as const;
+  type Page = typeof pages[number];
+  const [page,setPage]=useState<Page>('Overview');
+  const [collapsed,setCollapsed]=useState(false);
+  const [visited,setVisited]=useState<Page[]>(['Overview']);
+  function navigate(next:Page){setPage(next);setVisited(v=>v.includes(next)?v:[...v,next]);}
+  const numeric=profile?.columns.filter(c=>c.inferred_type==='numeric').map(c=>c.name)??[];
+  const target=profile?.columns.filter(c=>c.inferred_type==='categorical'||c.inferred_type==='boolean').map(c=>c.name)??[];
+  const empty=<section className="bento-card"><h2>Start with a dataset</h2><p>Import your original observations in Overview to unlock this workspace.</p><button className="retry-button" onClick={()=>navigate('Overview')}>Import dataset</button></section>;
+  return <div className={`workspace-shell${collapsed?' nav-collapsed':''}`}>
+    <aside className="workspace-nav"><div className="nav-brand"><span className="brand-glyph">∴</span><div className="brand-name">AXIOM<span>LAB</span><small>RESEARCH STUDIO</small></div></div><button className="nav-collapse" type="button" aria-label={collapsed?'Expand sidebar':'Collapse sidebar'} aria-expanded={!collapsed} onClick={()=>setCollapsed(v=>!v)}><WorkspaceIcon name={collapsed?'expand':'collapse'}/><span>{collapsed?'Expand':'Collapse'}</span></button><span className="nav-section-label">WORKSPACE</span><nav aria-label="Workspaces">{pages.map(p=><button key={p} title={p} aria-label={p} aria-current={p===page?'page':undefined} onClick={()=>navigate(p)}><WorkspaceIcon name={p}/><span className="nav-text">{p}</span></button>)}</nav><div className="nav-footer"><span className={`dot ${connection}`}/><span className="nav-text">{connection==='connected'?'Engine connected':connection==='checking'?'Connecting':'Engine unavailable'}</span></div></aside>
+    <main className="workspace-main" id="workspace"><header className="workspace-top"><div><span className="micro">Research studio <span className="breadcrumb-separator">/</span> {page}</span><h1>{page}</h1></div><div className="top-controls"><span className="workspace-state" role="status"><i className={`dot ${connection}`}/>{connection==='connected'?'API online':connection==='checking'?'Connecting':'API unavailable'}</span><ThemeSwitch/></div></header>
+    {connection==='unavailable'&&<div className="inline-alert error" role="alert">Scientific engine not reachable. <button className="retry-button" onClick={()=>navigate('System checks')}>Troubleshoot</button></div>}
+    {visited.includes('Overview')&&<div hidden={page!=='Overview'} className="workspace-page"><Overview dataset={result} profile={profile} onNavigate={navigate}/><section className="bento-card import-card"><div><span className="micro">INPUT / ORIGINAL DATA</span><h2>Import a dataset</h2><p>CSV, XLSX or XLS · up to 5 MiB, 50,000 rows, 150 columns.</p></div><form className="upload-form" onSubmit={submit}><label htmlFor="dataset-file" className="input-label">Dataset file</label><input id="dataset-file" className="file-picker" type="file" accept=".csv,.xlsx,.xls" disabled={uploading} onChange={selectFile}/><p className="file-hint">{selectedFile?`${selectedFile.name} · ${fileSizeLabel(selectedFile.size)}`:'Choose a file from your device.'}</p><button className="primary-button" disabled={!selectedFile||uploading||connection!=='connected'||!!error}>{uploading?'Validating…':'Validate and import'} <span aria-hidden="true">↗</span></button></form>{uploading&&<Loading label="Validating and storing original bytes"/>}{error&&<div className="inline-alert error" role="alert">{error}<button className="retry-button" onClick={()=>setError(null)}>Dismiss</button></div>}{result&&<button className="retry-button" onClick={()=>navigate('Data Lab')}>Inspect dataset →</button>}</section></div>}
+    {visited.includes('Data Lab')&&<div hidden={page!=='Data Lab'} className="workspace-page"><WorkspaceBoundary>{result?<><section className="bento-card"><h2>{result.original_name}</h2><p>{result.row_count} rows · {result.column_count} columns</p>{result.warnings.length>0&&<div className="warning-panel">{result.warnings.join(' ')}</div>}<Details title="Original data preview and fingerprint"><div className="result-identity"><span>Dataset ID</span><code>{result.id}</code><span>SHA-256</span><code>{result.sha256}</code></div><div className="table-scroll" tabIndex={0}><table className="data-table"><thead><tr>{result.headers.map((h,i)=><th key={i} scope="col">{h}</th>)}</tr></thead><tbody>{result.preview.map((r,i)=><tr key={i}>{r.map((v,j)=><td key={j}>{v??'null'}</td>)}</tr>)}</tbody></table></div></Details></section>{profileLoading&&<Loading label="Inspecting columns"/>}{profileError&&<div role="alert" className="inline-alert error">{profileError}<button className="retry-button" onClick={()=>void loadProfile(result.id)}>Retry inspection</button></div>}{profile&&<ColumnProfilePanel data={profile}/>}<QualityPanel key={result.id} datasetId={result.id}/></>:empty}</WorkspaceBoundary></div>}
+    {visited.includes('Statistics')&&<div hidden={page!=='Statistics'} className="workspace-page scientific-grid"><WorkspaceBoundary>{result?<><StatisticsPanel key={result.id} datasetId={result.id}/>{profile&&<><DistributionPanel key={result.id+'dist'} datasetId={result.id} numericColumns={numeric}/><HypothesisPanel key={result.id+'hyp'} datasetId={result.id} numericColumns={numeric}/><DiagnosticsPanel key={result.id+'diag'} datasetId={result.id} numericColumns={numeric}/></>}</>:empty}</WorkspaceBoundary></div>}
+    {visited.includes('Mathematics')&&<div hidden={page!=='Mathematics'} className="workspace-page scientific-grid"><WorkspaceBoundary><MathWorkbenchPanel/><PolynomialPanel/><MatrixPanel/><NumericalPanel/></WorkspaceBoundary></div>}
+    {visited.includes('Machine Learning')&&<div hidden={page!=='Machine Learning'} className="workspace-page scientific-grid"><WorkspaceBoundary>{result&&profile?<><MLStudioPanel key={result.id} datasetId={result.id} numericColumns={numeric} targetColumns={target}/><ClusterPanel key={result.id+'cluster'} datasetId={result.id} numericColumns={numeric}/></>:empty}</WorkspaceBoundary></div>}
+    {visited.includes('Experiments')&&<div hidden={page!=='Experiments'} className="workspace-page"><WorkspaceBoundary>{result&&profile&&<ExperimentPanel key={result.id} datasetId={result.id} numericColumns={numeric}/>}<HistoryPanel/></WorkspaceBoundary></div>}
+    {visited.includes('Method guide')&&<div hidden={page!=='Method guide'} className="workspace-page"><AIStudioPanel datasetId={result?.id}/></div>}
+    {visited.includes('System checks')&&<div hidden={page!=='System checks'} className="workspace-page"><SystemChecks/></div>}
+    <footer>AXIOM LAB · Results are computed from evidence. Advisory explanations do not replace scientific validation.</footer></main><Guide key={result?.id??"no-data"} page={page} datasetId={result?.id} numericColumns={numeric}/>
+    </div>;
 }

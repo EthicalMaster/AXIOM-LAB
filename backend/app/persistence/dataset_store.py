@@ -31,6 +31,10 @@ def _database(root: Path) -> sqlite3.Connection:
     return connection
 
 
+class DatasetStorageQuotaError(Exception):
+    """Configured original dataset quota would be exceeded."""
+
+
 def save_dataset(raw: bytes, original_name: str, extension: str, profile: DatasetProfile) -> dict:
     root = _data_root()
     dataset_id = uuid.uuid4().hex
@@ -38,12 +42,19 @@ def save_dataset(raw: bytes, original_name: str, extension: str, profile: Datase
     uploaded_at = datetime.now(timezone.utc).isoformat()
     relative_path = Path("datasets") / dataset_id / f"original{extension}"
     destination = root / relative_path
-    destination.parent.mkdir(parents=True, exist_ok=False)
     try:
-        # 'xb' refuses overwrite, even if an unexpected path already exists.
-        with destination.open("xb") as handle:
-            handle.write(raw)
+        # Reserve quota and write under one SQLite write transaction. This bounds
+        # recorded originals, not the whole volume; enforce a host disk quota too.
+        from app.core.request_guard import setting
         with closing(_database(root)) as connection, connection:
+            connection.execute('BEGIN IMMEDIATE')
+            count, used = connection.execute('SELECT COUNT(*), COALESCE(SUM(size_bytes),0) FROM datasets').fetchone()
+            byte_limit = setting('AXIOM_DATASET_QUOTA_MIB', 256, 10240) * 1024 * 1024
+            if count >= setting('AXIOM_DATASET_MAX_COUNT', 500, 10000) or used + len(raw) > byte_limit:
+                raise DatasetStorageQuotaError('Original dataset storage allowance reached; contact the workspace administrator.')
+            destination.parent.mkdir(parents=True, exist_ok=False)
+            with destination.open("xb") as handle:
+                handle.write(raw)
             connection.execute(
                 """INSERT INTO datasets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (dataset_id, original_name, profile.file_format, sha256, len(raw), uploaded_at,
@@ -54,7 +65,8 @@ def save_dataset(raw: bytes, original_name: str, extension: str, profile: Datase
     except Exception:
         if destination.exists():
             destination.unlink()
-        destination.parent.rmdir()
+        if destination.parent.exists():
+            destination.parent.rmdir()
         raise
     return {
         "id": dataset_id, "original_name": original_name, "format": profile.file_format,

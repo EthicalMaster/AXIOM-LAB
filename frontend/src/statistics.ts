@@ -1,3 +1,4 @@
+import {apiFetch} from './apiClient';
 export type NumericalColumnStatistics = {
   column: string; count: number; missing_count: number;
   mean: number; median: number; minimum: number; maximum: number;
@@ -15,7 +16,7 @@ export function displayNumber(value: number | null): string {
 }
 export async function fetchStatistics(datasetId: string): Promise<DatasetStatistics> {
   if (!/^[0-9a-f]{32}$/.test(datasetId)) throw new Error('Invalid dataset ID.');
-  const response = await fetch(`/api/v1/datasets/${datasetId}/statistics`);
+  const response = await apiFetch(`/api/v1/datasets/${datasetId}/statistics`);
   const payload: unknown = await response.json();
   if (!response.ok) throw new Error(`Statistics unavailable (HTTP ${response.status}).`);
   return payload as DatasetStatistics;

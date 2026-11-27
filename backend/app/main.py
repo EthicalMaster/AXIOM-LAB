@@ -3,7 +3,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.core.access import public_mode, access_secret, authorized_token, verify_session, same_origin, COOKIE_NAME
 from app.api.access import router as auth_router
-from time import perf_counter
+from fastapi.exceptions import RequestValidationError
+from app.core.request_guard import RequestGuard
 from app.api.ai import router as ai_router
 from app.api.reports import router as reports_router
 from app.api.datasets import router as dataset_router
@@ -30,15 +31,6 @@ app.include_router(ai_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 
 
-@app.middleware('http')
-async def server_timing(request: Request, call_next):
-    start = perf_counter()
-    response = await call_next(request)
-    response.headers['Server-Timing'] = f'app;dur={(perf_counter()-start)*1000:.2f}'
-    # Uploaded observations and session metadata must not be cached by shared intermediaries.
-    response.headers['Cache-Control'] = 'no-store'
-    return response
-
 app.include_router(auth_router, prefix="/api/v1")
 
 
@@ -57,9 +49,13 @@ async def protect_public_mode(request: Request, call_next):
             return JSONResponse(status_code=401,content={'detail':'Authentication required.'})
         if not using_bearer and request.method not in ('GET','HEAD','OPTIONS') and not same_origin(request):
             return JSONResponse(status_code=403,content={'detail':'Cross-origin mutation denied.'})
-    response=await call_next(request)
-    response.headers['X-Content-Type-Options']='nosniff'
-    response.headers['X-Frame-Options']='DENY'
-    response.headers['Referrer-Policy']='no-referrer'
-    response.headers['Permissions-Policy']='camera=(), microphone=(), geolocation=()'
-    return response
+    return await call_next(request)
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_request(request: Request, exc: RequestValidationError):
+    # Never reflect submitted credentials or raw invalid values.
+    return JSONResponse(status_code=422, content={'detail': {'code':'invalid_request','message':'Check required fields and input limits.'}})
+
+
+app.add_middleware(RequestGuard)

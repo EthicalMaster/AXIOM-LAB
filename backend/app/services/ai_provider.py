@@ -7,6 +7,12 @@ from __future__ import annotations
 import os
 from urllib.parse import urlsplit
 import httpx
+from threading import BoundedSemaphore
+from app.core.request_guard import WindowBudget, setting
+
+_provider_slots = BoundedSemaphore(2)
+_provider_minute = WindowBudget(setting("AXIOM_AI_RPM", 10, 120), 60)
+_provider_day = WindowBudget(setting("AXIOM_AI_RPD", 100, 10000), 86400)
 
 MAX_EVIDENCE_CHARS = 3500
 MAX_RESPONSE_CHARS = 1800
@@ -43,7 +49,11 @@ def chat_from_evidence(evidence: str, *, client: httpx.Client | None = None) -> 
             {'role':'user','content':'Explain the following server-verified evidence as advisory commentary, without adding numerical claims: '+evidence},
         ],
     }
+    if not _provider_slots.acquire(blocking=False):
+        raise AIUnavailable('AI commentary is busy; built-in guidance remains available.')
     try:
+        if not _provider_minute.take() or not _provider_day.take():
+            raise AIUnavailable('Local AI request allowance is exhausted; built-in guidance remains available.')
         if client is not None:
             response = client.post(base+'/chat/completions',json=payload,
                                    headers={'Authorization':'Bearer '+os.environ['AXIOM_AI_API_KEY']},timeout=8.0)
@@ -58,3 +68,6 @@ def chat_from_evidence(evidence: str, *, client: httpx.Client | None = None) -> 
         return output.strip()[:MAX_RESPONSE_CHARS]
     except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as exc:
         raise AIUnavailable('AI commentary is temporarily unavailable; verified calculations remain accessible.') from exc
+
+    finally:
+        _provider_slots.release()

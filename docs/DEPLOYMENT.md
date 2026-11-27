@@ -45,4 +45,8 @@ Take an offline **consistent copy** of the Docker volume (stop writes first). Re
 
 ## Known blockers for broad production
 
-Rate limiting, managed user accounts, database authorization, isolated CPU workers, job queue, concurrency benchmarks, object storage, disaster-recovery validation and automated vulnerability scans remain future engineering work. Do not advertise 1,000-user readiness based on this Compose configuration.
+Distributed per-account rate limiting, managed user accounts, database authorization, isolated CPU workers, job queue, concurrency benchmarks, object storage, disaster-recovery validation and automated vulnerability scans remain future engineering work. Do not advertise 1,000-user readiness based on this Compose configuration.
+
+## Post-roadmap upgrade
+
+See [Production readiness](PRODUCTION_READINESS.md) for the new process-local admission controls, provider budgets, storage quotas, Vercel frontend template and outstanding release gates.

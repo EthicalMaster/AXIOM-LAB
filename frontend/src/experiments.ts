@@ -1,3 +1,4 @@
+import {apiFetch} from './apiClient';
 export type Point = {x: number; y: number};
 export type SequenceChart = {
   method: string; column: string; x_label: string; y_label: string;
@@ -13,7 +14,7 @@ export type SavedExperiment = {
   };
 };
 export async function saveExperiment(datasetId: string, column: string, name: string): Promise<SavedExperiment> {
-  const response = await fetch('/api/v1/experiments', {
+  const response = await apiFetch('/api/v1/experiments', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({dataset_id: datasetId, column, name})
   });
@@ -22,7 +23,7 @@ export async function saveExperiment(datasetId: string, column: string, name: st
   return data as SavedExperiment;
 }
 export async function reopenExperiment(id: string): Promise<SavedExperiment> {
-  const response = await fetch(`/api/v1/experiments/${encodeURIComponent(id)}`);
+  const response = await apiFetch(`/api/v1/experiments/${encodeURIComponent(id)}`);
   if (!response.ok) throw new Error(`Cannot reopen experiment (HTTP ${response.status}).`);
   return await response.json() as SavedExperiment;
 }

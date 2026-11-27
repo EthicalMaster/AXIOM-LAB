@@ -1,3 +1,4 @@
+import {Loading} from './WorkspaceTools';
 import { useEffect, useState } from 'react';
 import { fetchQuality, percent, type QualityReport } from './quality';
 
@@ -14,7 +15,7 @@ export function QualityPanel({datasetId}:{datasetId:string}) {
     <div className="preview-heading"><h3 id="quality-title">Data quality audit</h3><span>PHASE 02A · NO CLEANING</span></div>
     <p className="profile-description">Checks missing cells and exact duplicate rows without modifying or deleting anything. Duplicate measurements may be scientifically legitimate.</p>
     {error && <p className="inline-alert error" role="alert">{error}</p>}
-    {!data&&!error&&<p role="status" className="profile-status">Auditing original rows…</p>}
+    {!data&&!error&&<Loading label="Auditing original rows"/>}
     {data&&<>
       <div className="quality-metrics"><div><span>COMPLETENESS</span><strong>{percent(data.completeness_percent)}</strong></div><div><span>MISSING CELLS</span><strong>{data.missing_cells}</strong></div><div><span>REPEATED ROWS</span><strong>{data.duplicate_count_exact?'':'>='}{data.duplicate_rows}</strong></div></div>
       <div className="quality-columns">{data.columns.map(c=><div key={c.column} className="quality-row">
