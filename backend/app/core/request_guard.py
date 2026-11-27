@@ -71,10 +71,11 @@ class RequestGuard:
                                 b'server-timing': f'app;dur={(perf_counter()-started)*1000:.2f}'.encode(),
                                 b'cache-control': b'no-store', b'x-content-type-options': b'nosniff',
                                 b'x-frame-options': b'DENY', b'referrer-policy': b'no-referrer',
-                                b'permissions-policy': b'camera=(), microphone=(), geolocation=()'})
+                                b'permissions-policy': b'camera=(), microphone=(), geolocation=()',
+                                b'content-security-policy': b"default-src 'none'; frame-ancestors 'none'; base-uri 'none'" if path.startswith('/api/v1/') else headers.get(b'content-security-policy', b"frame-ancestors 'none'")})
                 # Preserve duplicate headers (e.g. Set-Cookie) from downstream.
                 existing = message.get('headers', [])
-                managed = {b'x-request-id', b'server-timing', b'cache-control', b'x-content-type-options', b'x-frame-options', b'referrer-policy', b'permissions-policy'}
+                managed = {b'x-request-id', b'server-timing', b'cache-control', b'x-content-type-options', b'x-frame-options', b'referrer-policy', b'permissions-policy', b'content-security-policy'}
                 message['headers'] = [(k,v) for k,v in existing if k not in managed] + [(k,headers[k]) for k in managed]
             await send(message)
 

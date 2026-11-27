@@ -91,3 +91,7 @@ Apply **one patch per phase**, from a clean, committed parent state, with `git a
 **Public-release warning:** The optional access token is single-user only. There are no managed accounts, per-user dataset authorization, validated rate limits, isolated compute workers, shared storage, formal threat modeling or large-scale load testing. **Do not expose it as a public multi-user scientific service yet.**
 
 **License:** No license file has been supplied. Select an explicit license and data-handling policy before inviting external contributions.
+
+## Final release gate
+
+Before any hosted deployment, follow [R01–R03 release gates](docs/RELEASE_GATE.md). Do not publish this single-user app as a multi-tenant service.

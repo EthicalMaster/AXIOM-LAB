@@ -1,6 +1,6 @@
 """Optional AI feature status: no credentials exposed."""
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import json
 from typing import Literal
 from app.persistence.dataset_store import find_dataset, read_original_dataset, DatasetStorageError
@@ -80,12 +80,20 @@ def explain_saved_evidence(request: ExplainRequest) -> dict:
             'warning':'Only the evidence block is verified by the computation record. Commentary is explanatory, not an independent scientific calculation.'}
 
 
+class LensSelection(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    kind: Literal['text','metric','point','bin','matrix']
+    label: str = Field(min_length=1, max_length=120)
+    excerpt: str = Field(min_length=1, max_length=320)
+
+
 class GuideRequest(BaseModel):
     question: str = Field(min_length=1, max_length=500)
     page: Literal['Overview','Data Lab','Statistics','Mathematics','Machine Learning','Experiments','Method guide','System checks']
     dataset_id: str | None = Field(default=None, pattern=r'^[0-9a-f]{32}$')
     column: str | None = Field(default=None, max_length=200)
     use_provider: bool = False
+    selection: LensSelection | None = None
 
 
 @router.post('/guide')
@@ -108,4 +116,5 @@ def contextual_guide(payload: GuideRequest) -> dict:
                 raise HTTPException(409, detail='Dataset integrity failure') from exc
             except DatasetValidationError as exc:
                 raise HTTPException(exc.status_code, detail=exc.message) from exc
-    return explain(payload.question, payload.page, evidence, payload.use_provider)
+    return explain(payload.question, payload.page, evidence, payload.use_provider,
+                   selection=payload.selection.model_dump() if payload.selection else None)

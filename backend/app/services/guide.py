@@ -18,8 +18,8 @@ TOPICS = (
 )
 
 
-def explain(question: str, page: str, evidence: dict | None, use_provider: bool) -> dict:
-    normalized = question.casefold()
+def explain(question: str, page: str, evidence: dict | None, use_provider: bool, *, selection: dict | None = None) -> dict:
+    normalized = (question + ' ' + (selection['label'] + ' ' + selection['excerpt'] if selection else '')).casefold()
     answer = next((text for words,text in TOPICS if any(word in normalized for word in words)), None)
     if answer is None:
         answer = ('The built-in guide has no exact answer to this question. Try asking about a metric, assumptions, import, or experiment workflow. '
@@ -29,9 +29,11 @@ def explain(question: str, page: str, evidence: dict | None, use_provider: bool)
         if evidence.get('column_statistics'):
             values=evidence['column_statistics']
             answer += f" Selected numeric column: mean {values['mean']:.6g}, median {values['median']:.6g}, valid count {values['count']}. Missing cells were excluded."
+    if selection:
+        answer += ' The selected display is client-supplied context, not an independently verified calculation. Review the original result and assumptions.'
     source = 'Built-in scientific guide'
     if use_provider:
-        compact=json.dumps({'question':question,'workspace':page,'verified_summary':evidence,'built_in_explanation':answer},ensure_ascii=True)
+        compact=json.dumps({'question':question,'workspace':page,'verified_summary':evidence,'built_in_explanation':answer,'client_selection':selection},ensure_ascii=False)
         try:
             answer=chat_from_evidence(compact)
             source='Optional AI · advisory, not verified calculation'

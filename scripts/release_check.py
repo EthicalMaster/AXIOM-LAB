@@ -7,7 +7,9 @@ ROOT=Path(__file__).resolve().parents[1]
 REQUIRED=[
     'compose.yaml','deploy/Dockerfile.backend','deploy/Dockerfile.frontend','deploy/nginx.conf',
     'docs/DEPLOYMENT.md','.env.example','frontend/package-lock.json',
-    'backend/app/api/reports.py','backend/app/core/access.py',
+    'backend/app/api/reports.py','backend/app/core/access.py','backend/app/hosted.py',
+    'scripts/storage_backup.py','scripts/configure_vercel.py','scripts/check_private_files.py',
+    '.github/workflows/release-security.yml','docs/RELEASE_GATE.md',
 ]
 
 

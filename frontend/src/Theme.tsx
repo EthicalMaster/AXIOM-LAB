@@ -7,7 +7,7 @@ export function initialTheme(): Theme {
 }
 export function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme=theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#f4f5f8':'#0b0d12');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#f5f5f7':'#000000');
 }
 export function ThemeSwitch(){
   const [theme,setTheme]=useState(initialTheme);

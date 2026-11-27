@@ -1,5 +1,7 @@
 import {useEffect,useId,useRef,useState,type PointerEvent} from 'react';
 import {displayNumber} from './statistics';
+import {LensAction} from './Lens';
+import {makeLens,type LensContext} from './lensContext';
 import {initialViewport,panViewport,zoomViewport,clampViewport,interpolateViewport,pinchViewport,axisTicks,MAX_ZOOM,type Viewport} from './plotViewport';
 type Point={x:number;y:number};
 type Bin={lower:number;upper:number;count:number};
@@ -38,6 +40,8 @@ export function InteractivePlot({points,bins,label,xLabel,yLabel,connected,diago
  const key=JSON.stringify([label,xLabel,yLabel,xmin,xmax,ymin,ymax]);
  const {view,update,cancel}=useCamera(key);
  const [cursor,setCursor]=useState<{x:number;y:number}|null>(null),[dragging,setDragging]=useState(false),[expanded,setExpanded]=useState(false),[scrollZoom,setScrollZoom]=useState(false);
+ const [pinned,setPinned]=useState<LensContext|null>(null);
+ const tap=useRef<{id:number;point:Point}|null>(null);
  const contacts=useRef(new Map<number,Point>()),svg=useRef<SVGSVGElement>(null),figure=useRef<HTMLElement>(null);const clip=useId(),gradient=useId();
  const X=(x:number)=>left+((x-xmin)/(xmax-xmin)-view.x)*view.scale*width;
  const Y=(y:number)=>top+height-((y-ymin)/(ymax-ymin)-view.y)*view.scale*height;
@@ -47,7 +51,8 @@ export function InteractivePlot({points,bins,label,xLabel,yLabel,connected,diago
  // Native wheel listener prevents page scrolling only during an opted-in plot zoom.
  const updateRef=useRef(update);updateRef.current=update;
  useEffect(()=>{const el=svg.current;if(!el)return;const wheel=(e:WheelEvent)=>{if(!scrollZoom&&!e.ctrlKey&&!e.metaKey)return;const matrix=el.getScreenCTM();if(!matrix)return;const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse());if(!inside(p))return;e.preventDefault();const a=normal(p),delta=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?180:1);updateRef.current(v=>zoomViewport(v,Math.exp(-Math.max(-200,Math.min(200,delta))*.0035),a.x,a.y),true);};el.addEventListener('wheel',wheel,{passive:false});return()=>el.removeEventListener('wheel',wheel)},[hasData,scrollZoom]);
- useEffect(()=>{setCursor(null);contacts.current.clear();setDragging(false)},[key]);
+ useEffect(()=>{setCursor(null);contacts.current.clear();setDragging(false);setPinned(null);tap.current=null},[key]);
+ useEffect(()=>{setPinned(null)},[points,bins,label]);
  useEffect(()=>{const change=()=>setExpanded(document.fullscreenElement===figure.current);document.addEventListener('fullscreenchange',change);return()=>document.removeEventListener('fullscreenchange',change)},[]);
  async function toggleExpanded(){if(document.fullscreenElement===figure.current){await document.exitFullscreen().catch(()=>undefined);return;}if(expanded){setExpanded(false);return;}if(figure.current?.requestFullscreen&&document.fullscreenEnabled){try{await figure.current.requestFullscreen();return;}catch{/* Inline fallback when fullscreen is unavailable. */}}setExpanded(true);}
 
@@ -57,7 +62,15 @@ export function InteractivePlot({points,bins,label,xLabel,yLabel,connected,diago
  let hover:Point|null=null,hoverLabel=yLabel;let distance=16;
  if(cursor){for(const [name,group] of [[yLabel,valid],...extra.map(s=>[s.label,s.points] as const),['Marker',marks]] as const){for(const p of group){const d=Math.hypot(X(p.x)-cursor.x,Y(p.y)-cursor.y);if(d<distance&&inside({x:X(p.x),y:Y(p.y)})){hover=p;hoverLabel=name;distance=d;}}}}
  const hoveredBin=cursor?actualBins.find(b=>cursor.x>=X(b.lower)&&cursor.x<=X(b.upper)&&cursor.y>=Y(b.count)&&cursor.y<=Y(0)):undefined;
- function end(e:PointerEvent<SVGSVGElement>){contacts.current.delete(e.pointerId);setDragging(contacts.current.size>0)}
+ function end(e:PointerEvent<SVGSVGElement>){
+  const start=tap.current,p=at(e);tap.current=null;
+  if(e.type==='pointerup'&&start?.id===e.pointerId&&p&&Math.hypot(p.x-start.point.x,p.y-start.point.y)<8){
+   const bin=actualBins.find(b=>p.x>=X(b.lower)&&p.x<=X(b.upper)&&p.y>=Y(b.count)&&p.y<=Y(0));
+   if(bin)setPinned(makeLens('bin',label,`${xLabel}: ${bin.lower} to ${bin.upper} · Count: ${bin.count}`));
+   else{let nearest:LensContext|null=null,best=18;for(const [name,group] of [[yLabel,valid],...extra.map(s=>[s.label,s.points] as const),['Marker',marks]] as const){for(const point of group){const d=Math.hypot(X(point.x)-p.x,Y(point.y)-p.y);if(d<best&&inside({x:X(point.x),y:Y(point.y)})){best=d;nearest=makeLens('point',label,`${xLabel}: ${point.x} · ${name}: ${point.y}`)}}}setPinned(nearest);}
+  }
+  contacts.current.delete(e.pointerId);setDragging(contacts.current.size>0)
+ }
  const mid=(a:Point,b:Point)=>({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
  return <figure ref={figure} className={`visual-figure interactive-figure camera-figure${expanded?' camera-expanded':''}`}>
  <div className="camera-heading"><div><figcaption>{label}</figcaption><small>{actualBins.length?`${actualBins.length} bins`:`${valid.length} plotted samples`} · Interactive coordinates</small></div><div className="camera-controls" role="group" aria-label="Plot camera">
@@ -65,8 +78,8 @@ export function InteractivePlot({points,bins,label,xLabel,yLabel,connected,diago
  <div className="camera-stage"><svg ref={svg} viewBox="0 0 760 370" className={`interactive-plot${view.scale>1?' zoomed':''}${dragging?' dragging':''}${scrollZoom?' gesture-mode':''}`} role="img" aria-label={`${label}: ${xLabel} and ${yLabel}. Use zoom controls, keyboard arrows and Home.`} tabIndex={0}
  onKeyDown={e=>{const directions:Record<string,[number,number]>={ArrowLeft:[.15,0],ArrowRight:[-.15,0],ArrowUp:[0,.15],ArrowDown:[0,-.15]};if(e.key in directions){e.preventDefault();update(v=>panViewport(v,...directions[e.key]),true)}else if(e.key==='+'||e.key==='='){e.preventDefault();update(v=>zoomViewport(v,1.5),true)}else if(e.key==='-'){e.preventDefault();update(v=>zoomViewport(v,1/1.5),true)}else if(e.key==='Home'){e.preventDefault();update(()=>initialViewport,true)}}}
  onDoubleClick={e=>{const m=e.currentTarget.getScreenCTM();if(!m)return;const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());if(inside(p)){const a=normal(p);update(v=>zoomViewport(v,e.shiftKey?1/2:2,a.x,a.y),true)}}}
- onPointerDown={e=>{if(e.button!==0||contacts.current.size>=2)return;const p=at(e);if(!p||!inside(p))return;cancel();contacts.current.set(e.pointerId,p);e.currentTarget.setPointerCapture(e.pointerId);setDragging(true);setCursor(null)}}
- onPointerMove={e=>{const p=at(e);if(!p)return;const prev=contacts.current.get(e.pointerId);if(prev){const other=[...contacts.current.entries()].find(([id])=>id!==e.pointerId)?.[1];contacts.current.set(e.pointerId,p);if(other){const old=normal(mid(prev,other)),next=normal(mid(p,other));const d0=Math.hypot(prev.x-other.x,prev.y-other.y),d1=Math.hypot(p.x-other.x,p.y-other.y);if(d0>2&&d1>2)update(v=>pinchViewport(v,d1/d0,old.x,old.y,next.x,next.y))}else update(v=>panViewport(v,(p.x-prev.x)/width,(p.y-prev.y)/height));return;}setCursor(inside(p)?p:null)}} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end} onPointerLeave={()=>setCursor(null)}>
+ onPointerDown={e=>{if(e.button!==0||contacts.current.size>=2)return;const p=at(e);if(!p||!inside(p))return;cancel();tap.current=contacts.current.size===0?{id:e.pointerId,point:p}:null;contacts.current.set(e.pointerId,p);e.currentTarget.setPointerCapture(e.pointerId);setDragging(true);setCursor(null)}}
+ onPointerMove={e=>{const p=at(e);if(!p)return;const prev=contacts.current.get(e.pointerId);if(prev){if(tap.current&&Math.hypot(p.x-tap.current.point.x,p.y-tap.current.point.y)>=8)tap.current=null;const other=[...contacts.current.entries()].find(([id])=>id!==e.pointerId)?.[1];contacts.current.set(e.pointerId,p);if(other){const old=normal(mid(prev,other)),next=normal(mid(p,other));const d0=Math.hypot(prev.x-other.x,prev.y-other.y),d1=Math.hypot(p.x-other.x,p.y-other.y);if(d0>2&&d1>2)update(v=>pinchViewport(v,d1/d0,old.x,old.y,next.x,next.y))}else update(v=>panViewport(v,(p.x-prev.x)/width,(p.y-prev.y)/height));return;}setCursor(inside(p)?p:null)}} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end} onPointerLeave={()=>setCursor(null)}>
  <defs><clipPath id={clip}><rect x={left} y={top} width={width} height={height}/></clipPath><linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1"><stop stopColor="var(--accent)" stopOpacity=".34"/><stop offset="1" stopColor="var(--accent)" stopOpacity=".06"/></linearGradient></defs>
  <rect x={left} y={top} width={width} height={height} rx="3" fill="var(--surface)" stroke="var(--line)"/>
  {tickY.map(t=><g key={t}><line x1={left} x2={left+width} y1={Y(t)} y2={Y(t)} stroke="var(--line)" strokeDasharray="3 5"/><text x={left-9} y={Y(t)+4} textAnchor="end">{fmt(t)}</text></g>)}
@@ -83,7 +96,7 @@ export function InteractivePlot({points,bins,label,xLabel,yLabel,connected,diago
  {cursor&&!dragging&&<g pointerEvents="none"><path d={`M${cursor.x} ${top}V${top+height} M${left} ${cursor.y}H${left+width}`} stroke="var(--muted)" strokeDasharray="4 4" opacity=".6"/>{hover&&<circle cx={X(hover.x)} cy={Y(hover.y)} r="5.5" fill="var(--surface)" stroke="var(--accent)" strokeWidth="2"/>}</g>}
  </g><text x={left} y="14">{yLabel}</text><text x={left+width/2} y="354" textAnchor="middle">{xLabel}</text></svg></div>
  {extra.length>0&&<div className="camera-legend"><span style={{color:'var(--accent)'}}>━ {yLabel}</span>{extra.map(s=><span key={s.label} style={{color:s.color??'var(--cyan)'}}>┄ {s.label}</span>)}</div>}
- <div className="camera-footer"><div className="camera-readout"><b>{hover?`${xLabel}: ${fmt(hover.x)} · ${hoverLabel}: ${fmt(hover.y)}`:hoveredBin?`${fmt(hoveredBin.lower)} – ${fmt(hoveredBin.upper)} · Count: ${hoveredBin.count}`:'Explore the plotted coordinates'}</b><small>{fmt(lowX)} ≤ {xLabel} ≤ {fmt(highX)} · {fmt(lowY)} ≤ {yLabel} ≤ {fmt(highY)}</small></div><label className="camera-toggle"><input type="checkbox" checked={scrollZoom} onChange={e=>setScrollZoom(e.target.checked)}/> Scroll / touch gestures</label></div>
+ <div className="camera-footer"><div className="camera-readout"><b>{hover?`${xLabel}: ${fmt(hover.x)} · ${hoverLabel}: ${fmt(hover.y)}`:hoveredBin?`${fmt(hoveredBin.lower)} – ${fmt(hoveredBin.upper)} · Count: ${hoveredBin.count}`:pinned?`Inspected: ${pinned.excerpt}`:'Explore the plotted coordinates'}</b><small>{fmt(lowX)} ≤ {xLabel} ≤ {fmt(highX)} · {fmt(lowY)} ≤ {yLabel} ≤ {fmt(highY)}</small></div><LensAction context={pinned} label="Ask about point / bin"/><label className="camera-toggle"><input type="checkbox" checked={scrollZoom} onChange={e=>setScrollZoom(e.target.checked)}/> Scroll / touch gestures</label></div>
  {view.scale>1.0001&&<div className="camera-navigator"><span>Viewport</span><svg viewBox="0 0 160 64" role="img" aria-label="Position within original plot bounds"><rect width="160" height="64" rx="3" fill="var(--inset)"/>{connected&&valid.length>1?<polyline points={valid.map(p=>`${(p.x-xmin)/(xmax-xmin)*160},${64-(p.y-ymin)/(ymax-ymin)*64}`).join(' ')} fill="none" stroke="var(--muted)" opacity=".55"/>:valid.map((p,i)=><circle key={i} cx={(p.x-xmin)/(xmax-xmin)*160} cy={64-(p.y-ymin)/(ymax-ymin)*64} r="1" fill="var(--muted)"/>)}<rect x={view.x*160} y={(1-view.y-1/view.scale)*64} width={160/view.scale} height={64/view.scale} fill="var(--accent-wash)" stroke="var(--accent)"/></svg><label>Horizontal <input type="range" min="0" max={1-1/view.scale} step="any" value={view.x} onChange={e=>update(v=>clampViewport({...v,x:Number(e.target.value)}))}/></label><label>Vertical <input type="range" min="0" max={1-1/view.scale} step="any" value={view.y} onChange={e=>update(v=>clampViewport({...v,y:Number(e.target.value)}))}/></label></div>}
- <small className="camera-hint">Double-click to zoom · Ctrl/⌘ + scroll · drag or pinch in gesture mode · Home to fit. Zoom explores the existing samples; it does not generate new observations.</small></figure>
+ <small className="camera-hint">Click a point or bin to pin it for AXIOM · Double-click to zoom · Ctrl/⌘ + scroll · drag or pinch in gesture mode · Home to fit. Zoom explores the existing samples; it does not generate new observations.</small></figure>
 }

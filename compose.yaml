@@ -6,6 +6,7 @@ services:
       dockerfile: deploy/Dockerfile.backend
     environment:
       AXIOM_DATA_DIR: /data
+      AXIOM_HOSTED_MODE: "0"
       AXIOM_PUBLIC_MODE: ${AXIOM_PUBLIC_MODE:-0}
       AXIOM_ACCESS_TOKEN: ${AXIOM_ACCESS_TOKEN:-}
       AXIOM_AI_BASE_URL: ${AXIOM_AI_BASE_URL:-}

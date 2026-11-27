@@ -50,3 +50,7 @@ Distributed per-account rate limiting, managed user accounts, database authoriza
 ## Post-roadmap upgrade
 
 See [Production readiness](PRODUCTION_READINESS.md) for the new process-local admission controls, provider budgets, storage quotas, Vercel frontend template and outstanding release gates.
+
+## Final release gate
+
+See [RELEASE_GATE.md](RELEASE_GATE.md) for R01–R03, hosted preflight, snapshot verification and Vercel routing setup. Local Compose remains unchanged in scope.

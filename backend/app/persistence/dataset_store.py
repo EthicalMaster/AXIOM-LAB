@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import uuid
 from contextlib import closing
@@ -105,6 +106,8 @@ class DatasetStorageError(Exception):
 
 def read_original_dataset(dataset_id: str, metadata: dict) -> bytes:
     """Read only the opaque ID-derived path, never a client-provided file path."""
+    if not re.fullmatch(r'[0-9a-f]{32}', dataset_id):
+        raise DatasetStorageError('Invalid stored dataset identifier.')
     extension = '.' + metadata['format']
     if extension not in {'.csv', '.xlsx', '.xls'}:
         raise DatasetStorageError('Unsupported stored dataset format.')

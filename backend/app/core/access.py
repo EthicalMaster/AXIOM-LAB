@@ -63,5 +63,10 @@ def same_origin(request) -> bool:
     configured=os.getenv('AXIOM_PUBLIC_ORIGIN','').strip().rstrip('/')
     if configured:
         return configured.startswith('https://') and origin == configured
-    url=urlsplit(origin)
-    return url.scheme == 'https' and url.netloc.lower()==request.headers.get('host','').lower()
+    try:
+        url=urlsplit(origin)
+        return (url.scheme == 'https' and not url.username and not url.password
+                and not url.path and not url.query and not url.fragment
+                and url.netloc.lower()==request.headers.get('host','').lower())
+    except ValueError:
+        return False

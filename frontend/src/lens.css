@@ -1,0 +1,18 @@
+.lens-toolbar{position:fixed;z-index:1200;width:min(280px,calc(100vw - 24px));padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);box-shadow:0 10px 32px #0004;animation:lens-appear .18s ease-out both;}
+.lens-toolbar small{display:block;font-size:10px;line-height:1.4;color:var(--muted);margin-bottom:6px;}
+.lens-toolbar>div{display:flex;gap:6px;}
+.lens-toolbar button,.lens-action,.lens-attached button{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:7px;padding:6px 9px;font:inherit;font-size:11px;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;}
+.lens-toolbar button:first-child{flex:1;background:var(--button-bg);color:var(--button-ink);font-weight:650;}
+.lens-toolbar button:disabled{opacity:.5;cursor:not-allowed;}
+.lens-action{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:28px;align-self:flex-start;max-width:100%;white-space:normal;}
+.lens-action span,.lens-toolbar span{font-size:13px;}
+.lens-action:hover,.lens-attached button:hover,.lens-toolbar button:not(:disabled):hover{border-color:var(--accent);transform:translateY(-1px);}
+.lens-action:active,.lens-toolbar button:not(:disabled):active{transform:scale(.97)}
+.lens-attached{display:grid;gap:6px;min-width:0;border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:10px;padding:10px;background:var(--inset);animation:lens-appear .22s ease-out both;}
+.lens-attached>div{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.lens-attached strong{font-size:11px;color:var(--ink);}.lens-attached small{font-size:10px;color:var(--muted);overflow-wrap:anywhere;}.lens-attached p{margin:0;color:var(--ink);font:12px/1.5 var(--mono);overflow-wrap:anywhere;}.lens-attached button{padding:2px 7px;}
+@keyframes lens-appear{from{opacity:0;scale:.98}to{opacity:1;scale:1}}
+@media(max-width:420px){.lens-toolbar{left:50%!important;}.lens-action{min-height:40px}}
+@media(prefers-reduced-motion:reduce){.lens-toolbar,.lens-action,.lens-attached,.lens-toolbar button,.lens-attached button{animation:none!important;transition:none!important;}}
+
+.lens-attached .lens-followups{display:flex;justify-content:flex-start;flex-wrap:wrap;gap:5px;margin-top:3px;}.lens-attached .lens-followups button{padding:5px 8px;}.lens-attached button:disabled{opacity:.5;cursor:not-allowed;}

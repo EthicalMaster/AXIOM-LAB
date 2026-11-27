@@ -34,3 +34,8 @@ Thumbs.db
 # Temporary bundles and archives
 *.zip
 .bundle-staging/
+
+# Deployment metadata and private operational artifacts
+.vercel/
+backups/
+release-evidence/
