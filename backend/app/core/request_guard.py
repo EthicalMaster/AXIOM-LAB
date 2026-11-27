@@ -109,7 +109,20 @@ class RequestGuard:
                     return await reject(429, 'This operation has reached its request allowance.', 60)
                 if path not in ('/api/v1/health', '/api/v1/auth/status') and not await run_in_threadpool(self.api_budget.take):
                     return await reject(429, 'API request allowance reached. Retry later.', 60)
-            except Exception:
+            except Exception as exc:
+                # Log only a controlled classification, never DSNs, secrets or raw driver messages.
+                message = str(exc).lower()
+                signatures = (
+                    ('certificate', 'tls_certificate'), ('sslrootcert', 'tls_configuration'),
+                    ('tenant or user not found', 'pooler_identity'), ('password authentication failed', 'password_authentication'),
+                    ('could not translate host', 'dns_resolution'), ('name or service not known', 'dns_resolution'),
+                    ('timeout', 'connection_timeout'), ('connection refused', 'connection_refused'),
+                    ('permission denied', 'database_permission'), ('does not exist', 'missing_database_object'),
+                )
+                category = next((label for signature, label in signatures if signature in message), 'unclassified')
+                sqlstate = getattr(exc, 'sqlstate', None)
+                log.error('admission_failed id=%s type=%s category=%s sqlstate=%s', request_id,
+                          type(exc).__name__, category, sqlstate if isinstance(sqlstate, str) and len(sqlstate) == 5 and sqlstate.isalnum() else 'none')
                 return await reject(503, 'Request admission temporarily unavailable.', 5)
         # Leave health/status responsive, even when computation is full.
         admitted = path not in ('/api/v1/health', '/api/v1/auth/status')
