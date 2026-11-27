@@ -1,97 +1,110 @@
+<div align="center">
+
+<img src="docs/readme-assets/banner.svg" width="100%" alt="AXIOM LAB — Computational discovery, with evidence">
+
 # AXIOM LAB
 
-**An Interactive Environment for Scientific Computing and Computational Discovery.**
+**Computational discovery, with evidence**
 
-> **Current build candidate: v1.0 release candidate (Phases 00–07D, Neutral White / True Black, Guide and Lens).** Local-first scientific computing with bounded analysis, mathematics, ML, reproducible chart experiments and optional AI guidance. Not an independently verified public multi-user service. See [release assurance](docs/RELEASE_ASSURANCE.md) for current evidence and gates.
+![Status](https://img.shields.io/badge/status-v1.0%20release%20candidate-80c9eb?style=flat-square) [![GitHub Actions](https://github.com/EthicalMaster/AXIOM-LAB/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/EthicalMaster/AXIOM-LAB/actions/workflows/ci.yml) [![Last commit](https://img.shields.io/github/last-commit/EthicalMaster/AXIOM-LAB?style=flat-square)](https://github.com/EthicalMaster/AXIOM-LAB/commits/main)
 
-See [Production readiness](docs/PRODUCTION_READINESS.md) for request budgets, contextual guidance, capacity checks, and deployment acceptance gates.
+Python · FastAPI · React · TypeScript · SQLite · Docker
 
-## Design principles
+</div>
 
-1. Numerical results come from tested algorithms, not LLM calculations.
-2. Original uploaded bytes remain unchanged; dataset IDs and SHA-256 fingerprints preserve provenance.
-3. Explain every selected method, assumption, limitation, alternative and failure case.
-4. Develop one verified vertical slice at a time, with Git checkpoints and learning reviews.
-5. Do not advertise planned or untested functionality as complete.
+---
 
-## Setup (Windows / PowerShell)
+## Overview
 
-Requires Python 3.11+, Node 22.12+, Git, and network access for initial dependencies. From the project root:
+A local-first scientific computing environment for structured data exploration, bounded mathematics, statistics, machine learning and reproducible experiments. Numerical results originate from implemented algorithms rather than AI-generated calculations.
+
+## Capabilities
+
+| Area | Details |
+|---|---|
+| **Data and statistics** | CSV/Excel ingestion, immutable original bytes, fingerprints, profiling, quality diagnostics, distributions and one-sample inference. |
+| **Mathematics** | Safe expression evaluation, bounded polynomial calculus, real square matrices and numerical methods. |
+| **Machine learning** | Train-only preprocessing, regression, classification, clustering and bounded model comparisons. |
+| **Reproducibility** | Chart experiment history, version lineage, comparison, replay and evidence-based exports. |
+| **Guide and Lens** | Optional contextual AI assistance; method selection and computed evidence remain independent. |
+
+## Architecture
+
+```mermaid
+flowchart TD
+  A[React workspace] --> B[FastAPI validation]
+  B --> C[Scientific services]
+  B --> D[Dataset inventory]
+  D --> E[(Original files and SQLite)]
+  C --> F[Verified numerical results]
+  F --> G[Experiment history and exports]
+  F -. Optional context .-> H[Guide and Lens]
+```
+
+*Conceptual flow, not a screenshot, performance graph or proof of live integration.*
+
+## Quick start and verification
+
+Python 3.11+, Node 22.12+, Git.
 
 ```powershell
+git clone https://github.com/EthicalMaster/AXIOM-LAB.git
+cd AXIOM-LAB
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".\backend[dev]"
 .\.venv\Scripts\python.exe scripts/start_backend.py
 ```
-
-For optional persistent AI settings, see [AI setup](docs/AI_SETUP.md). The launcher reads a private `.env` before starting FastAPI.
-
-In a separate terminal:
+In a separate terminal from the root:
 
 ```powershell
 cd frontend
 npm ci
 npm run dev
 ```
+Open <http://127.0.0.1:5173>; backend health: <http://127.0.0.1:8898/api/v1/health>. Run `pytest backend/tests -q` with the venv, then frontend `npm run test`, `npm run typecheck` and `npm run build`. Follow the release gate before any hosted deployment.
 
-Open <http://127.0.0.1:5173>; the backend health URL is <http://127.0.0.1:8898/api/v1/health>. The frontend Vite development proxy forwards `/api` traffic to port 8898. For a loopback-bound Compose release candidate see `docs/DEPLOYMENT.md`.
+## Repository map
 
-## Verification
+| Path | Responsibility |
+|---|---|
+| `frontend/src/` | React panels and typed API clients |
+| `backend/app/api/` | FastAPI routes and validation |
+| `backend/app/services/` | Statistics, math, ML and guidance |
+| `backend/app/persistence/` | Metadata and local original-file storage |
+| `backend/tests/` | Numerical, negative and integration tests |
+| `docs/` | ADRs, scientific validation, release gates |
 
-From the root:
+## Boundaries and release notes
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest backend/tests -q
-.\.venv\Scripts\python.exe -m compileall -q backend/app
-cd frontend
-npm run test
-npm run typecheck
-npm run build
-```
+- Single-user local-first candidate; no verified public multi-tenant authorization or large-scale capacity.
+- Bounded methods: Shapiro–Wilk 3–5000 samples, polynomial degree ≤6, real square matrices 1–8, ML numeric feature workflows with bounded datasets. Consult scientific validation for assumptions.
+- Optional AI is advisory. Keep private data and credentials outside Git.
 
-**Builder evidence:** The cumulative backend regression suite passed in the isolated builder environment. Exact current count appears in the bundled verification report; that is not a substitute for Windows, npm, browser, security or Docker runtime acceptance. The corresponding user checks are in the phase review files.
+## Documentation
 
-## Current bounded capabilities
+- [Scientific validation](docs/SCIENTIFIC_VALIDATION.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Release assurance](docs/RELEASE_ASSURANCE.md)
+- [Release gates](docs/RELEASE_GATE.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Contribution guide](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 
-| Phase | Implemented candidate | Limitations |
-|---|---|---|
-| 01A–02B | CSV/Excel import, column profiling, statistics, charts, persisted runs, quality audits, histograms | Original files immutable; no cleaning or multi-user access control |
-| 02C | Two-sided one-sample Student t-test, confidence interval and effect size | Independence and sampling design cannot be verified automatically |
-| 02D | Shapiro–Wilk diagnostic | Only sample sizes 3–5000; p-value not proof of normality |
-| 03A | Whitelisted arithmetic expression evaluator | No arbitrary Python execution or comprehensive CAS |
-| 03B | Polynomial differentiation, integration, approximate roots | Degree ≤6; numerical root approximation limits |
-| 03C | Matrix determinant, eigenvalues, rank, inverse, solve | Real square matrices 1–8; ill-conditioned operations withheld |
-| 03D | Bracketed roots and polynomial quadrature | Limited intervals; estimated numerical error |
-| 04A | Train-only fitted preprocessing with deterministic split | 16–2000 labelled rows; numeric features; no time series |
-| 04B | Linear regression holdout evaluation | Baseline only; does not imply causation |
-| 04C | Stratified logistic classification | Categorical targets, bounded classes, classification assumptions |
-| 04D | K-means clustering | Internal metrics, no ground-truth labels |
-| 04E | 3-fold training-only CV comparison | Two models per task, one holdout, not automated model discovery |
-| 05A–05D | History, append-only chart-run revisions, guarded comparison and replay lineage | Replay limited to stored chart methods; not arbitrary ML experiments |
-| 06A–06C | Optional provider, rule-grounded methods, saved-run explanations, contextual Guide and Lens | AI advisory only; selected excerpts are client-supplied and may be sensitive |
-| 07A | Evidence-based PDF, JSON and bounded chart CSV exports | Not a complete scientific manuscript or full-data CSV |
-| 07B–07D | SQLite indexes, local load smoke, optional single-user access gate, Docker packaging | Not multi-tenant; external security, load, and Docker acceptance remain |
+## Repository activity
 
-**Still not implemented:** Multi-user identity and authorization, distributed worker scheduling, production object storage, high-concurrency load certification, and fully automated public-cloud deployment. See `docs/DEPLOYMENT.md`.
+[Commit history](https://github.com/EthicalMaster/AXIOM-LAB/commits/main) · [Pulse / activity graph](https://github.com/EthicalMaster/AXIOM-LAB/pulse) · [Issues](https://github.com/EthicalMaster/AXIOM-LAB/issues)
 
-## Architecture map
+## License
 
-- `frontend/src/`: React panels and typed API helpers, driven by real backend results.
-- `backend/app/api/`: FastAPI routes and input validation.
-- `backend/app/services/`: independently testable statistical, mathematical and ML methods.
-- `backend/app/persistence/`: SQLite experiment/dataset metadata plus local original-file storage.
-- `backend/tests/`: reference tests, negative cases and API integration checks.
-- `docs/`: requirements, ADRs, known limits, scientific theory, review checklists and test evidence.
-- `runtime/`: Git-ignored local working data. Never commit real uploads or credentials.
+No root license file was visible in the reviewed tree. Do not assume unrestricted redistribution. Third-party components retain their own terms.
 
-## Development protocol
+<details>
+<summary>Previous README and documentation provenance</summary>
 
-Apply **one patch per phase**, from a clean, committed parent state, with `git apply --check` before `git apply`. Install updated Python dependencies, run all automated checks, complete the matching review checklist, document errors, and **only then** commit/push. Never force a conflicting patch or silently drop failing tests. See `docs/BUNDLE_PROTOCOL.md`.
+[Original README at the reviewed revision](https://github.com/EthicalMaster/AXIOM-LAB/blob/7a1a3d5d96e6faba6520e3584228904663a5c84a/README.md). The previous file remains in Git history, including detailed historical commands and release notes. This overview reflects the inspected default branch, not unpublished local work.
 
-**Public-release warning:** The optional access token is single-user only. There are no managed accounts, per-user dataset authorization, distributed rate limits, isolated compute workers, shared storage, formal threat modeling or large-scale load testing. **Do not expose it as a public multi-user scientific service yet.**
+</details>
 
-**License:** No license file has been supplied. Select an explicit license and data-handling policy before inviting external contributions.
+---
 
-## Final release gate
-
-Before any hosted deployment, follow [R01–R03 release gates](docs/RELEASE_GATE.md). Do not publish this single-user app as a multi-tenant service.
+<div align="center"><sub>ETHICALMASTER · DOCUMENTATION SERIES / 07</sub></div>
