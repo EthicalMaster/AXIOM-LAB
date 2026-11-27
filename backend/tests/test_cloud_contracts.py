@@ -36,4 +36,4 @@ def test_cloud_dispatch(monkeypatch):
 
 def test_cloud_revision_lock():
     source = Path(__file__).resolve().parents[1]/"app/persistence/cloud_experiment.py"
-    assert "FOR UPDATE" in source.read_text()
+    assert "pg_advisory_xact_lock" in source.read_text()
