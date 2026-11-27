@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0 release candidate — 2026-11-27
+
+- Bounded data analysis, math, ML and interactive scientific plots.
+- Chart history, append-only versions, comparison, reproduction and evidence exports.
+- Neutral White / True Black, motion, loading and recovery; Guide and selected-context Lens with external-provider opt-in.
+- Single-operator access, request/provider budgets, backup/restore, deployment preflight and security CI.
+- Release assurance corrects Python audit configuration; actual security audit and hosting remain pending.
+
+Earlier entries are historical milestones.
+
 ## 0.1.1 — Phase 01B implementation candidate
 
 - Added original-file-verified per-column inspection and conservative type inference.

@@ -2,7 +2,7 @@
 
 **An Interactive Environment for Scientific Computing and Computational Discovery.**
 
-> **Current build candidate: Phase 07D + research studio, interaction and release refinement.** This local-first scientific prototype offers validated data import, statistical and mathematical tools, bounded machine learning, append-only chart experiments with comparison/replay, evidence-only PDF/CSV/JSON exports, optional AI explanations and a loopback-bound Docker Compose release candidate. **It is NOT an independently verified public multi-user or high-concurrency platform.** Backend tests and Windows/browser/Docker acceptance are separate gates.
+> **Current build candidate: v1.0 release candidate (Phases 00–07D, Neutral White / True Black, Guide and Lens).** Local-first scientific computing with bounded analysis, mathematics, ML, reproducible chart experiments and optional AI guidance. Not an independently verified public multi-user service. See [release assurance](docs/RELEASE_ASSURANCE.md) for current evidence and gates.
 
 See [Production readiness](docs/PRODUCTION_READINESS.md) for request budgets, contextual guidance, capacity checks, and deployment acceptance gates.
 
@@ -16,7 +16,7 @@ See [Production readiness](docs/PRODUCTION_READINESS.md) for request budgets, co
 
 ## Setup (Windows / PowerShell)
 
-Requires Python 3.11+, Node 22+, Git, and network access for initial dependencies. From the project root:
+Requires Python 3.11+, Node 22.12+, Git, and network access for initial dependencies. From the project root:
 
 ```powershell
 py -3 -m venv .venv
@@ -55,7 +55,7 @@ npm run build
 
 | Phase | Implemented candidate | Limitations |
 |---|---|---|
-| 01A–02B | CSV/Excel import, column profiling, statistics, charts, persisted runs, quality audits, histograms | Original files immutable; no cleaning or user access control |
+| 01A–02B | CSV/Excel import, column profiling, statistics, charts, persisted runs, quality audits, histograms | Original files immutable; no cleaning or multi-user access control |
 | 02C | Two-sided one-sample Student t-test, confidence interval and effect size | Independence and sampling design cannot be verified automatically |
 | 02D | Shapiro–Wilk diagnostic | Only sample sizes 3–5000; p-value not proof of normality |
 | 03A | Whitelisted arithmetic expression evaluator | No arbitrary Python execution or comprehensive CAS |
@@ -68,7 +68,7 @@ npm run build
 | 04D | K-means clustering | Internal metrics, no ground-truth labels |
 | 04E | 3-fold training-only CV comparison | Two models per task, one holdout, not automated model discovery |
 | 05A–05D | History, append-only chart-run revisions, guarded comparison and replay lineage | Replay limited to stored chart methods; not arbitrary ML experiments |
-| 06A–06C | Replaceable optional AI adapter, rule-grounded methods and saved-run explanations | AI advisory only, does not compute numerical truth; external service optional |
+| 06A–06C | Optional provider, rule-grounded methods, saved-run explanations, contextual Guide and Lens | AI advisory only; selected excerpts are client-supplied and may be sensitive |
 | 07A | Evidence-based PDF, JSON and bounded chart CSV exports | Not a complete scientific manuscript or full-data CSV |
 | 07B–07D | SQLite indexes, local load smoke, optional single-user access gate, Docker packaging | Not multi-tenant; external security, load, and Docker acceptance remain |
 
@@ -88,7 +88,7 @@ npm run build
 
 Apply **one patch per phase**, from a clean, committed parent state, with `git apply --check` before `git apply`. Install updated Python dependencies, run all automated checks, complete the matching review checklist, document errors, and **only then** commit/push. Never force a conflicting patch or silently drop failing tests. See `docs/BUNDLE_PROTOCOL.md`.
 
-**Public-release warning:** The optional access token is single-user only. There are no managed accounts, per-user dataset authorization, validated rate limits, isolated compute workers, shared storage, formal threat modeling or large-scale load testing. **Do not expose it as a public multi-user scientific service yet.**
+**Public-release warning:** The optional access token is single-user only. There are no managed accounts, per-user dataset authorization, distributed rate limits, isolated compute workers, shared storage, formal threat modeling or large-scale load testing. **Do not expose it as a public multi-user scientific service yet.**
 
 **License:** No license file has been supplied. Select an explicit license and data-handling policy before inviting external contributions.
 

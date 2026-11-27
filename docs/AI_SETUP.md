@@ -38,4 +38,4 @@ Verify in a separate terminal: `Invoke-RestMethod http://127.0.0.1:8898/api/v1/a
 
 ## Quotas and privacy
 
-Default local external allowance: 10 requests/minute and 100/day, distinct from provider limits. Provider calls send only the opted-in question and bounded context, not original file bytes; aggregates may still be sensitive. No live provider call was tested for this release. Local deterministic guidance remains available when a provider is disabled, fails, or reaches a quota.
+Default local external allowance: 10 requests/minute and 100/day, distinct from provider limits. Provider calls send the opted-in question and bounded context, not original file bytes. Lens can also send explicitly selected text, metrics or plotted values (potentially raw values); these are not independently verified evidence. Both aggregates and selected excerpts may be sensitive. Keep external AI off for private information. No live provider call was tested for this release. Local deterministic guidance remains available when a provider is disabled, fails, or reaches a quota.

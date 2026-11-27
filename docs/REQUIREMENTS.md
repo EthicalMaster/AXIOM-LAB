@@ -1,29 +1,24 @@
-# Requirements and traceability (initial baseline)
+# Requirements and traceability — v1.0 RC
 
-Statuses: **Planned** / **Implemented** / **Verified**. Verification requires actual execution evidence, not merely a source file.
+Implemented means source and corresponding tests exist; automated evidence does not certify browser, hosted or scientific acceptance. See [release assurance](RELEASE_ASSURANCE.md).
 
-| ID | Requirement | First phase | Status | Evidence needed |
-|---|---|---|---|---|
-| REQ-001 | Frontend connects to versioned backend API | 00 | Implemented (not user-verified) | UI connection status and request |
-| REQ-002 | Backend health contract responds without fabricated science | 00 | Implemented (not user-verified) | Pytest and HTTP response |
-| REQ-003 | Import and validate CSV/XLSX/XLS datasets | 01 | Planned | Import tests and manual workflow |
-| REQ-004 | Inspect datasets and calculate basic descriptive statistics | 01 | Partly implemented: column profiling in 01B; statistics planned | Independent numeric reference tests |
-| REQ-005 | Persist a minimal experiment and run | 01 | Planned | Save/reopen/re-run tests |
-| REQ-006 | Hypothesis testing with assumptions and diagnostics | 02 | Planned | Reference test cases |
-| REQ-007 | Safe mathematical expression processing | 03 | Planned | Security and mathematical tests |
-| REQ-008 | Machine learning with leakage safeguards | 04 | Planned | Split/preprocess/evaluate tests |
-| REQ-009 | Run comparison and reproducibility support | 05 | Planned | Replay and comparison tests |
-| REQ-010 | Optional AI only explains verified computed results | 06 | Planned | Non-AI workflow and grounding tests |
-| REQ-011 | Evidence-based PDF/CSV/JSON reporting | 07 | Planned | Export and report correctness tests |
+| ID | Bounded requirement | Status | Automated evidence / outstanding acceptance |
+|---|---|---|---|
+| REQ-001 | Versioned API connection | Implemented | Frontend CI; browser check pending |
+| REQ-002 | Health contract | Implemented | `test_health.py` |
+| REQ-003 | CSV/XLSX/XLS import | Implemented | `test_datasets.py`; browser file boundary checks pending |
+| REQ-004 | Inspection and descriptive statistics | Implemented | `test_column_profiling.py`, `test_statistics.py`, `test_quality.py`, `test_distributions.py` |
+| REQ-005 | Persist chart experiments | Implemented | `test_experiments.py`, `test_experiment_history.py` |
+| REQ-006 | Hypothesis testing and diagnostics | Implemented | `test_hypothesis.py`, `test_diagnostics.py`; bounded methods |
+| REQ-007 | Safe math | Implemented | `test_safe_math.py`, `test_polynomial.py`, `test_linear_algebra.py`, `test_numerical_methods.py` |
+| REQ-008 | ML and leakage safeguards | Implemented | `test_ml_preprocessing.py`, regression/classification/clustering/evaluation tests |
+| REQ-009 | Compatible comparisons and replay | Implemented | `test_run_comparison.py`, `test_run_reproduction.py`, `test_experiment_versions.py`; chart-only replay |
+| REQ-010 | Optional advisory AI and consent | Implemented | `test_ai_provider.py`, `test_contextual_guide.py`, `test_lens.py`; live provider pending |
+| REQ-011 | Evidence PDF/CSV/JSON | Implemented | `test_reports.py`; visual inspection pending |
+| REQ-012 | Theme and motion | Implemented | Frontend CI; keyboard/mobile/reduced-motion acceptance pending |
+| REQ-013 | Single-operator protection and recovery | Implemented | `test_release_security.py`, `test_request_guard.py`, `test_backup_restore.py` |
+| REQ-014 | Release packaging | Candidate | `test_hosted_release.py`, `test_release_assets.py`; Docker and hosted checks pending |
 
 ## Open decisions
 
-- Maximum dataset size; maximum execution time and RAM limits (determine with benchmarks).
-- Sample vs population variance defaults and missing-value conventions (Phase 01).
-- Exact mathematical grammar and supported functions (Phase 03).
-- Public release license and hosting (before release).
-
-## Phase 01B traceability
-
-- **REQ-003**: Existing upload behaviour preserved; regression tests retained.
-- **REQ-004 (partial)**: `GET /api/v1/datasets/{id}/profile` + React column table + `test_column_profiling.py`. Descriptive statistics and mathematical correctness tests remain unimplemented until 01C.
+Hosting and measured resource budgets; license and data-handling policy; public multi-user identity, authorization, isolated storage, distributed quotas and workers are outside v1.0 RC. Method conventions and limits remain in historical phase reviews and [scientific validation](SCIENTIFIC_VALIDATION.md).

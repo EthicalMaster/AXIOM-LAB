@@ -1,6 +1,6 @@
 # Phase plan and bundle roadmap
 
-**Current build candidate:** 05A (12 sequential patches: 02C, 02D, 03A–03D, 04A–04E, 05A). Phase 05B–07D remain planned. Each new bundle is accepted only after local backend and frontend tests, manual scientific checks, documentation and Git commit.
+**Current build candidate:** v1.0 RC. Phases 00–07D are implemented within bounded scope, including post-roadmap production safeguards, Neutral White / True Black and Guide/Lens. Feature freeze is in effect; release depends on security CI, browser acceptance and protected staging. See [Release assurance](RELEASE_ASSURANCE.md). Historical phase descriptions remain learning records.
 
 
 **Scope control:** Build one vertical slice, verify, learn, document, commit, then continue. Bundles can be split if a testable unit is too large.
