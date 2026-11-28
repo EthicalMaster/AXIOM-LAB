@@ -2,6 +2,7 @@ import {Details,Metrics} from './Visuals';
 import {Loading} from './WorkspaceTools';
 import {apiFetch} from './apiClient';
 import {useState} from 'react';
+import {AIAnswer} from './AIAnswer';
 type Entry={id:string;name:string;created_at:string;run_count:number;dataset_id:string};
 type Page={total:number;items:Entry[]};
 type Runs={total:number;items:{id:string;method:string;status:string;created_at:string;revision:number;configuration:{column?:string}}[]};
@@ -70,7 +71,7 @@ export function HistoryPanel(){
       <button className="retry-button" disabled={busy||!runs.items[0]?.configuration.column} onClick={()=>void rerun()}>Repeat most recent run as new version</button>
       <button className="retry-button" disabled={busy||!runs.items.length} onClick={()=>void reproduce()}>Reproduce latest run</button>
       <button className="retry-button" disabled={busy||!runs.items.length} onClick={()=>void explain()}>Explain recorded evidence</button>
-      {explanation&&<div className="guide-answer"><span className="micro">{String(explanation.source)}</span><p>{String(explanation.explanation)}</p><Details title="Verified evidence"><pre>{JSON.stringify(explanation.evidence,null,2)}</pre></Details></div>}
+      {explanation&&<div className="guide-answer"><span className="micro">{String(explanation.source)}</span><AIAnswer text={String(explanation.explanation)}/><Details title="Verified evidence"><pre>{JSON.stringify(explanation.evidence,null,2)}</pre></Details></div>}
       <button className="retry-button" disabled={busy||runs.items.length<2} onClick={()=>void compare()}>Compare two latest runs</button>
       {comparison&&<div><Metrics items={[{label:"Comparable",value:comparison.comparable?"Yes":"No"},...Object.entries((comparison.comparison??{}) as Record<string,unknown>).map(([label,value])=>({label:label.replaceAll("_"," "),value}))]}/>{Array.isArray(comparison.warnings)&&<p>{comparison.warnings.map(String).join(" ")}</p>}<Details title="Comparison evidence"><pre>{JSON.stringify(comparison,null,2)}</pre></Details></div>}
       <ul className="history-list">{runs.items.map(r=><li key={r.id}><code>{r.id}</code> · Revision {r.revision} · {r.status} · {r.method}

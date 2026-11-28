@@ -1,6 +1,7 @@
 """Short, deterministic scientific guidance; arbitrary user questions are not computation."""
 from __future__ import annotations
 import json
+import re
 from app.services.ai_provider import AIUnavailable, chat_from_evidence
 
 TOPICS = (
@@ -19,18 +20,25 @@ TOPICS = (
 
 
 def explain(question: str, page: str, evidence: dict | None, use_provider: bool, *, selection: dict | None = None) -> dict:
-    normalized = (question + ' ' + (selection['label'] + ' ' + selection['excerpt'] if selection else '')).casefold()
-    answer = next((text for words,text in TOPICS if any(word in normalized for word in words)), None)
+    normalized = question.casefold()
+    def match(text):
+        # Match whole terms, prefer the most specific topic. Avoid matching 'mean' in 'meaning'.
+        candidates = [(max((len(word) for word in words if re.search(r'(?<!\w)' + re.escape(word) + r'(?!\w)', text)), default=0), answer) for words, answer in TOPICS]
+        score, result = max(candidates, key=lambda item: item[0])
+        return result if score else None
+    answer = match(normalized)
+    if answer is None and selection:
+        answer = match((selection['label'] + ' ' + selection['excerpt']).casefold())
     if answer is None:
         answer = ('The built-in guide has no exact answer to this question. Try asking about a metric, assumptions, import, or experiment workflow. '
                   'It does not compute new statistics from a chat question.')
     if evidence:
-        answer += f" Active dataset: {evidence['row_count']} rows, {evidence['column_count']} variables."
+        answer += f"\n\n## Active dataset\n- {evidence['row_count']} rows\n- {evidence['column_count']} variables"
         if evidence.get('column_statistics'):
             values=evidence['column_statistics']
-            answer += f" Selected numeric column: mean {values['mean']:.6g}, median {values['median']:.6g}, valid count {values['count']}. Missing cells were excluded."
+            answer += f"\n- Selected numeric column: mean {values['mean']:.6g}, median {values['median']:.6g}, valid count {values['count']}. Missing cells were excluded."
     if selection:
-        answer += ' The selected display is client-supplied context, not an independently verified calculation. Review the original result and assumptions.'
+        answer += '\n\n## Selection context\nThe selected display is client-supplied context, not an independently verified calculation. Review the original result and assumptions.'
     source = 'Built-in scientific guide'
     if use_provider:
         compact=json.dumps({'question':question,'workspace':page,'verified_summary':evidence,'built_in_explanation':answer,'client_selection':selection},ensure_ascii=False)
@@ -38,5 +46,5 @@ def explain(question: str, page: str, evidence: dict | None, use_provider: bool,
             answer=chat_from_evidence(compact)
             source='Optional AI · advisory, not verified calculation'
         except AIUnavailable:
-            answer += ' Optional provider unavailable or at its limit; showing local guidance.'
+            answer += '\n\n**Provider unavailable:** Optional provider unavailable or at its limit; showing local guidance.'
     return {'answer':answer,'source':source,'evidence':evidence}
