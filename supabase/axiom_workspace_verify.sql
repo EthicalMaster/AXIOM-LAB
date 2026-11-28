@@ -1,0 +1,4 @@
+-- Read-only release checks; expected rls=true and all browser privilege columns=false.
+select tablename,rowsecurity from pg_tables where schemaname='public' and tablename in ('axiom_projects','axiom_project_items','axiom_profiles');
+select t,has_table_privilege('anon','public.'||t,'SELECT,INSERT,UPDATE,DELETE') as anon_has_any,has_table_privilege('authenticated','public.'||t,'SELECT,INSERT,UPDATE,DELETE') as authenticated_has_any from unnest(array['axiom_projects','axiom_project_items','axiom_profiles']) as x(t);
+select p.proname,has_function_privilege('anon',p.oid,'EXECUTE') as anon_execute,has_function_privilege('authenticated',p.oid,'EXECUTE') as authenticated_execute,p.prosecdef as security_definer from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('axiom_library','axiom_project_create','axiom_project_attach','axiom_profile_update','axiom_deletion_request','axiom_admin_summary');

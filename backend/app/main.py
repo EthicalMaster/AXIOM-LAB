@@ -7,6 +7,7 @@ from app.core.tenant_access import tenant_request
 from fastapi.responses import JSONResponse
 from app.core.access import public_mode, access_secret, authorized_token, verify_session, same_origin, COOKIE_NAME
 from app.api.access import router as auth_router
+from app.api.workspace import router as workspace_router
 from fastapi.exceptions import RequestValidationError
 from app.core.request_guard import RequestGuard
 from app.api.ai import router as ai_router
@@ -36,6 +37,7 @@ app.include_router(reports_router, prefix="/api/v1")
 
 
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(workspace_router, prefix="/api/v1")
 
 
 @app.middleware('http')
