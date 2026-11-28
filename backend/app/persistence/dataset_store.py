@@ -12,11 +12,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.services.dataset_validation import DatasetProfile
+from app.core.tenant import storage_root
 
 
 def _data_root() -> Path:
     # Parent of backend/ is the project root.
-    return Path(os.environ.get("AXIOM_DATA_DIR", str(Path(__file__).resolve().parents[3] / "runtime"))).resolve()
+    base = Path(os.environ.get("AXIOM_DATA_DIR", str(Path(__file__).resolve().parents[3] / "runtime"))).resolve()
+    return storage_root(base)
 
 
 def _database(root: Path) -> sqlite3.Connection:

@@ -10,6 +10,7 @@ import asyncio
 import os
 from starlette.responses import JSONResponse
 from app.core.access import public_mode
+from app.core.tenant import multi_user_enabled
 
 log = logging.getLogger(__name__)
 
@@ -83,15 +84,15 @@ class RequestGuard:
             headers = {'Retry-After': str(retry)} if retry else None
             await JSONResponse({'detail': {'code': 'request_rejected', 'message': message}, 'request_id': request_id}, status_code=code, headers=headers)(scope, receive, send_checked)
 
-        if public_mode() and path in ('/docs', '/redoc', '/openapi.json', '/docs/oauth2-redirect'):
+        if (public_mode() or multi_user_enabled()) and path in ('/docs', '/redoc', '/openapi.json', '/docs/oauth2-redirect'):
             return await reject(404, 'Not found')
         if not path.startswith('/api/v1/'):
             return await self.app(scope, receive, send_checked)
         if len(scope.get('query_string', b'')) > 4096:
             return await reject(414, 'Query is too long.')
-        if public_mode():
+        if public_mode() or multi_user_enabled():
             budget = None
-            if path == '/api/v1/auth/login' and method == 'POST':
+            if (path == '/api/v1/auth/login' and method == 'POST') or path == '/api/v1/auth/google/verify':
                 budget = self.login_budget
             elif path == '/api/v1/datasets/import' and method == 'POST':
                 budget = self.upload_budget

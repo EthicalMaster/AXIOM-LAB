@@ -61,7 +61,7 @@ export function HistoryPanel(){
     }catch(e){setError(e instanceof Error?e.message:'Explanation unavailable');}finally{setBusy(false);}
   }
   return <section className="science-panel" aria-labelledby="history-title"><div className="preview-heading"><h3 id="history-title">Saved experiment history</h3><span>PHASE 05A–07A · RECORDED EVIDENCE</span></div>
-    <p className="profile-description">Append-only, paginated history of saved experiments and runs. Optional single-user access protection is available; independent user accounts and dataset isolation are not.</p>
+    <p className="profile-description">Append-only, paginated history of saved experiments and runs. History is scoped to the current private workspace in multi-user beta mode.</p>
     <button className="retry-button" type="button" disabled={busy} onClick={()=>void refresh()}>Load recent experiments</button>
     {busy&&<Loading label="Working with saved evidence"/>}{error&&<p className="inline-alert error" role="alert">{error}</p>}
     {page&&<><p>{page.total} saved experiments · displaying latest {page.items.length}</p>

@@ -4,6 +4,7 @@ import LandingPage from './LandingPage';
 import {isStudioView} from './landingRoute';
 import {WorkspaceBoundary} from './WorkspaceTools';
 import {AccessGate} from './AccessGate';
+import {GoogleGate} from './GoogleGate';
 import './styles.css';
 import './studio.css';
 import './math-studio.css';
@@ -16,6 +17,6 @@ applyTheme(initialTheme());
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WorkspaceBoundary>{isStudioView(window.location.search) ? <AccessGate><React.Suspense fallback={<main className="startup-screen" role="status">Loading research studio…</main>}><App /></React.Suspense></AccessGate> : <LandingPage />}</WorkspaceBoundary>
+    <WorkspaceBoundary>{isStudioView(window.location.search) ? <GoogleGate><AccessGate><React.Suspense fallback={<main className="startup-screen" role="status">Loading research studio…</main>}><App /></React.Suspense></AccessGate></GoogleGate> : <LandingPage />}</WorkspaceBoundary>
   </React.StrictMode>,
 );

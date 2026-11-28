@@ -1,3 +1,5 @@
+import {googleToken} from './supabaseAuth';
+
 /** Same-origin requests only; never retry a mutation automatically. */
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<Response> {
   if (!path.startsWith('/api/v1/')) throw new Error('Invalid API route.');
@@ -7,7 +9,10 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
   options.signal?.addEventListener('abort', abort, {once:true});
   const timeout = setTimeout(abort, 30000);
   try {
-    const response = await fetch(path, {...options, signal:controller.signal, credentials:'same-origin', cache:'no-store'});
+    const token=googleToken();
+    const headers=token?new Headers(options.headers):undefined;
+    if(headers)headers.set('Authorization',`Bearer ${token}`);
+    const response = await fetch(path, {...options, ...(headers?{headers}:{}), signal:controller.signal, credentials:'same-origin', cache:'no-store'});
     if (!response.ok) {
       const payload: unknown = await response.json().catch(()=>null);
       const detail = payload && typeof payload==='object' && 'detail' in payload ? payload.detail : null;
