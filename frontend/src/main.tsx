@@ -10,6 +10,7 @@ import './studio.css';
 import './math-studio.css';
 import './release-motion.css';
 import './responsive.css';
+import './product-polish.css';
 import {applyTheme,initialTheme} from './Theme';
 
 const App = React.lazy(() => import('./App'));
