@@ -39,6 +39,9 @@ def _ensure_tables(connection: sqlite3.Connection) -> None:
 
 def create_experiment(*, name: str, dataset_id: str, dataset_sha256: str,
                       configuration: dict, result: dict) -> dict:
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.create_experiment(name=name, dataset_id=dataset_id, dataset_sha256=dataset_sha256, configuration=configuration, result=result)
     experiment_id = uuid.uuid4().hex
     run_id = uuid.uuid4().hex
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -62,6 +65,9 @@ def create_experiment(*, name: str, dataset_id: str, dataset_sha256: str,
 
 
 def read_experiment(experiment_id: str) -> dict | None:
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.read_experiment(experiment_id)
     root = _data_root()
     if not (root / 'axiom.sqlite3').exists():
         return None
@@ -86,6 +92,9 @@ def read_experiment(experiment_id: str) -> dict | None:
 
 def list_experiments(limit: int = 20, offset: int = 0) -> dict:
     """Paginated history in local single-user mode; no user accounts yet."""
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.list_experiments(limit, offset)
     root = _data_root()
     if not (root / 'axiom.sqlite3').exists():
         return {'total': 0, 'items': [], 'limit': limit, 'offset': offset}
@@ -101,6 +110,9 @@ def list_experiments(limit: int = 20, offset: int = 0) -> dict:
 
 
 def list_experiment_runs(experiment_id: str, limit: int = 20, offset: int = 0) -> dict | None:
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.list_experiment_runs(experiment_id, limit, offset)
     root = _data_root()
     if not (root / 'axiom.sqlite3').exists():
         return None
@@ -124,6 +136,9 @@ def list_experiment_runs(experiment_id: str, limit: int = 20, offset: int = 0) -
 def append_experiment_run(experiment_id: str, configuration: dict, result: dict,
                           *, source_run_id: str | None = None) -> dict | None:
     """Append a run under an atomic per-experiment revision number."""
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.append_experiment_run(experiment_id, configuration, result, source_run_id=source_run_id)
     timestamp = datetime.now(timezone.utc).isoformat()
     run_id = uuid.uuid4().hex
     environment = {'python': '.'.join(map(str, sys.version_info[:3])), 'algorithm': result['method']}
@@ -150,6 +165,9 @@ def append_experiment_run(experiment_id: str, configuration: dict, result: dict,
 
 def get_run(experiment_id: str, run_id: str) -> dict | None:
     # Direct indexed lookup avoids a 50-run pagination limit.
+    from app.persistence import cloud_store
+    if cloud_store.enabled():
+        return cloud_store.get_run(experiment_id, run_id)
     root = _data_root()
     if not (root / 'axiom.sqlite3').exists():
         return None

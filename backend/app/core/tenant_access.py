@@ -3,6 +3,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
 from app.core.google_auth import google_enabled, verify_google
 from app.core.tenant import admitted, tenant_scope
+from app.core.tenant_budget import admit_request
 
 
 def reject(status: int, detail: str):
@@ -34,5 +35,8 @@ async def tenant_request(request: Request, call_next):
     if path == '/api/v1/auth/me' and request.method == 'GET':
         return JSONResponse({'user_id':identity,'mode':'multi-user beta','workspace':'private'}, headers={'Cache-Control':'no-store'})
     request.state.user_id = identity
-    with tenant_scope(identity):
-        return await call_next(request)
+    with admit_request(identity) as allowed:
+        if not allowed:
+            return JSONResponse({"detail":"Private workspace request allowance reached."},status_code=429,headers={"Retry-After":"3","Cache-Control":"no-store"})
+        with tenant_scope(identity):
+            return await call_next(request)

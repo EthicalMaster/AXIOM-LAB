@@ -42,6 +42,9 @@ async def protect_public_mode(request: Request, call_next):
     # Fail closed if remote exposure was requested without a strong server token.
     if public_mode() and not access_secret():
         return JSONResponse(status_code=503,content={'detail':'Public access requires a strong configured token.'})
+    from app.persistence.cloud_store import enabled as cloud_enabled
+    if cloud_enabled() and not (multi_user_enabled() and google_enabled()):
+        return JSONResponse(status_code=503,content={"detail":"Cloud persistence requires managed multi-user mode."})
     if multi_user_enabled():
         return await tenant_request(request, call_next)
     path=request.url.path
