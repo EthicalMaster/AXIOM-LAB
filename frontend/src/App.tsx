@@ -1,3 +1,4 @@
+import {SourceNotice} from './SourceNotice';
 import {apiFetch} from './apiClient';
 import {AccountContext,AccountPanel} from './AccountPanel';
 import {EvidenceTrail} from './EvidenceTrail';
@@ -122,6 +123,6 @@ export default function App() {
     {visited.includes('Experiments')&&<div hidden={page!=='Experiments'} className="workspace-page"><WorkspaceBoundary>{result&&profile&&<ExperimentPanel key={result.id} datasetId={result.id} numericColumns={numeric}/>}<HistoryPanel/></WorkspaceBoundary></div>}
     {visited.includes('Method guide')&&<div hidden={page!=='Method guide'} className="workspace-page"><AIStudioPanel datasetId={result?.id}/></div>}
     {visited.includes('System checks')&&<div hidden={page!=='System checks'} className="workspace-page"><SystemChecks/></div>}
-    <footer>AXIOM LAB · Results are computed from evidence. Advisory explanations do not replace scientific validation.</footer></main><Guide key={result?.id??"no-data"} page={page==='Research Library'?'Overview':page} datasetId={result?.id} numericColumns={numeric}/>
+    <footer>AXIOM LAB · Results are computed from evidence. Advisory explanations do not replace scientific validation.<br/><SourceNotice/></footer></main><Guide key={result?.id??"no-data"} page={page==='Research Library'?'Overview':page} datasetId={result?.id} numericColumns={numeric}/>
     </div>;
 }

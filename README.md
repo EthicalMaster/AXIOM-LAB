@@ -317,7 +317,13 @@ Some earlier documents describe the pre-cloud, single-user architecture. Use the
 
 Issues and suggestions are welcome through [GitHub Issues](https://github.com/EthicalMaster/AXIOM-LAB/issues). Include a reproducible example, expected result and relevant environment details when reporting scientific or technical problems. Do not attach credentials or private datasets.
 
-No root `LICENSE` file is currently present. Public source visibility does not grant unrestricted reuse or redistribution. Third-party dependencies retain their respective licenses.
+Copyright © 2026 EthicalMaster (AXIOM LAB contributors retain their respective rights).
+
+AXIOM LAB's original project code is licensed under the **GNU Affero General Public License v3.0 only** (`AGPL-3.0-only`). See [LICENSE](LICENSE) for the full terms.
+
+You may use, study, modify and redistribute covered code, including commercially, subject to the license. Modified network-accessible versions have corresponding-source obligations under section 13.
+
+The hosted application offers its source through its footer. Deployment operators must provide the corresponding source for the actual version they run. Private user datasets, credentials and third-party components are not relicensed by this notice. See [NOTICE](NOTICE) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ---
 

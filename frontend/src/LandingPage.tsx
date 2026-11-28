@@ -1,3 +1,4 @@
+import {SourceNotice} from './SourceNotice';
 import {ScientificInstrument} from './ScientificInstrument';
 import {ThemeSwitch} from './Theme';
 import {WorkspaceIcon} from './WorkspaceIcon';
@@ -23,6 +24,6 @@ export default function LandingPage(){
       <section className="landing-section landing-method" id="method"><div><div className="landing-eyebrow">02 / THE PRINCIPLE</div><h2>Every result should<br/>have a reason.</h2><p>Keep original observations intact, examine the assumptions behind a method, and retain experiment context. AXIOM LAB brings these steps into a single workflow.</p></div><ol className="landing-steps">{[['Import','Preserve the original dataset and its fingerprint.'],['Inspect','Understand quality, types and distributions.'],['Investigate','Choose appropriate mathematical or statistical methods.'],['Record','Keep configurations, outcomes and experiment revisions.']].map(([title,copy],i)=><li key={title}><span>0{i+1}</span><div><h3>{title}</h3><p>{copy}</p></div></li>)}</ol></section>
       <section className="landing-end"><span className="landing-eyebrow">03 / BEGIN YOUR RESEARCH</span><h2>Curiosity is the starting point.</h2><a className="landing-primary" href="?view=studio">Open AXIOM LAB <WorkspaceIcon name="arrow"/></a></section>
     </main>
-    <footer className="landing-footer"><span>∴ AXIOM LAB</span><span>Scientific research studio · Evidence first</span><a href="#landing-main">Back to top ↑</a></footer>
+    <footer className="landing-footer"><span>∴ AXIOM LAB</span><span>Scientific research studio · Evidence first<br/><SourceNotice/></span><a href="#landing-main">Back to top ↑</a></footer>
   </div>;
 }
