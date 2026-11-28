@@ -1,18 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import LandingPage from './LandingPage';
+import {isStudioView} from './landingRoute';
 import {WorkspaceBoundary} from './WorkspaceTools';
 import {AccessGate} from './AccessGate';
 import './styles.css';
 import './studio.css';
 import './math-studio.css';
 import './release-motion.css';
+import './responsive.css';
 import {applyTheme,initialTheme} from './Theme';
 
+const App = React.lazy(() => import('./App'));
 applyTheme(initialTheme());
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WorkspaceBoundary><AccessGate><App /></AccessGate></WorkspaceBoundary>
+    <WorkspaceBoundary>{isStudioView(window.location.search) ? <AccessGate><React.Suspense fallback={<main className="startup-screen" role="status">Loading research studio…</main>}><App /></React.Suspense></AccessGate> : <LandingPage />}</WorkspaceBoundary>
   </React.StrictMode>,
 );

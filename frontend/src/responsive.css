@@ -1,0 +1,115 @@
+/* Responsive studio refinement. Desktop layout and theme tokens stay unchanged. */
+@media (max-width: 850px) {
+  .workspace-shell, .workspace-shell.nav-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    transition: none;
+  }
+  .workspace-nav { min-width: 0; padding: 12px 14px; gap: 10px; }
+  .workspace-nav .motion-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+    gap: 6px;
+  }
+  .workspace-nav .motion-nav button,
+  .nav-collapsed .workspace-nav .motion-nav button {
+    min-width: 0;
+    min-height: 48px;
+    padding: 8px;
+    justify-content: flex-start;
+    white-space: normal;
+    line-height: 1.25;
+  }
+  .workspace-nav .motion-nav .nav-text {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .workspace-nav .motion-nav button[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 0 -2px var(--accent);
+  }
+  .workspace-main { min-width: 0; padding: 18px 16px 96px; }
+  .workspace-top > div { min-width: 0; }
+  .workspace-top h1 { overflow-wrap: anywhere; }
+  .top-controls { max-width: 100%; }
+  .top-controls .landing-home-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .workspace-page :is(.intel-grid, .bento-grid, .import-card, .math-split) > * { min-width: 0; }
+  .workspace-page :is(.table-scroll, .matrix-editor-scroll) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .workspace-page :is(.experiment-controls, .math-fields, .ml-fields) > * { min-width: 0; }
+  .workspace-page :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea),
+  .access-shell input, .guide-widget .guide-panel :is(textarea, select) {
+    max-width: 100%;
+    min-width: 0;
+    font-size: 16px;
+  }
+  .workspace-page :is(button.retry-button, button.primary-button, .banner-action, .camera-controls button),
+  .workspace-top .theme-switch, .guide-widget .guide-launch { min-height: 44px; }
+  .workspace-page :is(.lab-actions, .chart-meta, .intel-heading, .intel-foot, .preview-heading) { flex-wrap: wrap; }
+  .workspace-page :is(.chart-card, .visual-figure, .camera-figure) { max-width: 100%; min-width: 0; }
+  .workspace-page :is(.result-identity code, .lab-details, .inline-alert, .provider-card, .metric-card) { overflow-wrap: anywhere; }
+  .workspace-page .method-cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .guide-widget { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  .guide-widget .guide-drawer.guide-panel { max-height: calc(100dvh - 82px - env(safe-area-inset-bottom)); }
+  .session-toolbar { position: static; padding: 6px 14px; }
+}
+
+@media (max-width: 560px) {
+  .workspace-nav { padding: 10px 10px 12px; }
+  .workspace-nav .motion-nav { gap: 5px; }
+  .workspace-nav .motion-nav button,
+  .nav-collapsed .workspace-nav .motion-nav button {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 66px;
+    gap: 4px;
+    padding: 5px 3px;
+    font-size: 10px;
+  }
+  .workspace-nav .motion-nav button svg { width: 19px; height: 19px; }
+  .workspace-main { padding: 14px 10px calc(96px + env(safe-area-inset-bottom)); }
+  .workspace-top { gap: 8px; margin-bottom: 14px; }
+  .workspace-top > div:first-child { flex: 1 0 100%; }
+  .workspace-top .top-controls { width: 100%; gap: 8px; }
+  .workspace-top .theme-switch { margin-left: auto; }
+  .workspace-page :is(.intel-grid, .bento-grid, .import-card, .experiment-controls, .math-split) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace-page .intel-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .workspace-page :is(.bento-card, .science-panel, .profile-panel, .intel-card, .chart-card) { padding: 12px; }
+  .workspace-page .metric-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 105px), 1fr)); }
+  .workspace-page .quality-row { grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; }
+  .workspace-page .quality-row > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .workspace-page .quality-row > :last-child { grid-column: 2; grid-row: 1; }
+  .workspace-page .quality-metrics { grid-template-columns: minmax(0, 1fr); }
+  .workspace-page .quality-metrics > div { min-width: 0; border-left: 0; }
+  .workspace-page .result-identity { grid-template-columns: minmax(0, 1fr); }
+  .workspace-page .file-picker { width: 100%; font-size: 16px; }
+  .workspace-page .lab-actions > button { flex: 1 1 135px; max-width: 100%; }
+  .workspace-page .math-keypad button { min-height: 44px; }
+  .workspace-page .matrix-editor input { font-size: 16px; }
+  .workspace-page .camera-controls button { min-width: 44px; }
+  .guide-widget .guide-drawer.guide-panel {
+    width: min(430px, calc(100vw - 24px));
+    max-height: calc(100dvh - 86px - env(safe-area-inset-bottom));
+  }
+  .access-shell { padding: 20px 16px; margin: 5vh auto; }
+  .access-shell input { width: 100%; }
+  .axiom-landing .landing-header { flex-wrap: wrap; gap: 8px; }
+  .axiom-landing .landing-header-actions { min-width: 0; flex-wrap: wrap; }
+  .axiom-landing :is(.landing-small-cta, .landing-primary, .landing-secondary) { min-height: 44px; }
+  .axiom-landing .landing-copy h1 { overflow-wrap: anywhere; }
+}
+
+/* Keep chart pan/zoom and wide numeric tables usable instead of clipping them. */
+@media (pointer: coarse) {
+  .workspace-page .camera-controls button { min-height: 44px; min-width: 44px; }
+  .workspace-page .math-presets button { min-height: 44px; }
+  .guide-widget .guide-panel .guide-close { min-height: 44px; min-width: 44px; }
+}

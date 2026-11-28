@@ -39,6 +39,7 @@ export function AccessGate({children}:{children:ReactNode}){
   if(!state&&!error)return <main className="startup-screen"><div className="startup-identity"><AxiomMark/><h1>AXIOM LAB</h1><p>Scientific research studio</p><Loading label="Checking workspace access"/></div></main>;
   if(!state&&error)return <RecoveryScreen full title="Cannot connect to AXIOM LAB" detail={error} onRetry={()=>{setError('');setAttempt(n=>n+1)}}/>;
   return <main className="access-shell" aria-labelledby="access-title">
+    <a className="access-home-link" href="./">← Back to AXIOM LAB home</a>
     <h1 id="access-title">AXIOM LAB</h1>
     <form onSubmit={e=>void login(e)}>
         <p>Single-user protected workspace. Enter the access token configured by the administrator.</p>
