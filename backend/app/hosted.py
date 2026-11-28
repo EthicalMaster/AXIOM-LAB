@@ -31,11 +31,28 @@ def preflight() -> int:
     except ValueError:
         raise ValueError('PORT must be a valid TCP port.') from None
     if mode=='1':
-        if os.getenv('AXIOM_PUBLIC_MODE')!='1' or len(os.getenv('AXIOM_ACCESS_TOKEN','').strip())<32:
-            raise ValueError('Hosted mode requires public protection and a unique strong access token.')
+        if os.getenv('AXIOM_PUBLIC_MODE')!='1':
+            raise ValueError('Hosted mode requires public protection.')
+        managed = os.getenv('AXIOM_MULTI_USER')=='1' and os.getenv('AXIOM_GOOGLE_AUTH')=='1'
+        if not managed and len(os.getenv('AXIOM_ACCESS_TOKEN','').strip())<32:
+            raise ValueError('Hosted legacy mode requires a unique strong access token.')
+        from app.core.production import registration_ready, cloud_configuration, open_registration
+        if open_registration() and not registration_ready():
+            raise ValueError('Open registration requires managed cloud mode and distributed quotas.')
+        if managed:
+            import re
+            if not re.fullmatch(r'https://[a-z0-9]+\.supabase\.co',os.getenv('SUPABASE_URL','')) or not os.getenv('SUPABASE_PUBLISHABLE_KEY','').startswith('sb_publishable_'):
+                raise ValueError('Managed authentication configuration incomplete.')
+        if os.getenv('AXIOM_CLOUD_STORAGE')=='1' or os.getenv('AXIOM_DISTRIBUTED_RPM')=='1':
+            if not managed:
+                raise ValueError('Cloud services require managed multi-user mode.')
+            try: cloud_configuration()
+            except Exception: raise ValueError('Cloud credentials incomplete.') from None
         origin=os.getenv('AXIOM_PUBLIC_ORIGIN','')
         if https_origin(origin)!=origin:
             raise ValueError('AXIOM_PUBLIC_ORIGIN must exactly match the browser origin.')
+        if managed and os.getenv('AXIOM_CLOUD_STORAGE')=='1':
+            return port
         path=os.getenv('AXIOM_DATA_DIR','')
         if not path or not Path(path).is_absolute() or not Path(path).is_dir():
             raise ValueError('Hosted mode requires an existing absolute data directory on a persistent volume.')

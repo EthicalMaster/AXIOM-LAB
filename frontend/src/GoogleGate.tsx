@@ -2,9 +2,10 @@ import {useEffect,useRef,useState,type ReactNode} from 'react';
 import type {Session} from '@supabase/supabase-js';
 import {supabase,googleConfigured,googleConfigError,setGoogleToken} from './supabaseAuth';
 import {AxiomMark} from './Motion';
+import {AccountContext} from './AccountPanel';
 import {Loading} from './WorkspaceTools';
 
-type Verification={user_id:string;workspace_allowed:boolean;mode?:string};
+type Verification={user_id:string;workspace_allowed:boolean;operator?:boolean;mode?:string};
 export function GoogleGate({children}:{children:ReactNode}){
   if(!googleConfigured)return <>{children}</>;
   if(googleConfigError || !supabase)return <main className="access-shell"><h1>Authentication configuration required</h1><p>Check the frontend Supabase URL and publishable key.</p></main>;
@@ -63,7 +64,7 @@ function GoogleSessionGate({children}:{children:ReactNode}){
     try{const {error:e}=await client.auth.signOut({scope:'local'});if(e)throw e;}
     catch{setError('Sign-out failed. Retry.');}finally{setBusy(false);}
   }
-  if(session && verified && verified.id===userId && verified.result.workspace_allowed)return <><div className="session-toolbar"><span>{session.user.email??'Signed-in researcher'}{verified.result.mode==='multi-user beta'?' · Private workspace':''}</span><button type="button" className="retry-button" disabled={busy} onClick={()=>void signOut()}>Sign out of Google</button>{error&&<span role="alert">{error}</span>}</div><section key={userId} style={{display:'contents'}}>{children}</section></>;
+  if(session && verified && verified.id===userId && verified.result.workspace_allowed)return <AccountContext.Provider key={userId} value={{email:session.user.email??'Signed-in researcher',id:userId!,privateWorkspace:verified.result.mode==='multi-user beta',operator:verified.result.operator===true,busy,error,signOut:()=>void signOut()}}>{children}</AccountContext.Provider>;
   return <main className="access-shell" aria-labelledby="google-title"><a className="access-home-link" href="./">← Back to AXIOM LAB home</a><AxiomMark/><h1 id="google-title">AXIOM LAB</h1>
     {session===undefined?<Loading label="Checking Google session"/>:!session?<><p>Sign in to your research studio with Google.</p><button className="primary-button" type="button" disabled={busy} onClick={()=>void signIn()}>Continue with Google</button></>:<>
       {verified?<><p>{verified.result.mode==='multi-user beta'?'Google identity verified. Ask the administrator to invite this user ID to the private beta.':'Google identity verified. Workspace access is limited to the configured owner.'}</p><p>Verified account ID: <code>{verified.result.user_id}</code></p></>:!error?<Loading label="Verifying identity with the scientific API"/>:<button className="retry-button" onClick={()=>{setError('');setRetry(n=>n+1);}}>Retry verification</button>}

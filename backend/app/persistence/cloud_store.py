@@ -8,6 +8,7 @@ import sys
 from datetime import datetime, timezone
 from uuid import uuid4
 import httpx
+from app.core.upstream import cloud_client, measure
 from fastapi import HTTPException
 from app.core.tenant import multi_user_enabled, admitted, _identity
 
@@ -37,8 +38,10 @@ def request(method,path,**kwargs):
     url,key=configuration()
     headers={'apikey':key, **kwargs.pop('headers',{})}
     try:
-        with httpx.Client(timeout=15,follow_redirects=False,trust_env=False) as client:
-            res=client.request(method,url+path,headers=headers,**kwargs)
+        with measure('cloud') as timing:
+            with cloud_client() as client:
+                res=client.request(method,url+path,headers=headers,**kwargs)
+                timing['ok']=200<=res.status_code<300
     except httpx.HTTPError:
         raise HTTPException(503,'Cloud persistence unavailable; verify saved state before retrying.') from None
     if not 200<=res.status_code<300:

@@ -1,0 +1,8 @@
+.account-panel{min-width:0;max-width:100%;margin-top:6px;color:var(--ink);font-size:12px}
+.account-trigger{display:flex;align-items:center;gap:8px;text-align:left;width:100%;min-height:48px;min-width:0;padding:7px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink);cursor:pointer}
+.account-avatar{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent-wash);color:var(--accent);font-weight:700}
+.account-label{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}.account-label strong,.account-label small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-label strong{font-size:11px}.account-label small,.account-profile small{color:var(--muted);font-size:10px}
+.account-details{display:grid;gap:6px;padding:8px;margin-top:5px;border:1px solid var(--line);border-radius:9px;background:var(--surface);max-width:100%;overflow-wrap:anywhere}.account-details .retry-button{min-height:36px;text-align:left;width:100%;white-space:normal}.account-profile{display:grid;gap:5px;min-width:0}.account-profile code{font-size:10px;color:var(--muted);overflow-wrap:anywhere}.account-panel p{margin:4px 0;line-height:1.5;overflow-wrap:anywhere}.account-panel button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.account-header-slot{display:flex;flex-direction:column;min-width:0;width:min(220px,100%)}
+@media(max-width:850px){.account-panel{margin-top:4px}.account-header-slot{width:100%}.account-details .retry-button{min-height:44px}}
+.workspace-nav:has(.account-panel){overflow-y:auto;overscroll-behavior:contain}.workspace-top:has(.account-header-slot){flex-wrap:wrap}.top-controls:has(.account-header-slot){flex-wrap:wrap}

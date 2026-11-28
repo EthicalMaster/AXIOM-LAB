@@ -4,6 +4,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from uuid import UUID
 import os
+from app.core.production import open_registration, registration_ready
 
 _identity: ContextVar[str | None] = ContextVar('axiom_tenant', default=None)
 
@@ -23,6 +24,11 @@ def admitted(user_id: str) -> bool:
     # Explicit beta admission; never authorize from email or user-editable metadata.
     if canonical(user_id) != user_id:
         return False
+    blocked = os.getenv('AXIOM_BLOCKED_USER_IDS','').split(',')
+    if any(canonical(value.strip()) == user_id for value in blocked):
+        return False
+    if open_registration() and registration_ready():
+        return True
     candidates = [os.getenv('AXIOM_GOOGLE_OWNER_ID',''), *os.getenv('AXIOM_MULTI_USER_IDS','').split(',')]
     return any(canonical(value.strip()) == user_id for value in candidates)
 

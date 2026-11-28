@@ -3,11 +3,21 @@ WORKDIR /src
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY frontend/ ./
-RUN npm run build
+ARG VITE_SUPABASE_URL=""
+ARG VITE_SUPABASE_PUBLISHABLE_KEY=""
+RUN if [ -n "$VITE_SUPABASE_URL" ] || [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ]; then \
+      printf '%s' "$VITE_SUPABASE_URL" | grep -Eq '^https://[a-z0-9]+\.supabase\.co$' && \
+      printf '%s' "$VITE_SUPABASE_PUBLISHABLE_KEY" | grep -Eq '^sb_publishable_[A-Za-z0-9_-]+$' || exit 1; \
+    fi && npm run build
 
 FROM nginx:1.27-alpine
 COPY --from=build /src/dist /usr/share/nginx/html
 COPY deploy/nginx.conf /etc/nginx/nginx.conf
+ARG VITE_SUPABASE_URL=""
+RUN if [ -n "$VITE_SUPABASE_URL" ]; then \
+      printf '%s' "$VITE_SUPABASE_URL" | grep -Eq '^https://[a-z0-9]+\.supabase\.co$' && \
+      sed -i "s|connect-src 'self';|connect-src 'self' $VITE_SUPABASE_URL;|" /etc/nginx/nginx.conf || exit 1; \
+    fi
 USER nginx
 EXPOSE 8080
 CMD ["nginx","-g","daemon off;"]

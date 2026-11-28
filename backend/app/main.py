@@ -1,5 +1,6 @@
 """AXIOM LAB ASGI application — bounded local-first scientific engine through Phase 07D release candidate."""
 from fastapi import FastAPI, Request, HTTPException
+from app.core.upstream import lifespan, bind_clients
 from app.core.google_auth import google_enabled, verify_google, workspace_allowed
 from app.core.tenant import multi_user_enabled
 from app.core.tenant_access import tenant_request
@@ -21,7 +22,7 @@ from app.api.diagnostics import router as diagnostics_router
 from app.api.mathematics import router as mathematics_router
 from app.api.ml import router as ml_router
 
-app = FastAPI(title='AXIOM LAB API',
+app = FastAPI(title='AXIOM LAB API', lifespan=lifespan,
               description='Bounded scientific computation, data inspection and local experiment records.',
               version='0.1.0')
 
@@ -40,7 +41,7 @@ app.include_router(auth_router, prefix="/api/v1")
 @app.middleware('http')
 async def protect_public_mode(request: Request, call_next):
     # Fail closed if remote exposure was requested without a strong server token.
-    if public_mode() and not access_secret():
+    if public_mode() and not (multi_user_enabled() and google_enabled()) and not access_secret():
         return JSONResponse(status_code=503,content={'detail':'Public access requires a strong configured token.'})
     from app.persistence.cloud_store import enabled as cloud_enabled
     if cloud_enabled() and not (multi_user_enabled() and google_enabled()):
@@ -70,6 +71,12 @@ async def protect_public_mode(request: Request, call_next):
         if not using_bearer and request.method not in ('GET','HEAD','OPTIONS') and not same_origin(request):
             return JSONResponse(status_code=403,content={'detail':'Cross-origin mutation denied.'})
     return await call_next(request)
+
+
+@app.middleware('http')
+async def upstream_scope(request: Request, call_next):
+    with bind_clients(getattr(request.app.state, 'axiom_upstream', None)):
+        return await call_next(request)
 
 
 @app.exception_handler(RequestValidationError)

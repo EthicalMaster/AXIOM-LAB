@@ -3,6 +3,7 @@ import os
 import re
 from uuid import UUID
 import httpx
+from app.core.upstream import async_client, measure
 from fastapi import HTTPException, Request
 
 
@@ -35,8 +36,10 @@ async def verify_google(request: Request) -> str:
         raise HTTPException(401, 'Authentication required.')
     # The Auth service validates the access token; do not trust unverified JWT claims.
     try:
-        async with httpx.AsyncClient(timeout=5.0,follow_redirects=False,trust_env=False) as client:
-            result=await client.get(url+'/auth/v1/user',headers={'apikey':key,'Authorization':'Bearer '+token})
+        with measure('auth') as timing:
+            async with async_client('auth') as client:
+                result=await client.get(url+'/auth/v1/user',headers={'apikey':key,'Authorization':'Bearer '+token})
+                timing['ok']=result.status_code==200
     except httpx.HTTPError:
         raise HTTPException(503, 'Managed authentication unavailable.') from None
     if result.status_code in (400,401,403):
@@ -50,4 +53,10 @@ async def verify_google(request: Request) -> str:
         identity=None
     if not identity or user.get('is_anonymous') is True:
         raise HTTPException(401, 'Invalid user identity.')
+    from app.core.production import open_registration
+    if open_registration():
+        # Only verified Google identities with a confirmed email; no user_metadata authorization.
+        identities=user.get('identities')
+        if not user.get('email_confirmed_at') or not isinstance(identities,list) or not any(isinstance(item,dict) and item.get('provider')=='google' for item in identities):
+            raise HTTPException(403, 'A confirmed Google account is required.')
     return identity

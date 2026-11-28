@@ -9,21 +9,30 @@ sys.path.insert(0,str(ROOT/'backend'))
 from app.hosted import https_origin
 
 
-def render(origin: str, root: Path=ROOT) -> dict:
+def render(origin: str, root: Path=ROOT, supabase_origin: str | None=None) -> dict:
     origin=https_origin(origin)
     if origin.endswith('.example'):
         raise ValueError('Supply the actual hosted backend origin, not the example placeholder.')
     config=json.loads((root/'deploy/vercel.example.json').read_text(encoding='utf-8'))
     config['rewrites']=[{'source':'/api/:path*','destination':origin+'/api/:path*'}]
+    if supabase_origin:
+        import re
+        if not re.fullmatch(r'https://[a-z0-9]+\.supabase\.co',supabase_origin):
+            raise ValueError('Use the exact HTTPS Supabase project origin.')
+        for rule in config['headers']:
+            for header in rule['headers']:
+                if header['key']=='Content-Security-Policy':
+                    header['value']=header['value'].replace("connect-src 'self';", "connect-src 'self' "+supabase_origin+";")
     return config
 
 
 def main():
     parser=ArgumentParser(description=__doc__)
     parser.add_argument('backend_origin')
+    parser.add_argument('--supabase-origin',help='Exact project origin for managed authentication CSP')
     args=parser.parse_args()
     try:
-        content=json.dumps(render(args.backend_origin),indent=2)+'\n'
+        content=json.dumps(render(args.backend_origin,supabase_origin=args.supabase_origin),indent=2)+'\n'
         path=ROOT/'frontend/vercel.json'
         if path.exists():
             if path.read_text(encoding='utf-8')==content:
